@@ -63,7 +63,7 @@ const footerLinksData: FooterLinks[] = [
       {
         id: 31,
         label: "account",
-        url: "#",
+        url: "/handler/account-settings",
       },
       {
         id: 32,

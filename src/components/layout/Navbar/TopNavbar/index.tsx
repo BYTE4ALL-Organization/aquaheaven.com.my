@@ -131,7 +131,7 @@ const TopNavbar = () => {
             />
           </Link>
           <CartBtn />
-          <Link href="/#signin" className="p-1">
+          <Link href="/handler/sign-in" className="p-1">
             <Image
               priority
               src="/icons/user.svg"
