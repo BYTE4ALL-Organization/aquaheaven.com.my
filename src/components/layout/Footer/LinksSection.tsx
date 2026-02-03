@@ -8,104 +8,40 @@ const footerLinksData: FooterLinks[] = [
     id: 1,
     title: "company",
     children: [
-      {
-        id: 11,
-        label: "about",
-        url: "#",
-      },
-      {
-        id: 12,
-        label: "features",
-        url: "#",
-      },
-      {
-        id: 13,
-        label: "works",
-        url: "#",
-      },
-      {
-        id: 14,
-        label: "career",
-        url: "#",
-      },
+      { id: 11, label: "about", url: "/about" },
+      { id: 12, label: "features", url: "/placeholder" },
+      { id: 13, label: "works", url: "/placeholder" },
+      { id: 14, label: "career", url: "/placeholder" },
     ],
   },
   {
     id: 2,
     title: "help",
     children: [
-      {
-        id: 21,
-        label: "customer support",
-        url: "#",
-      },
-      {
-        id: 22,
-        label: "delivery details",
-        url: "#",
-      },
-      {
-        id: 23,
-        label: "terms & conditions",
-        url: "#",
-      },
-      {
-        id: 24,
-        label: "privacy policy",
-        url: "#",
-      },
+      { id: 21, label: "customer support", url: "/placeholder" },
+      { id: 22, label: "delivery details", url: "/placeholder" },
+      { id: 23, label: "terms & conditions", url: "/terms" },
+      { id: 24, label: "privacy policy", url: "/privacy" },
     ],
   },
   {
     id: 3,
     title: "faq",
     children: [
-      {
-        id: 31,
-        label: "account",
-        url: "/handler/account-settings",
-      },
-      {
-        id: 32,
-        label: "manage deliveries",
-        url: "#",
-      },
-      {
-        id: 33,
-        label: "orders",
-        url: "#",
-      },
-      {
-        id: 34,
-        label: "payments",
-        url: "#",
-      },
+      { id: 31, label: "account", url: "/handler/account-settings" },
+      { id: 32, label: "manage deliveries", url: "/placeholder" },
+      { id: 33, label: "orders", url: "/placeholder" },
+      { id: 34, label: "payments", url: "/placeholder" },
     ],
   },
   {
     id: 4,
     title: "resources",
     children: [
-      {
-        id: 41,
-        label: "Free eBooks",
-        url: "#",
-      },
-      {
-        id: 42,
-        label: "development tutorial",
-        url: "#",
-      },
-      {
-        id: 43,
-        label: "How to - Blog",
-        url: "#",
-      },
-      {
-        id: 44,
-        label: "youtube playlist",
-        url: "#",
-      },
+      { id: 41, label: "Free eBooks", url: "/placeholder" },
+      { id: 42, label: "development tutorial", url: "/placeholder" },
+      { id: 43, label: "How to - Blog", url: "/placeholder" },
+      { id: 44, label: "youtube playlist", url: "/placeholder" },
     ],
   },
 ];
