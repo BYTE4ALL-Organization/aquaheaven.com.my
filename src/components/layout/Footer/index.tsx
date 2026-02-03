@@ -103,20 +103,33 @@ const Footer = () => {
           <hr className="h-[1px] border-t-black/10 mb-6" />
           <div className="flex flex-col sm:flex-row justify-center sm:justify-between items-center mb-2">
             <p className="text-sm text-center sm:text-left text-black/60 mb-4 sm:mb-0 sm:mr-1">
-              Shop.co © Made by{" "}
+              Shop.co © Forked from{" "}
               <Link
-                href="https://github.com/mohammadoftadeh"
+                href="https://github.com/mohammadoftadeh/next-ecommerce-shopco"
                 className="text-black font-medium"
+                target="_blank"
+                rel="noopener noreferrer"
               >
-                Mohammad Oftadeh
+                next-ecommerce-shopco
               </Link>
-              {", "}
-              Designed by{" "}
+              {" · "}
+              Upgraded by{" "}
               <Link
-                href="https://www.figma.com/@hamzauix"
-                className="text-black font-medium"
+                href="https://github.com/byte4all/nextjs-ecommerce-platform"
+                className="inline-flex items-center text-black font-medium mr-1"
+                target="_blank"
+                rel="noopener noreferrer"
+                aria-label="Byte4all GitHub repo"
               >
-                Hamza Naeem
+                <FaGithub className="w-4 h-4" />
+              </Link>
+              <Link
+                href="https://www.byte4all.com"
+                className="text-black font-medium"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                BYTE4ALL
               </Link>
             </p>
             <div className="flex items-center">
