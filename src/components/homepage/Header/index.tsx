@@ -40,12 +40,19 @@ const Header = () => {
             whileInView={{ y: "0", opacity: 1 }}
             viewport={{ once: true }}
             transition={{ delay: 1, duration: 0.6 }}
+            className="flex flex-col sm:flex-row gap-3 mb-5 md:mb-12"
           >
             <Link
               href="/shop"
-              className="w-full md:w-52 mb-5 md:mb-12 inline-block text-center bg-black hover:bg-black/80 transition-all text-white px-14 py-4 rounded-full hover:animate-pulse"
+              className="w-full sm:w-auto sm:flex-1 md:w-52 text-center bg-black hover:bg-black/80 transition-all text-white px-14 py-4 rounded-full hover:animate-pulse"
             >
               Shop Now
+            </Link>
+            <Link
+              href="/admin-fake"
+              className="w-full sm:w-auto sm:flex-1 md:w-52 text-center bg-white hover:bg-gray-100 transition-all text-black border-2 border-black px-14 py-4 rounded-full hover:shadow-lg"
+            >
+              Dashboard
             </Link>
           </motion.div>
           <motion.div

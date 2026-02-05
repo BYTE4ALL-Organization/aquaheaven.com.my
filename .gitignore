@@ -47,3 +47,6 @@ next-env.d.ts
 
 # mcp files
 .mcp.json
+
+# stack files
+.env

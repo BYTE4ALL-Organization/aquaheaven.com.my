@@ -223,6 +223,7 @@ export default function NewCategoryPage() {
                   Category Image
                 </label>
                 <ImagePicker
+                  label="Category Image"
                   value={formData.image}
                   onChange={handleImageChange}
                 />

@@ -12,8 +12,9 @@ export default function ConditionalSiteChrome({
 }) {
   const pathname = usePathname();
   const isAdmin = pathname?.startsWith("/admin");
+  const isAdminFake = pathname?.startsWith("/admin-fake");
 
-  if (isAdmin) {
+  if (isAdmin || isAdminFake) {
     return <>{children}</>;
   }
 
