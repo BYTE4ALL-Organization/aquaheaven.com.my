@@ -47,13 +47,6 @@ const data: NavMenu = [
     ],
   },
   {
-    id: 2,
-    type: "MenuItem",
-    label: "On Sale",
-    url: "/shop#on-sale",
-    children: [],
-  },
-  {
     id: 3,
     type: "MenuItem",
     label: "New Arrivals",
@@ -84,7 +77,7 @@ const TopNavbar = () => {
               "text-2xl lg:text-[32px] mb-2 mr-3 lg:mr-10",
             ])}
           >
-            SHOP.CO
+            AQUAHEAVEN
           </Link>
         </div>
         <NavigationMenu className="hidden md:flex mr-2 lg:mr-7">

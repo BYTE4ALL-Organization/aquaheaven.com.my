@@ -48,12 +48,6 @@ const Header = () => {
             >
               Shop Now
             </Link>
-            <Link
-              href="/admin-fake"
-              className="w-full sm:w-auto sm:flex-1 md:w-52 text-center bg-white hover:bg-gray-100 transition-all text-black border-2 border-black px-14 py-4 rounded-full hover:shadow-lg"
-            >
-              Dashboard
-            </Link>
           </motion.div>
           <motion.div
             initial={{ y: "100px", opacity: 0 }}
