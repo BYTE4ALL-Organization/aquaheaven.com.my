@@ -64,7 +64,7 @@ const data: NavMenu = [
 
 const TopNavbar = () => {
   return (
-    <nav className="sticky top-0 bg-white z-20">
+    <nav className="sticky top-0 bg-white z-20 shadow-sm">
       <div className="flex relative max-w-frame mx-auto items-center justify-between md:justify-start py-5 md:py-6 px-4 xl:px-0">
         <div className="flex items-center">
           <div className="block md:hidden mr-4">
@@ -74,7 +74,7 @@ const TopNavbar = () => {
             href="/"
             className={cn([
               integralCF.className,
-              "text-2xl lg:text-[32px] mb-2 mr-3 lg:mr-10",
+              "text-2xl lg:text-[32px] mb-2 mr-3 lg:mr-10 bg-gradient-to-r from-brand to-brand-accent bg-clip-text text-transparent",
             ])}
           >
             AQUAHEAVEN
@@ -109,7 +109,7 @@ const TopNavbar = () => {
             type="search"
             name="search"
             placeholder="Search for products..."
-            className="bg-transparent placeholder:text-black/40"
+            className="bg-transparent placeholder:text-black/40 focus:ring-brand"
           />
         </InputGroup>
         <div className="flex items-center">

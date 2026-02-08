@@ -81,7 +81,7 @@ export default async function ProductPage({
   return (
     <main>
       <div className="max-w-frame mx-auto px-4 xl:px-0">
-        <hr className="h-[1px] border-t-black/10 mb-5 sm:mb-6" />
+        <hr className="h-[1px] border-t-[#e5e5e5] mb-5 sm:mb-6" />
         <BreadcrumbProduct title={productData.title} />
         <section className="mb-11">
           <Header

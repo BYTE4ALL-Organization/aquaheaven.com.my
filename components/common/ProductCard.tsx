@@ -52,9 +52,9 @@ const ProductCard = ({ data }: ProductCardProps) => {
   return (
     <Link
       href={`/shop/product/${data.id}/${slug}`}
-      className="flex flex-col items-start aspect-auto"
+      className="flex flex-col items-start aspect-auto group"
     >
-      <div className="bg-[#F0EEED] rounded-[13px] lg:rounded-[20px] w-full lg:max-w-[295px] aspect-square mb-2.5 xl:mb-4 overflow-hidden">
+      <div className="bg-[#F0EEED] rounded-[13px] lg:rounded-[20px] w-full lg:max-w-[295px] aspect-square mb-2.5 xl:mb-4 overflow-hidden border border-transparent hover:border-brand/30 transition-colors">
         <Image
           src={srcUrl}
           width={295}
@@ -64,7 +64,7 @@ const ProductCard = ({ data }: ProductCardProps) => {
           priority
         />
       </div>
-      <strong className="text-black xl:text-xl">{title}</strong>
+      <strong className="text-[#1a1a1a] xl:text-xl">{title}</strong>
       <div className="flex items-end mb-1 xl:mb-2">
         <Rating
           initialValue={rating}
@@ -74,32 +74,32 @@ const ProductCard = ({ data }: ProductCardProps) => {
           size={19}
           readonly
         />
-        <span className="text-black text-xs xl:text-sm ml-[11px] xl:ml-[13px] pb-0.5 xl:pb-0">
+        <span className="text-[#1a1a1a] text-xs xl:text-sm ml-[11px] xl:ml-[13px] pb-0.5 xl:pb-0">
           {rating.toFixed(1)}
-          <span className="text-black/60">/5</span>
+          <span className="text-[#1a1a1a]/60">/5</span>
         </span>
       </div>
       <div className="flex items-center space-x-[5px] xl:space-x-2.5">
         {discount.percentage > 0 ? (
-          <span className="font-bold text-black text-xl xl:text-2xl">
+          <span className="font-bold text-[#1a1a1a] text-xl xl:text-2xl">
             {formatPrice(Math.round(data.price - (data.price * discount.percentage) / 100))}
           </span>
         ) : discount.amount > 0 ? (
-          <span className="font-bold text-black text-xl xl:text-2xl">
+          <span className="font-bold text-[#1a1a1a] text-xl xl:text-2xl">
             {formatPrice(data.price - discount.amount)}
           </span>
         ) : (
-          <span className="font-bold text-black text-xl xl:text-2xl">
+          <span className="font-bold text-[#1a1a1a] text-xl xl:text-2xl">
             {formatPrice(data.price)}
           </span>
         )}
         {discount.percentage > 0 && (
-          <span className="font-bold text-black/40 line-through text-xl xl:text-2xl">
+          <span className="font-bold text-[#1a1a1a]/40 line-through text-xl xl:text-2xl">
             {formatPrice(data.price)}
           </span>
         )}
         {discount.amount > 0 && (
-          <span className="font-bold text-black/40 line-through text-xl xl:text-2xl">
+          <span className="font-bold text-[#1a1a1a]/40 line-through text-xl xl:text-2xl">
             {formatPrice(data.price)}
           </span>
         )}

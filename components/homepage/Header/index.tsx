@@ -9,7 +9,7 @@ import * as motion from "framer-motion/client";
 
 const Header = () => {
   return (
-    <header className="bg-[#F2F0F1] pt-10 md:pt-24 overflow-hidden">
+    <header className="bg-gradient-conic from-brand to-brand-accentpt-10 md:pt-24 overflow-hidden">
       <div className="md:max-w-frame mx-auto grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2">
         <section className="max-w-frame px-4">
           <motion.h2
@@ -19,7 +19,7 @@ const Header = () => {
             transition={{ duration: 0.6 }}
             className={cn([
               integralCF.className,
-              "text-4xl lg:text-[64px] lg:leading-[64px] mb-5 lg:mb-8",
+              "text-4xl lg:text-[64px] lg:leading-[64px] mb-5 lg:mb-8 text-white",
             ])}
           >
             PREMIUM BATH ESSENTIALS & FRENCH TOWELS
@@ -29,7 +29,7 @@ const Header = () => {
             whileInView={{ y: "0", opacity: 1 }}
             viewport={{ once: true }}
             transition={{ delay: 0.5, duration: 0.6 }}
-            className="text-blue/60 text-sm lg:text-base mb-6 lg:mb-8 max-w-[545px]"
+            className="text-white/90 text-sm lg:text-base mb-6 lg:mb-8 max-w-[545px]"
           >
             Explore our carefully selected collection of luxurious soaps and Saint-Tropez style towels that bring elegance to your everyday moments.
           </motion.p>
@@ -42,7 +42,7 @@ const Header = () => {
           >
             <Link
               href="/shop"
-              className="w-full sm:w-auto sm:flex-1 md:w-52 text-center bg-black hover:bg-black/80 transition-all text-white px-14 py-4 rounded-full hover:animate-pulse"
+              className="w-full sm:w-auto sm:flex-1 md:w-52 text-center bg-white hover:bg-white/90 transition-all text-brand font-semibold px-14 py-4 rounded-full hover:shadow-lg"
             >
               Shop Now
             </Link>
@@ -55,34 +55,34 @@ const Header = () => {
             className="flex md:h-full md:max-h-11 lg:max-h-[52px] xl:max-h-[68px] items-center justify-center md:justify-start flex-wrap sm:flex-nowrap md:space-x-3 lg:space-x-6 xl:space-x-8 md:mb-[116px]"
           >
             <div className="flex flex-col">
-              <span className="font-bold text-2xl md:text-xl lg:text-3xl xl:text-[40px] xl:mb-2">
+              <span className="font-bold text-2xl md:text-xl lg:text-3xl xl:text-[40px] xl:mb-2 text-white">
                 <AnimatedCounter from={0} to={5} />+
               </span>
-              <span className="text-xs xl:text-base text-black/60 text-nowrap">
+              <span className="text-xs xl:text-base text-white/80 text-nowrap">
                 International Brands
               </span>
             </div>
             <Separator
-              className="ml-6 md:ml-0 h-12 md:h-full bg-black/10"
+              className="ml-6 md:ml-0 h-12 md:h-full bg-white/30"
               orientation="vertical"
             />
             <div className="flex flex-col ml-6 md:ml-0">
-              <span className="font-bold text-2xl md:text-xl lg:text-3xl xl:text-[40px] xl:mb-2">
+              <span className="font-bold text-2xl md:text-xl lg:text-3xl xl:text-[40px] xl:mb-2 text-white">
                 <AnimatedCounter from={0} to={20} />+
               </span>
-              <span className="text-xs xl:text-base text-black/60 text-nowrap">
+              <span className="text-xs xl:text-base text-white/80 text-nowrap">
                 High-Quality Products
               </span>
             </div>
             <Separator
-              className="hidden sm:block sm:h-12 md:h-full ml-6 md:ml-0 bg-black/10"
+              className="hidden sm:block sm:h-12 md:h-full ml-6 md:ml-0 bg-white/30"
               orientation="vertical"
             />
             <div className="flex flex-col w-full text-center sm:w-auto sm:text-left mt-3 sm:mt-0 sm:ml-6 md:ml-0">
-              <span className="font-bold text-2xl md:text-xl lg:text-3xl xl:text-[40px] xl:mb-2">
+              <span className="font-bold text-2xl md:text-xl lg:text-3xl xl:text-[40px] xl:mb-2 text-white">
                 <AnimatedCounter from={0} to={300} />+
               </span>
-              <span className="text-xs xl:text-base text-black/60 text-nowrap">
+              <span className="text-xs xl:text-base text-white/80 text-nowrap">
                 Happy Customers
               </span>
             </div>

@@ -11,14 +11,14 @@ export default function AboutPage() {
       <div className="mb-8">
         <Link
           href="/"
-          className="text-sm text-black/60 hover:text-black mb-4 inline-block"
+          className="text-sm text-[#1a1a1a]/60 hover:text-brand mb-4 inline-block transition-colors"
         >
           ← Back to home
         </Link>
-        <h1 className="text-3xl font-bold mb-2">About Us</h1>
+        <h1 className="text-3xl font-bold mb-2 text-[#1a1a1a]">About Us</h1>
       </div>
 
-      <div className="prose prose-neutral max-w-none space-y-6 text-black/80">
+      <div className="prose prose-neutral max-w-none space-y-6 text-[#1a1a1a]/80">
         <p className="text-lg">
         Quality essentials for your body and home. From luxurious soaps to Saint-Tropez inspired towels.
         </p>

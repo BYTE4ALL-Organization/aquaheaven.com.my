@@ -36,7 +36,7 @@ const ResTopNavbar = ({ data }: { data: NavMenu }) => {
         <SheetHeader className="mb-10">
           <SheetTitle asChild>
             <SheetClose asChild>
-              <Link href="/" className={cn([integralCF.className, "text-2xl"])}>
+              <Link href="/" className={cn([integralCF.className, "text-2xl bg-gradient-to-r from-brand to-brand-accent bg-clip-text text-transparent"])}>
                 AQUAHEAVEN
               </Link>
             </SheetClose>
@@ -47,7 +47,7 @@ const ResTopNavbar = ({ data }: { data: NavMenu }) => {
             <React.Fragment key={item.id}>
               {item.type === "MenuItem" && (
                 <SheetClose asChild>
-                  <Link href={item.url ?? "/"} className="mb-4">
+                  <Link href={item.url ?? "/"} className="mb-4 text-[#1a1a1a] hover:text-brand transition-colors">
                     {item.label}
                   </Link>
                 </SheetClose>
@@ -56,17 +56,17 @@ const ResTopNavbar = ({ data }: { data: NavMenu }) => {
                 <div className="mb-4 w-full">
                   <Accordion type="single" collapsible>
                     <AccordionItem value={item.label} className="border-none">
-                      <AccordionTrigger className="text-left p-0 py-0.5 font-normal text-base">
+                      <AccordionTrigger className="text-left p-0 py-0.5 font-normal text-base text-[#1a1a1a]">
                         {item.label}
                       </AccordionTrigger>
-                      <AccordionContent className="p-4 pb-0 border-l flex flex-col">
+                      <AccordionContent className="p-4 pb-0 border-l border-brand/30 flex flex-col">
                         {item.children.map((itemChild, idx) => (
                           <SheetClose
                             key={itemChild.id}
                             asChild
                             className="w-fit py-2 text-base"
                           >
-                            <Link href={itemChild.url ?? "/"}>
+                            <Link href={itemChild.url ?? "/"} className="text-[#1a1a1a] hover:text-brand transition-colors">
                               {itemChild.label}
                             </Link>
                           </SheetClose>

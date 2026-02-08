@@ -15,7 +15,7 @@ export const metadata: Metadata = {
 };
 
 export const viewport: Viewport = {
-  themeColor: "#000000",
+  themeColor: "#30d5c8",
 };
 
 export default function RootLayout({
@@ -26,7 +26,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className={satoshi.className}><StackProvider app={stackClientApp}><StackTheme><StackProvider app={stackServerApp}><StackTheme>
-        <HolyLoader color="#868686" />
+        <HolyLoader color="#30d5c8" />
         <Providers>
           <AuthSync />
           <ConditionalLayout>

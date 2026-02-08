@@ -51,7 +51,7 @@ const LinksSection = () => {
     <>
       {footerLinksData.map((item) => (
         <section className="flex flex-col mt-5" key={item.id}>
-          <h3 className="font-medium text-sm md:text-base uppercase tracking-widest mb-6">
+          <h3 className="font-medium text-sm md:text-base uppercase tracking-widest mb-6 text-white">
             {item.title}
           </h3>
           {item.children.map((link) => (
@@ -60,7 +60,7 @@ const LinksSection = () => {
               key={link.id}
               className={cn([
                 link.id !== 41 && link.id !== 43 && "capitalize",
-                "text-black/60 text-sm md:text-base mb-4 w-fit",
+                "text-white/60 hover:text-brand transition-colors text-sm md:text-base mb-4 w-fit",
               ])}
             >
               {link.label}
