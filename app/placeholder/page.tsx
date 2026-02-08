@@ -1,7 +1,7 @@
 import Link from "next/link";
 
 export const metadata = {
-  title: "Placeholder | Shop.co",
+  title: "Placeholder | Aquaheaven.com.my",
   description: "This page is a placeholder for content to be added.",
 };
 

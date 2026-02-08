@@ -1,8 +1,8 @@
 import Link from "next/link";
 
 export const metadata = {
-  title: "About Us | Shop.co",
-  description: "Learn more about Shop.co",
+  title: "About Us | Aquaheaven.com.my",
+  description: "Learn more about Aquaheaven.com.my",
 };
 
 export default function AboutPage() {

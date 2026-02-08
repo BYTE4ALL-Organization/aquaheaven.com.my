@@ -1,8 +1,8 @@
 import Link from "next/link";
 
 export const metadata = {
-  title: "Privacy Policy | Shop.co",
-  description: "Privacy policy for Shop.co",
+  title: "Privacy Policy | Aquaheaven.com.my",
+  description: "Privacy policy for Aquaheaven.com.my",
 };
 
 export default function PrivacyPage() {

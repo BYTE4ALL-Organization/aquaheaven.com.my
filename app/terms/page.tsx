@@ -1,8 +1,8 @@
 import Link from "next/link";
 
 export const metadata = {
-  title: "Terms & Conditions | Shop.co",
-  description: "Terms and conditions of use for Shop.co",
+  title: "Terms & Conditions | Aquaheaven.com.my",
+  description: "Terms and conditions of use for Aquaheaven.com.my",
 };
 
 export default function TermsPage() {
