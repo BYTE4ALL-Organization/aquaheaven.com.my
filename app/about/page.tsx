@@ -20,17 +20,16 @@ export default function AboutPage() {
 
       <div className="prose prose-neutral max-w-none space-y-6 text-black/80">
         <p className="text-lg">
-          We have clothes that suit your style and which you're proud to wear.
-          From women to men, we offer a curated selection of quality products.
+        Quality essentials for your body and home. From luxurious soaps to Saint-Tropez inspired towels.
         </p>
         <p>
-          This store is built as a template for developers and businesses to
-          customize and deploy. Add your own brand, products, and content to
-          make it yours.
+          We believe in bringing a touch of the French Riviera to your daily routine. Our carefully curated collection features premium bath essentials and luxury towels that transform ordinary moments into extraordinary experiences.
         </p>
         <p>
-          For questions or support, please use the contact or customer support
-          options in the footer.
+          Whether you're refreshing after a shower or relaxing at the beach, our products deliver the perfect blend of quality, comfort, and timeless style.
+        </p>
+        <p>
+          For questions or support, please use the contact or customer support options in the footer.
         </p>
       </div>
     </main>

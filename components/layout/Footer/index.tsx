@@ -77,8 +77,7 @@ const Footer = () => {
                 AQUAHEAVEN
               </h1>
               <p className="text-black/60 text-sm mb-9">
-                We have clothes that suits your style and which you’re proud to
-                wear. From women to men.
+              Quality essentials for your body and home. From luxurious soaps to Saint-Tropez inspired towels.
               </p>
               <div className="flex items-center">
                 {socialsData.map((social) => (

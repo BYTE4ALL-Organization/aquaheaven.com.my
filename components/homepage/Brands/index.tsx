@@ -3,8 +3,8 @@ import React from "react";
 
 const brandsData: { id: string; srcUrl: string }[] = [
   {
-    id: "versace",
-    srcUrl: "/icons/versace-logo.svg",
+    id: "kiwi",
+    srcUrl: "/products/brands/kiwi-svg.svg",
   },
   {
     id: "zara",
