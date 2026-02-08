@@ -64,7 +64,7 @@ const data: NavMenu = [
 
 const TopNavbar = () => {
   return (
-    <nav className="sticky top-0 bg-white z-20 shadow-sm">
+    <nav className="sticky top-0 bg-white z-20">
       <div className="flex relative max-w-frame mx-auto items-center justify-between md:justify-start py-5 md:py-6 px-4 xl:px-0">
         <div className="flex items-center">
           <div className="block md:hidden mr-4">
@@ -109,7 +109,7 @@ const TopNavbar = () => {
             type="search"
             name="search"
             placeholder="Search for products..."
-            className="bg-transparent placeholder:text-black/40 focus:ring-brand"
+            className="bg-transparent placeholder:text-black/40"
           />
         </InputGroup>
         <div className="flex items-center">

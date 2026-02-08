@@ -59,24 +59,24 @@ const Footer = () => {
   return (
     <footer className="mt-10">
       <div className="relative">
-        <div className="absolute bottom-0 w-full h-1/2 bg-[#1a1a1a]"></div>
+        <div className="absolute bottom-0 w-full h-1/2 bg-[#F0F0F0]"></div>
         <div className="px-4">
           <NewsLetterSection />
         </div>
       </div>
-      <div className="pt-8 md:pt-[50px] bg-[#1a1a1a] px-4 pb-4">
+      <div className="pt-8 md:pt-[50px] bg-[#F0F0F0] px-4 pb-4">
         <div className="max-w-frame mx-auto">
           <nav className="lg:grid lg:grid-cols-12 mb-8">
             <div className="flex flex-col lg:col-span-3 lg:max-w-[248px]">
               <h1
                 className={cn([
                   integralCF.className,
-                  "text-[28px] lg:text-[32px] mb-6 text-brand",
+                  "text-[28px] lg:text-[32px] mb-6",
                 ])}
               >
                 AQUAHEAVEN
               </h1>
-              <p className="text-white/60 text-sm mb-9">
+              <p className="text-black/60 text-sm mb-9">
               Quality essentials for your body and home. From luxurious soaps to Saint-Tropez inspired towels.
               </p>
               <div className="flex items-center">
@@ -84,7 +84,7 @@ const Footer = () => {
                   <Link
                     href={social.url}
                     key={social.id}
-                    className="text-brand bg-white/10 hover:bg-brand hover:text-white transition-all mr-3 w-7 h-7 rounded-full flex items-center justify-center p-1.5"
+                    className="bg-white hover:bg-black hover:text-white transition-all mr-3 w-7 h-7 rounded-full border border-black/20 flex items-center justify-center p-1.5"
                   >
                     {social.icon}
                   </Link>
@@ -99,13 +99,13 @@ const Footer = () => {
             </div>
           </nav>
 
-          <hr className="h-[1px] border-t-white/10 mb-6" />
+          <hr className="h-[1px] border-t-black/10 mb-6" />
           <div className="flex flex-col sm:flex-row justify-center sm:justify-between items-center mb-2">
-            <p className="text-sm text-center sm:text-left text-white/60 mb-4 sm:mb-0 sm:mr-1">
+            <p className="text-sm text-center sm:text-left text-black/60 mb-4 sm:mb-0 sm:mr-1">
               Aquaheaven.com.my © Forked from{" "}
               <Link
                 href="https://github.com/mohammadoftadeh/next-ecommerce-shopco"
-                className="text-brand hover:text-brand-accent transition-colors font-medium"
+                className="text-black font-medium"
                 target="_blank"
                 rel="noopener noreferrer"
               >
@@ -115,7 +115,7 @@ const Footer = () => {
               Upgraded by{" "}
               <Link
                 href="https://github.com/byte4all/nextjs-ecommerce-platform"
-                className="inline-flex items-center text-brand hover:text-brand-accent transition-colors font-medium mr-1"
+                className="inline-flex items-center text-black font-medium mr-1"
                 target="_blank"
                 rel="noopener noreferrer"
                 aria-label="Byte4all GitHub repo"
@@ -124,7 +124,7 @@ const Footer = () => {
               </Link>
               <Link
                 href="https://www.byte4all.com"
-                className="text-brand hover:text-brand-accent transition-colors font-medium"
+                className="text-black font-medium"
                 target="_blank"
                 rel="noopener noreferrer"
               >
@@ -137,7 +137,7 @@ const Footer = () => {
                   key={badge.id}
                   className={cn([
                     arr.length !== badge.id && "mr-3",
-                    "w-[46px] h-[30px] rounded-[5px] bg-white flex items-center justify-center",
+                    "w-[46px] h-[30px] rounded-[5px] border-[#D6DCE5] bg-white flex items-center justify-center",
                   ])}
                 >
                   <Image

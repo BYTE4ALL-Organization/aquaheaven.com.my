@@ -11,17 +11,17 @@ export default function TermsPage() {
       <div className="mb-8">
         <Link
           href="/"
-          className="text-sm text-[#1a1a1a]/60 hover:text-brand mb-4 inline-block transition-colors"
+          className="text-sm text-black/60 hover:text-black mb-4 inline-block"
         >
           ← Back to home
         </Link>
-        <h1 className="text-3xl font-bold mb-2 text-[#1a1a1a]">Terms & Conditions</h1>
-        <p className="text-[#1a1a1a]/60 text-sm">Last updated: {new Date().toLocaleDateString()}</p>
+        <h1 className="text-3xl font-bold mb-2">Terms & Conditions</h1>
+        <p className="text-black/60 text-sm">Last updated: {new Date().toLocaleDateString()}</p>
       </div>
 
-      <div className="prose prose-neutral max-w-none space-y-6 text-[#1a1a1a]/80">
+      <div className="prose prose-neutral max-w-none space-y-6 text-black/80">
         <section>
-          <h2 className="text-xl font-semibold mb-2 text-[#1a1a1a]">1. Acceptance of Terms</h2>
+          <h2 className="text-xl font-semibold mb-2">1. Acceptance of Terms</h2>
           <p>
             By accessing and using this website, you accept and agree to be bound by these
             Terms and Conditions. If you do not agree, please do not use this site.
@@ -29,7 +29,7 @@ export default function TermsPage() {
         </section>
 
         <section>
-          <h2 className="text-xl font-semibold mb-2 text-[#1a1a1a]">2. Use of the Service</h2>
+          <h2 className="text-xl font-semibold mb-2">2. Use of the Service</h2>
           <p>
             You may use this site for lawful purposes only. You are responsible for
             maintaining the confidentiality of your account and for all activity under
@@ -38,7 +38,7 @@ export default function TermsPage() {
         </section>
 
         <section>
-          <h2 className="text-xl font-semibold mb-2 text-[#1a1a1a]">3. Products and Orders</h2>
+          <h2 className="text-xl font-semibold mb-2">3. Products and Orders</h2>
           <p>
             We reserve the right to limit quantities, correct errors, and modify or
             discontinue products. We do not guarantee that all products will be
@@ -47,7 +47,7 @@ export default function TermsPage() {
         </section>
 
         <section>
-          <h2 className="text-xl font-semibold mb-2 text-[#1a1a1a]">4. Limitation of Liability</h2>
+          <h2 className="text-xl font-semibold mb-2">4. Limitation of Liability</h2>
           <p>
             To the fullest extent permitted by law, we shall not be liable for any
             indirect, incidental, special, or consequential damages arising from your
@@ -56,7 +56,7 @@ export default function TermsPage() {
         </section>
 
         <section>
-          <h2 className="text-xl font-semibold mb-2 text-[#1a1a1a]">5. Contact</h2>
+          <h2 className="text-xl font-semibold mb-2">5. Contact</h2>
           <p>
             For questions about these Terms & Conditions, please contact us through
             the contact information provided on this website.

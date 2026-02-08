@@ -33,10 +33,8 @@ const config: Config = {
         sm: "calc(var(--radius) - 4px)",
       },
       colors: {
-        brand: {
-          DEFAULT: "var(--brand)",
-          accent: "var(--brand-accent)",
-        },
+        brand: "var(--brand)",
+        "brand-accent": "var(--brand-accent)",
         background: "hsl(var(--background))",
         foreground: "hsl(var(--foreground))",
         card: {

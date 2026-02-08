@@ -9,7 +9,7 @@ import * as motion from "framer-motion/client";
 
 const Header = () => {
   return (
-    <header className="bg-gradient-conic from-brand to-brand-accentpt-10 md:pt-24 overflow-hidden">
+    <header className="bg-gradient-to-b from-brand via-brand-accent to-white pt-10 md:pt-24 overflow-hidden">
       <div className="md:max-w-frame mx-auto grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2">
         <section className="max-w-frame px-4">
           <motion.h2

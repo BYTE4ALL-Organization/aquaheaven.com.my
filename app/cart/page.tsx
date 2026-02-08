@@ -41,7 +41,7 @@ export default function CartPage() {
                   <React.Fragment key={idx}>
                     <ProductCard data={product} />
                     {arr.length - 1 !== idx && (
-                      <hr className="border-t-[#e5e5e5]" />
+                      <hr className="border-t-black/10" />
                     )}
                   </React.Fragment>
                 ))}
@@ -73,7 +73,7 @@ export default function CartPage() {
                     </span>
                     <span className="md:text-xl font-bold">Free</span>
                   </div>
-                  <hr className="border-t-[#e5e5e5]" />
+                  <hr className="border-t-black/10" />
                   <div className="flex items-center justify-between">
                     <span className="md:text-xl text-black">Total</span>
                     <span className="text-xl md:text-2xl font-bold">

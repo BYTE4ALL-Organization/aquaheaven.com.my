@@ -24,7 +24,7 @@ const ReviewCard = ({
   return (
     <div
       className={cn([
-        "relative bg-white flex flex-col items-start aspect-auto border border-[#e5e5e5] rounded-[20px] p-6 sm:px-8 sm:py-7 overflow-hidden hover:border-brand/30 transition-colors",
+        "relative bg-white flex flex-col items-start aspect-auto border border-black/10 rounded-[20px] p-6 sm:px-8 sm:py-7 overflow-hidden",
         className,
       ])}
     >
@@ -39,17 +39,17 @@ const ReviewCard = ({
         />
         {isAction && (
           <Button variant="ghost" size="icon">
-            <IoEllipsisHorizontal className="text-[#1a1a1a]/40 text-2xl" />
+            <IoEllipsisHorizontal className="text-black/40 text-2xl" />
           </Button>
         )}
       </div>
       <div className="flex items-center mb-2 sm:mb-3">
-        <strong className="text-[#1a1a1a] sm:text-xl mr-1">{data.user}</strong>
-        <IoIosCheckmarkCircle className="text-brand text-xl sm:text-2xl" />
+        <strong className="text-black sm:text-xl mr-1">{data.user}</strong>
+        <IoIosCheckmarkCircle className="text-[#01AB31] text-xl sm:text-2xl" />
       </div>
-      <p className="text-sm sm:text-base text-[#1a1a1a]/60">{data.content}</p>
+      <p className="text-sm sm:text-base text-black/60">{data.content}</p>
       {isDate && (
-        <p className="text-[#1a1a1a]/60 text-sm font-medium mt-4 sm:mt-6">
+        <p className="text-black/60 text-sm font-medium mt-4 sm:mt-6">
           Posted on {data.date}
         </p>
       )}
