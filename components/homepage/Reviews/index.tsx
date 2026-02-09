@@ -65,16 +65,16 @@ const Reviews = ({ data }: ReviewsProps) => {
               transition={{ delay: 0.6, duration: 0.6 }}
               className={cn([
                 integralCF.className,
-                "text-[32px] leading-[36px] md:text-5xl capitalize mr-auto",
+                "text-[32px] leading-[36px] md:text-5xl capitalize mr-auto bg-gradient-to-r from-brand to-brand-accent bg-clip-text text-transparent",
               ])}
             >
               OUR HAPPY CUSTOMERS
             </motion.h2>
             <div className="flex items-center space-x-1 ml-2">
-              <CarouselPrevious variant="ghost" className="text-2xl">
+              <CarouselPrevious variant="ghost" className="text-2xl text-brand-accent hover:text-brand transition-colors">
                 <FaArrowLeft />
               </CarouselPrevious>
-              <CarouselNext variant="ghost" className="text-2xl">
+              <CarouselNext variant="ghost" className="text-2xl text-brand-accent hover:text-brand transition-colors">
                 <FaArrowRight />
               </CarouselNext>
             </div>

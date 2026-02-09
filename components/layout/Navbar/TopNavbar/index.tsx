@@ -22,26 +22,26 @@ const data: NavMenu = [
     children: [
       {
         id: 11,
-        label: "Men's clothes",
-        url: "/shop#men-clothes",
+        label: "Body Wash",
+        url: "/shop#body-wash",
         description: "In attractive and spectacular colors and designs",
       },
       {
         id: 12,
-        label: "Women's clothes",
-        url: "/shop#women-clothes",
+        label: "Shampoo & Conditioner",
+        url: "/shop#shampoo-and-conditioner",
         description: "Ladies, your style and tastes are important to us",
       },
       {
         id: 13,
-        label: "Kids clothes",
-        url: "/shop#kids-clothes",
+        label: "Towels",
+        url: "/shop#towels",
         description: "For all ages, with happy and beautiful colors",
       },
       {
         id: 14,
-        label: "Bags and Shoes",
-        url: "/shop#bag-shoes",
+        label: "Bar Soap",
+        url: "/shop#bar-soap",
         description: "Suitable for men, women and all tastes and styles",
       },
     ],
@@ -49,7 +49,7 @@ const data: NavMenu = [
   {
     id: 3,
     type: "MenuItem",
-    label: "New Arrivals",
+    label: "Best Sellers",
     url: "/shop#new-arrivals",
     children: [],
   },

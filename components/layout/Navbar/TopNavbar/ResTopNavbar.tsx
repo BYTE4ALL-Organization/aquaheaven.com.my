@@ -47,7 +47,7 @@ const ResTopNavbar = ({ data }: { data: NavMenu }) => {
             <React.Fragment key={item.id}>
               {item.type === "MenuItem" && (
                 <SheetClose asChild>
-                  <Link href={item.url ?? "/"} className="mb-4 text-[#1a1a1a] hover:text-brand transition-colors">
+                  <Link href={item.url ?? "/"} className="mb-4 text-[#1a1a1a] hover:bg-gradient-to-r hover:from-brand hover:to-brand-accent hover:bg-clip-text hover:text-transparent transition-all">
                     {item.label}
                   </Link>
                 </SheetClose>
@@ -56,7 +56,7 @@ const ResTopNavbar = ({ data }: { data: NavMenu }) => {
                 <div className="mb-4 w-full">
                   <Accordion type="single" collapsible>
                     <AccordionItem value={item.label} className="border-none">
-                      <AccordionTrigger className="text-left p-0 py-0.5 font-normal text-base text-[#1a1a1a]">
+                      <AccordionTrigger className="text-left p-0 py-0.5 font-normal text-base text-[#1a1a1a] hover:bg-gradient-to-r hover:from-brand hover:to-brand-accent hover:bg-clip-text hover:text-transparent data-[state=open]:bg-gradient-to-r data-[state=open]:from-brand data-[state=open]:to-brand-accent data-[state=open]:bg-clip-text data-[state=open]:text-transparent transition-all">
                         {item.label}
                       </AccordionTrigger>
                       <AccordionContent className="p-4 pb-0 border-l border-brand/30 flex flex-col">
@@ -66,7 +66,7 @@ const ResTopNavbar = ({ data }: { data: NavMenu }) => {
                             asChild
                             className="w-fit py-2 text-base"
                           >
-                            <Link href={itemChild.url ?? "/"} className="text-[#1a1a1a] hover:text-brand transition-colors">
+                            <Link href={itemChild.url ?? "/"} className="text-[#1a1a1a] hover:bg-gradient-to-r hover:from-brand hover:to-brand-accent hover:bg-clip-text hover:text-transparent transition-all">
                               {itemChild.label}
                             </Link>
                           </SheetClose>

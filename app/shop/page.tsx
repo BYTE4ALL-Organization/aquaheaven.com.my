@@ -123,7 +123,7 @@ export default async function ShopPage({
           <div className="flex flex-col w-full space-y-5">
             <div className="flex flex-col lg:flex-row lg:justify-between">
               <div className="flex items-center justify-between">
-                <h1 className="font-bold text-2xl md:text-[32px]">Shop</h1>
+                <h1 className="font-bold text-2xl md:text-[32px] text-black">Shop</h1>
                 <MobileFilters options={options} />
               </div>
               <div className="flex flex-col sm:items-center sm:flex-row">

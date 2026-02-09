@@ -71,7 +71,7 @@ const Footer = () => {
               <h1
                 className={cn([
                   integralCF.className,
-                  "text-[28px] lg:text-[32px] mb-6",
+                  "text-[28px] lg:text-[32px] mb-6 bg-gradient-to-r from-brand to-brand-accent bg-clip-text text-transparent",
                 ])}
               >
                 AQUAHEAVEN

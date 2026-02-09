@@ -114,7 +114,7 @@ export default async function Home() {
       <main className="my-[50px] sm:my-[72px]">
         {newArrivalsData.length > 0 && (
           <ProductListSec
-            title="NEW ARRIVALS"
+            title="BEST SELLERS"
             data={newArrivalsData}
             viewAllLink="/shop#new-arrivals"
           />
