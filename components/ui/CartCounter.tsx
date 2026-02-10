@@ -42,7 +42,7 @@ const CartCounter = ({
   return (
     <div
       className={cn(
-        "bg-[#F0F0F0] w-full min-w-[110px] max-w-[110px] sm:max-w-[170px] py-3 md:py-3.5 px-4 sm:px-5 rounded-full flex items-center justify-between",
+        "bg-brand/10 border border-brand/30 w-full min-w-[110px] max-w-[110px] sm:max-w-[170px] py-3 md:py-3.5 px-4 sm:px-5 rounded-full flex items-center justify-between",
         className
       )}
     >
@@ -50,19 +50,19 @@ const CartCounter = ({
         variant="ghost"
         size="icon"
         type="button"
-        className="h-5 w-5 sm:h-6 sm:w-6 text-xl hover:bg-transparent"
+        className="h-5 w-5 sm:h-6 sm:w-6 text-xl text-brand hover:bg-brand/20 hover:text-brand-accent"
         onClick={() => remove()}
       >
         <FaMinus />
       </Button>
-      <span className="font-medium text-sm sm:text-base">
+      <span className="font-medium text-sm sm:text-base text-[#1a1a1a]">
         {!isZeroDelete ? counter : initialValue}
       </span>
       <Button
         variant="ghost"
         size="icon"
         type="button"
-        className="h-5 w-5 sm:h-6 sm:w-6 text-xl hover:bg-transparent"
+        className="h-5 w-5 sm:h-6 sm:w-6 text-xl text-brand hover:bg-brand/20 hover:text-brand-accent"
         onClick={() => addToCart()}
       >
         <FaPlus />
