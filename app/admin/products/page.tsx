@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
-import { FiPlus, FiEdit, FiTrash2, FiEye, FiSearch, FiPackage } from 'react-icons/fi'
+import { FiPlus, FiEdit, FiTrash2, FiEye, FiSearch, FiPackage, FiTag } from 'react-icons/fi'
 
 interface Product {
   id: string
@@ -18,7 +18,7 @@ interface Product {
   category: {
     id: string
     name: string
-  }
+  } | null
   brand: {
     id: string
     name: string
@@ -30,17 +30,25 @@ interface Product {
   createdAt: string
 }
 
+interface CategoryOption {
+  id: string
+  name: string
+}
+
 export default function ProductsPage() {
   const [products, setProducts] = useState<Product[]>([])
+  const [categories, setCategories] = useState<CategoryOption[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [searchTerm, setSearchTerm] = useState('')
+  const [categoryFilter, setCategoryFilter] = useState<string>('')
   const [showDeleteModal, setShowDeleteModal] = useState(false)
   const [productToDelete, setProductToDelete] = useState<string | null>(null)
   const [addingReviewsId, setAddingReviewsId] = useState<string | null>(null)
 
   useEffect(() => {
     fetchProducts()
+    fetchCategories()
   }, [])
 
   const fetchProducts = async () => {
@@ -56,6 +64,21 @@ export default function ProductsPage() {
       setError(err instanceof Error ? err.message : 'An error occurred')
     } finally {
       setLoading(false)
+    }
+  }
+
+  const fetchCategories = async () => {
+    try {
+      const response = await fetch('/api/admin/categories')
+      if (!response.ok) return
+      const data = await response.json()
+      const list: CategoryOption[] = (data.categories || []).map((c: { id: string; name: string; parent?: { name: string } }) => ({
+        id: c.id,
+        name: c.parent ? `${c.parent.name} › ${c.name}` : c.name
+      }))
+      setCategories(list)
+    } catch {
+      // non-blocking
     }
   }
 
@@ -99,11 +122,14 @@ export default function ProductsPage() {
     }
   }
 
-  const filteredProducts = products.filter(product =>
-    product.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    product.category.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    (product.brand?.name.toLowerCase().includes(searchTerm.toLowerCase()) ?? false)
-  )
+  const filteredProducts = products.filter(product => {
+    const matchesSearch =
+      product.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      (product.category?.name.toLowerCase().includes(searchTerm.toLowerCase()) ?? false) ||
+      (product.brand?.name.toLowerCase().includes(searchTerm.toLowerCase()) ?? false)
+    const matchesCategory = !categoryFilter || product.category?.id === categoryFilter
+    return matchesSearch && matchesCategory
+  })
 
   if (loading) {
     return (
@@ -131,9 +157,9 @@ export default function ProductsPage() {
         </div>
       </div>
 
-      {/* Search */}
-      <div className="mb-6">
-        <div className="relative">
+      {/* Search and category filter */}
+      <div className="mb-6 flex flex-col sm:flex-row gap-4">
+        <div className="relative flex-1">
           <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
             <FiSearch className="h-5 w-5 text-gray-400" />
           </div>
@@ -144,6 +170,21 @@ export default function ProductsPage() {
             onChange={(e) => setSearchTerm(e.target.value)}
             className="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-md leading-5 bg-white placeholder-gray-500 focus:outline-none focus:placeholder-gray-400 focus:ring-1 focus:ring-blue-500 focus:border-blue-500"
           />
+        </div>
+        <div className="flex items-center gap-2 sm:w-64">
+          <FiTag className="h-5 w-5 text-gray-500 shrink-0" />
+          <select
+            value={categoryFilter}
+            onChange={(e) => setCategoryFilter(e.target.value)}
+            className="block w-full py-2 pl-3 pr-10 border border-gray-300 rounded-md leading-5 bg-white focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500 text-sm"
+          >
+            <option value="">All categories</option>
+            {categories.map((cat) => (
+              <option key={cat.id} value={cat.id}>
+                {cat.name}
+              </option>
+            ))}
+          </select>
         </div>
       </div>
 
@@ -238,8 +279,14 @@ export default function ProductsPage() {
                         {product.quantity}
                       </span>
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                      {product.category.name}
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <span className={`inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium ${
+                        product.category
+                          ? 'bg-indigo-100 text-indigo-800'
+                          : 'bg-gray-100 text-gray-600'
+                      }`}>
+                        {product.category ? product.category.name : 'Uncategorized'}
+                      </span>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
                       <div className="flex flex-col space-y-1">
