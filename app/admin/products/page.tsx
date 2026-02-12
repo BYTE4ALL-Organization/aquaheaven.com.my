@@ -15,10 +15,10 @@ interface Product {
   thumbnail: string | null
   isActive: boolean
   isFeatured: boolean
-  category: {
+  categories: {
     id: string
     name: string
-  } | null
+  }[]
   brand: {
     id: string
     name: string
@@ -123,11 +123,12 @@ export default function ProductsPage() {
   }
 
   const filteredProducts = products.filter(product => {
+    const catList = product.categories ?? []
     const matchesSearch =
       product.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      (product.category?.name.toLowerCase().includes(searchTerm.toLowerCase()) ?? false) ||
+      catList.some(c => c.name.toLowerCase().includes(searchTerm.toLowerCase())) ||
       (product.brand?.name.toLowerCase().includes(searchTerm.toLowerCase()) ?? false)
-    const matchesCategory = !categoryFilter || product.category?.id === categoryFilter
+    const matchesCategory = !categoryFilter || catList.some(c => c.id === categoryFilter)
     return matchesSearch && matchesCategory
   })
 
@@ -279,14 +280,23 @@ export default function ProductsPage() {
                         {product.quantity}
                       </span>
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <span className={`inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium ${
-                        product.category
-                          ? 'bg-indigo-100 text-indigo-800'
-                          : 'bg-gray-100 text-gray-600'
-                      }`}>
-                        {product.category ? product.category.name : 'Uncategorized'}
-                      </span>
+                    <td className="px-6 py-4">
+                      <div className="flex flex-wrap gap-1">
+                        {(product.categories?.length ?? 0) > 0
+                          ? (product.categories ?? []).map((cat) => (
+                              <span
+                                key={cat.id}
+                                className="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium bg-indigo-100 text-indigo-800"
+                              >
+                                {cat.name}
+                              </span>
+                            ))
+                          : (
+                              <span className="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium bg-gray-100 text-gray-600">
+                                Uncategorized
+                              </span>
+                            )}
+                      </div>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
                       <div className="flex flex-col space-y-1">

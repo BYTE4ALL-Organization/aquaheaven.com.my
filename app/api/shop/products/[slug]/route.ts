@@ -9,11 +9,15 @@ export async function GET(
     const { slug } = await params;
 
     const include = {
-      category: {
-        select: {
-          id: true,
-          name: true,
-          slug: true,
+      productCategories: {
+        include: {
+          category: {
+            select: {
+              id: true,
+              name: true,
+              slug: true,
+            },
+          },
         },
       },
       brand: {
@@ -56,9 +60,14 @@ export async function GET(
       );
     }
 
+    const productResponse = {
+      ...product,
+      categories: product.productCategories.map((pc) => pc.category),
+    };
+
     return NextResponse.json({
       success: true,
-      product,
+      product: productResponse,
     });
   } catch (error) {
     console.error("Error fetching product:", error);

@@ -229,7 +229,10 @@ async function main() {
   let products: { id: string }[];
   if (categoryIds.length > 0) {
     products = await prisma.product.findMany({
-      where: { categoryId: { in: categoryIds }, isActive: true },
+      where: {
+        productCategories: { some: { categoryId: { in: categoryIds } } },
+        isActive: true,
+      },
       select: { id: true },
     });
     console.log(`Found ${products.length} towel product(s).`);

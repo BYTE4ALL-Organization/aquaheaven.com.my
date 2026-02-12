@@ -24,10 +24,10 @@ interface Product {
   material: string | null
   availableColors?: string[]
   availableSizes?: string[]
-  category: {
+  categories: {
     id: string
     name: string
-  }
+  }[]
   brand: {
     id: string
     name: string
@@ -67,7 +67,7 @@ export default function EditProductPage({ params }: { params: Promise<{ id: stri
     quantity: 0,
     images: [] as string[],
     thumbnail: '',
-    categoryId: '',
+    categoryIds: [] as string[],
     brandId: '',
     isActive: true,
     isFeatured: false,
@@ -115,29 +115,36 @@ export default function EditProductPage({ params }: { params: Promise<{ id: stri
         if (Array.isArray(imagesData?.images)) setPublicImages(imagesData.images)
 
         setProduct(productData.product)
-        setCategories(categoriesData.categories || [])
+        const rawCats = categoriesData.categories || []
+        setCategories(
+          rawCats.map((c: { id: string; name: string; parent?: { name: string } }) => ({
+            id: c.id,
+            name: c.parent ? `${c.parent.name} › ${c.name}` : c.name
+          }))
+        )
         setBrands(brandsData.brands || [])
 
-        // Populate form with existing data
         if (productData.product) {
+          const prod = productData.product
+          const catIds = (prod.categories ?? []).map((c: { id: string }) => c.id)
           setFormData({
-            name: productData.product.name || '',
-            slug: productData.product.slug || '',
-            description: productData.product.description || '',
-            price: productData.product.price || 0,
-            quantity: productData.product.quantity || 0,
-            images: productData.product.images || [],
-            thumbnail: productData.product.thumbnail || '',
-            categoryId: productData.product.category?.id || '',
-            brandId: productData.product.brand?.id || '',
-            isActive: productData.product.isActive ?? true,
-            isFeatured: productData.product.isFeatured ?? false,
-            sku: productData.product.sku || '',
-            color: productData.product.color || '',
-            size: productData.product.size || '',
-            material: productData.product.material || '',
-            availableColors: productData.product.availableColors ?? [],
-            availableSizes: productData.product.availableSizes ?? []
+            name: prod.name || '',
+            slug: prod.slug || '',
+            description: prod.description || '',
+            price: prod.price || 0,
+            quantity: prod.quantity || 0,
+            images: prod.images || [],
+            thumbnail: prod.thumbnail || '',
+            categoryIds: catIds,
+            brandId: prod.brand?.id || '',
+            isActive: prod.isActive ?? true,
+            isFeatured: prod.isFeatured ?? false,
+            sku: prod.sku || '',
+            color: prod.color || '',
+            size: prod.size || '',
+            material: prod.material || '',
+            availableColors: prod.availableColors ?? [],
+            availableSizes: prod.availableSizes ?? []
           })
         }
       } catch (err) {
@@ -224,15 +231,13 @@ export default function EditProductPage({ params }: { params: Promise<{ id: stri
       const { id } = await params
       const submitData = {
         ...formData,
-        categoryId: formData.categoryId || null,
+        categoryIds: formData.categoryIds || [],
         brandId: formData.brandId || null,
         isActive: asDraft ? false : formData.isActive,
-        // Ensure price is a number
         price: formData.price ?? 0,
       }
 
-      // If no category and not explicitly saving as draft, save as draft
-      if (!submitData.categoryId && !asDraft) {
+      if (submitData.categoryIds.length === 0 && !asDraft) {
         submitData.isActive = false
       }
 
@@ -428,25 +433,30 @@ export default function EditProductPage({ params }: { params: Promise<{ id: stri
               </div>
 
               <div>
-                <label htmlFor="categoryId" className="block text-sm font-medium text-gray-700">
-                  Category {formData.isActive ? '*' : '(optional for drafts)'}
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Categories {formData.isActive ? '* (at least one)' : '(optional for drafts)'}
                 </label>
-                <select
-                  name="categoryId"
-                  id="categoryId"
-                  required={formData.isActive}
-                  value={formData.categoryId}
-                  onChange={handleInputChange}
-                  className="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500"
-                >
-                  <option value="">Select a category</option>
+                <div className="mt-1 border border-gray-300 rounded-md p-3 max-h-48 overflow-y-auto bg-gray-50">
                   {categories.map((category) => (
-                    <option key={category.id} value={category.id}>
-                      {category.name}
-                    </option>
+                    <label key={category.id} className="flex items-center gap-2 py-1 cursor-pointer">
+                      <input
+                        type="checkbox"
+                        checked={formData.categoryIds.includes(category.id)}
+                        onChange={() => {
+                          setFormData((prev) => ({
+                            ...prev,
+                            categoryIds: prev.categoryIds.includes(category.id)
+                              ? prev.categoryIds.filter((id) => id !== category.id)
+                              : [...prev.categoryIds, category.id]
+                          }))
+                        }}
+                        className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                      />
+                      <span className="text-sm text-gray-700">{category.name}</span>
+                    </label>
                   ))}
-                </select>
-                {!formData.categoryId && (
+                </div>
+                {formData.categoryIds.length === 0 && (
                   <p className="mt-1 text-sm text-amber-600">
                     No category selected. Product will be saved as draft.
                   </p>

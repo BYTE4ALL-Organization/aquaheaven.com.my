@@ -21,8 +21,12 @@ export async function GET(request: NextRequest) {
     };
 
     if (category) {
-      where.category = {
-        slug: category,
+      where.productCategories = {
+        some: {
+          category: {
+            slug: category,
+          },
+        },
       };
     }
 
@@ -77,6 +81,17 @@ export async function GET(request: NextRequest) {
     const products = await prisma.product.findMany({
       where,
       include: {
+        productCategories: {
+          include: {
+            category: {
+              select: {
+                id: true,
+                name: true,
+                slug: true,
+              },
+            },
+          },
+        },
         reviews: {
           select: {
             rating: true,

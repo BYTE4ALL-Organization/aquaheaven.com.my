@@ -34,7 +34,7 @@ export default function NewProductPage() {
     quantity: 0,
     images: [] as string[],
     thumbnail: '',
-    categoryId: '',
+    categoryIds: [] as string[],
     brandId: '',
     isActive: true,
     isFeatured: false,
@@ -75,7 +75,13 @@ export default function NewProductPage() {
           imagesRes.ok ? imagesRes.json() : Promise.resolve({ images: [] })
         ])
 
-        setCategories(categoriesData.categories || [])
+        const raw = categoriesData.categories || []
+        setCategories(
+          raw.map((c: { id: string; name: string; parent?: { name: string } }) => ({
+            id: c.id,
+            name: c.parent ? `${c.parent.name} › ${c.name}` : c.name
+          }))
+        )
         setBrands(brandsData.brands || [])
         if (Array.isArray(imagesData?.images)) setPublicImages(imagesData.images)
       } catch (err) {
@@ -161,15 +167,13 @@ export default function NewProductPage() {
 
       const submitData = {
         ...formData,
-        categoryId: formData.categoryId || null,
+        categoryIds: formData.categoryIds || [],
         brandId: formData.brandId || null,
         isActive: asDraft ? false : formData.isActive,
-        // Ensure price is a number, default to 0 for drafts if not set
         price: formData.price ?? 0,
       }
 
-      // If no category and not explicitly saving as draft, save as draft
-      if (!submitData.categoryId && !asDraft) {
+      if (submitData.categoryIds.length === 0 && !asDraft) {
         submitData.isActive = false
       }
 
@@ -297,25 +301,30 @@ export default function NewProductPage() {
               </div>
 
               <div>
-                <label htmlFor="categoryId" className="block text-sm font-medium text-gray-700">
-                  Category {formData.isActive ? '*' : '(optional for drafts)'}
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Categories {formData.isActive ? '* (at least one)' : '(optional for drafts)'}
                 </label>
-                <select
-                  name="categoryId"
-                  id="categoryId"
-                  required={formData.isActive}
-                  value={formData.categoryId}
-                  onChange={handleInputChange}
-                  className="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500"
-                >
-                  <option value="">Select a category</option>
+                <div className="mt-1 border border-gray-300 rounded-md p-3 max-h-48 overflow-y-auto bg-gray-50">
                   {categories.map((category) => (
-                    <option key={category.id} value={category.id}>
-                      {category.name}
-                    </option>
+                    <label key={category.id} className="flex items-center gap-2 py-1 cursor-pointer">
+                      <input
+                        type="checkbox"
+                        checked={formData.categoryIds.includes(category.id)}
+                        onChange={() => {
+                          setFormData((prev) => ({
+                            ...prev,
+                            categoryIds: prev.categoryIds.includes(category.id)
+                              ? prev.categoryIds.filter((id) => id !== category.id)
+                              : [...prev.categoryIds, category.id]
+                          }))
+                        }}
+                        className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                      />
+                      <span className="text-sm text-gray-700">{category.name}</span>
+                    </label>
                   ))}
-                </select>
-                {!formData.categoryId && (
+                </div>
+                {formData.categoryIds.length === 0 && (
                   <p className="mt-1 text-sm text-amber-600">
                     No category selected. Product will be saved as draft.
                   </p>

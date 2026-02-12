@@ -5,10 +5,14 @@ export async function GET() {
   try {
     const products = await prisma.product.findMany({
       include: {
-        category: {
-          select: {
-            id: true,
-            name: true
+        productCategories: {
+          include: {
+            category: {
+              select: {
+                id: true,
+                name: true
+              }
+            }
           }
         },
         brand: {
@@ -29,9 +33,15 @@ export async function GET() {
       }
     })
 
+    // Map to a shape with categories array for backward compatibility
+    const productsWithCategories = products.map((p) => ({
+      ...p,
+      categories: p.productCategories.map((pc) => pc.category)
+    }))
+
     return NextResponse.json({
       success: true,
-      products
+      products: productsWithCategories
     })
   } catch (error: any) {
     console.error('Error fetching products:', error)
@@ -65,7 +75,8 @@ export async function POST(request: Request) {
       quantity: quantityRaw, 
       images, 
       thumbnail,
-      categoryId, 
+      categoryId,
+      categoryIds,
       brandId,
       isActive = true,
       isFeatured = false,
@@ -76,6 +87,10 @@ export async function POST(request: Request) {
       availableColors = [],
       availableSizes = []
     } = body
+
+    const resolvedCategoryIds = Array.isArray(categoryIds) && categoryIds.length > 0
+      ? categoryIds.filter((id: unknown) => typeof id === 'string' && id.trim() !== '')
+      : (categoryId != null && String(categoryId).trim() !== '' ? [String(categoryId).trim()] : [])
 
     // Coerce price and quantity to numbers (form/JSON may send strings)
     const price = priceRaw != null && priceRaw !== '' ? Number(priceRaw) : NaN
@@ -95,10 +110,10 @@ export async function POST(request: Request) {
       )
     }
 
-    // Category is required only if product is active (not a draft)
-    if (isActive && !categoryId) {
+    // At least one category is required if product is active (not a draft)
+    if (isActive && resolvedCategoryIds.length === 0) {
       return NextResponse.json(
-        { success: false, error: 'Category is required for active products. Save as draft if category is missing.' },
+        { success: false, error: 'At least one category is required for active products. Save as draft if none selected.' },
         { status: 400 }
       )
     }
@@ -117,7 +132,6 @@ export async function POST(request: Request) {
         quantity: Number(quantity),
         images,
         thumbnail,
-        categoryId,
         brandId,
         isActive,
         isFeatured,
@@ -126,17 +140,25 @@ export async function POST(request: Request) {
         size,
         material,
         availableColors: Array.isArray(availableColors) ? availableColors : [],
-        availableSizes: Array.isArray(availableSizes) ? availableSizes : []
+        availableSizes: Array.isArray(availableSizes) ? availableSizes : [],
+        productCategories: resolvedCategoryIds.length > 0
+          ? { create: resolvedCategoryIds.map((categoryId: string) => ({ categoryId })) }
+          : undefined
       },
       include: {
-        category: true,
+        productCategories: { include: { category: true } },
         brand: true
       }
     })
 
+    const productResponse = {
+      ...product,
+      categories: product.productCategories.map((pc) => pc.category)
+    }
+
     return NextResponse.json({
       success: true,
-      product
+      product: productResponse
     })
   } catch (error) {
     console.error('Error creating product:', error)

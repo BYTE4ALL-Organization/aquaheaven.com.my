@@ -113,7 +113,10 @@ export async function seedTowelReviews(options?: SeedTowelReviewsOptions): Promi
       return { products: 0, reviews: 0 };
     }
     products = await prisma.product.findMany({
-      where: { categoryId: { in: categoryIds }, isActive: true },
+      where: {
+        productCategories: { some: { categoryId: { in: categoryIds } } },
+        isActive: true,
+      },
       select: { id: true },
     });
   }

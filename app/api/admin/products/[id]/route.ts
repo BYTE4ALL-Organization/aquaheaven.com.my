@@ -10,7 +10,7 @@ export async function GET(
     const product = await prisma.product.findUnique({
       where: { id },
       include: {
-        category: true,
+        productCategories: { include: { category: true } },
         brand: true,
         reviews: {
           include: {
@@ -31,9 +31,14 @@ export async function GET(
       )
     }
 
+    const productResponse = {
+      ...product,
+      categories: product.productCategories.map((pc) => pc.category)
+    }
+
     return NextResponse.json({
       success: true,
-      product
+      product: productResponse
     })
   } catch (error) {
     console.error('Error fetching product:', error)
@@ -59,7 +64,8 @@ export async function PUT(
       quantity: quantityRaw, 
       images, 
       thumbnail,
-      categoryId, 
+      categoryId,
+      categoryIds,
       brandId,
       isActive,
       isFeatured,
@@ -70,6 +76,10 @@ export async function PUT(
       availableColors = [],
       availableSizes = []
     } = body
+
+    const resolvedCategoryIds = Array.isArray(categoryIds) && categoryIds.length > 0
+      ? categoryIds.filter((id: unknown) => typeof id === 'string' && id.trim() !== '')
+      : (categoryId != null && String(categoryId).trim() !== '' ? [String(categoryId).trim()] : [])
 
     // Coerce price and quantity to numbers (form/JSON may send strings)
     const price = priceRaw != null && priceRaw !== '' ? Number(priceRaw) : NaN
@@ -89,10 +99,10 @@ export async function PUT(
       )
     }
 
-    // Category is required only if product is active (not a draft)
-    if (isActive && !categoryId) {
+    // At least one category is required if product is active (not a draft)
+    if (isActive && resolvedCategoryIds.length === 0) {
       return NextResponse.json(
-        { success: false, error: 'Category is required for active products. Save as draft if category is missing.' },
+        { success: false, error: 'At least one category is required for active products. Save as draft if none selected.' },
         { status: 400 }
       )
     }
@@ -133,6 +143,10 @@ export async function PUT(
       }
     }
 
+    await prisma.productCategory.deleteMany({
+      where: { productId: id }
+    })
+
     const product = await prisma.product.update({
       where: { id },
       data: {
@@ -143,7 +157,6 @@ export async function PUT(
         quantity: Number(quantity),
         images,
         thumbnail,
-        categoryId: categoryId || null,
         brandId: brandId || null,
         isActive,
         isFeatured,
@@ -152,17 +165,25 @@ export async function PUT(
         size,
         material,
         availableColors: Array.isArray(availableColors) ? availableColors : [],
-        availableSizes: Array.isArray(availableSizes) ? availableSizes : []
+        availableSizes: Array.isArray(availableSizes) ? availableSizes : [],
+        productCategories: resolvedCategoryIds.length > 0
+          ? { create: resolvedCategoryIds.map((categoryId: string) => ({ categoryId })) }
+          : undefined
       },
       include: {
-        category: true,
+        productCategories: { include: { category: true } },
         brand: true
       }
     })
 
+    const productResponse = {
+      ...product,
+      categories: product.productCategories.map((pc) => pc.category)
+    }
+
     return NextResponse.json({
       success: true,
-      product
+      product: productResponse
     })
   } catch (error) {
     console.error('Error updating product:', error)

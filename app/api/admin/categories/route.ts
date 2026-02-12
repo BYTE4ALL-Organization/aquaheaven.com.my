@@ -7,7 +7,7 @@ export async function GET() {
       include: {
         _count: {
           select: {
-            products: true
+            productCategories: true
           }
         },
         parent: {
@@ -26,7 +26,7 @@ export async function GET() {
             image: true,
             _count: {
               select: {
-                products: true
+                productCategories: true
               }
             }
           }

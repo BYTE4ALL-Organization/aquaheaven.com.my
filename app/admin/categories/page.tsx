@@ -24,11 +24,11 @@ interface Category {
     description: string | null
     image: string | null
     _count: {
-      products: number
+      productCategories: number
     }
   }>
   _count: {
-    products: number
+    productCategories: number
   }
 }
 
@@ -161,7 +161,7 @@ export default function CategoriesPage() {
                         {category.name}
                       </h3>
                       <p className="text-sm text-gray-500">
-                        {category._count.products} products
+                        {category._count.productCategories} products
                         {category.children.length > 0 && ` • ${category.children.length} subcategories`}
                       </p>
                     </div>
@@ -188,7 +188,7 @@ export default function CategoriesPage() {
                                   {subcategory.name}
                                 </h5>
                                 <p className="text-xs text-gray-500 mt-1">
-                                  {subcategory._count.products} products
+                                  {subcategory._count.productCategories} products
                                 </p>
                               </div>
                               <div className="flex items-center space-x-2 ml-2">
@@ -206,7 +206,7 @@ export default function CategoriesPage() {
                                   }}
                                   className="text-red-600 hover:text-red-900"
                                   title="Delete Subcategory"
-                                  disabled={subcategory._count.products > 0}
+                                  disabled={subcategory._count.productCategories > 0}
                                 >
                                   <FiTrash2 className="h-4 w-4" />
                                 </button>
@@ -237,16 +237,16 @@ export default function CategoriesPage() {
                         }}
                         className="text-red-600 hover:text-red-900"
                         title="Delete Category"
-                        disabled={category._count.products > 0 || category.children.length > 0}
+                        disabled={category._count.productCategories > 0 || category.children.length > 0}
                       >
                         <FiTrash2 className="h-4 w-4" />
                       </button>
                     </div>
                   </div>
 
-                  {(category._count.products > 0 || category.children.length > 0) && (
+                  {(category._count.productCategories > 0 || category.children.length > 0) && (
                     <div className="mt-2 text-xs text-yellow-600">
-                      {category._count.products > 0 && 'Cannot delete category with products. '}
+                      {category._count.productCategories > 0 && 'Cannot delete category with products. '}
                       {category.children.length > 0 && 'Cannot delete category with subcategories.'}
                     </div>
                   )}

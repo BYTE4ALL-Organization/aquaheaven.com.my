@@ -10,12 +10,16 @@ export async function GET(
     const category = await prisma.category.findUnique({
       where: { id },
       include: {
-        products: {
-          select: {
-            id: true,
-            name: true,
-            price: true,
-            thumbnail: true
+        productCategories: {
+          include: {
+            product: {
+              select: {
+                id: true,
+                name: true,
+                price: true,
+                thumbnail: true
+              }
+            }
           }
         }
       }
@@ -28,9 +32,15 @@ export async function GET(
       )
     }
 
+    // Expose products array for backward compatibility (list of products in this category)
+    const categoryResponse = {
+      ...category,
+      products: category.productCategories.map((pc) => pc.product)
+    }
+
     return NextResponse.json({
       success: true,
-      category
+      category: categoryResponse
     })
   } catch (error) {
     console.error('Error fetching category:', error)
@@ -119,8 +129,8 @@ export async function DELETE(
   try {
     const { id } = await params
 
-    // Check if category has products
-    const productCount = await prisma.product.count({
+    // Check if category has products (via product_categories)
+    const productCount = await prisma.productCategory.count({
       where: { categoryId: id }
     })
 
