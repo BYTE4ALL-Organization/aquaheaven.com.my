@@ -123,6 +123,31 @@ export async function POST(request: Request) {
         ? String(slug).trim().toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '')
         : name.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '')
 
+    // Exact replica check: do not add product if another product already has this exact (normalized) slug
+    const existingWithSlug = await prisma.product.findFirst({
+      where: { slug: resolvedSlug },
+    })
+    if (existingWithSlug) {
+      return NextResponse.json(
+        { success: false, error: 'A product with this slug already exists. Please use a different name or slug.' },
+        { status: 400 }
+      )
+    }
+
+    // SKU must be unique; use null when empty to avoid unique constraint on empty string
+    const resolvedSku = sku != null && String(sku).trim() !== '' ? String(sku).trim() : null
+    if (resolvedSku) {
+      const existingWithSku = await prisma.product.findFirst({
+        where: { sku: resolvedSku },
+      })
+      if (existingWithSku) {
+        return NextResponse.json(
+          { success: false, error: 'A product with this SKU already exists. Please use a different SKU.' },
+          { status: 400 }
+        )
+      }
+    }
+
     const product = await prisma.product.create({
       data: {
         name,
@@ -135,7 +160,7 @@ export async function POST(request: Request) {
         brandId,
         isActive,
         isFeatured,
-        sku,
+        sku: resolvedSku,
         color,
         size,
         material,
@@ -163,11 +188,17 @@ export async function POST(request: Request) {
   } catch (error) {
     console.error('Error creating product:', error)
     
-    // Check for Prisma unique constraint errors (e.g., duplicate slug)
+    // Check for Prisma unique constraint errors (duplicate slug or SKU)
     if (error && typeof error === 'object' && 'code' in error) {
       if (error.code === 'P2002') {
+        const meta = (error as { meta?: { target?: string[] } }).meta
+        const target = Array.isArray(meta?.target) ? meta.target : []
+        const isSku = target.includes('sku')
+        const message = isSku
+          ? 'A product with this SKU already exists. Please use a different SKU.'
+          : 'A product with this slug already exists. Please use a different name or slug.'
         return NextResponse.json(
-          { success: false, error: 'A product with this slug already exists. Please use a different name or slug.' },
+          { success: false, error: message },
           { status: 400 }
         )
       }

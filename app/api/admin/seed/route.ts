@@ -1,13 +1,10 @@
 import { NextResponse } from 'next/server'
-import { generateRandomReviews } from '@/lib/seed-reviews'
 
 export async function POST() {
   try {
     // Import the seed function dynamically to avoid issues
-    const { default: seed } = await import('../../../../prisma/seed')
-    
-    // Run the seed function
-    await seed()
+    const { main } = await import('../../../../prisma/seed')
+    await main()
     
     return NextResponse.json({
       success: true,

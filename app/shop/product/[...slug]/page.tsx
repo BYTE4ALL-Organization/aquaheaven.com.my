@@ -61,6 +61,7 @@ export default async function ProductPage({
     color?: string | null;
     availableColors?: string[];
     availableSizes?: string[];
+    categories?: Array<{ id: string; name: string; slug: string }>;
     reviews?: Array<{
       id: string;
       rating: number;
@@ -70,6 +71,7 @@ export default async function ProductPage({
       user?: { name: string | null } | null;
     }>;
   };
+  const categorySlugs = (apiProduct.categories ?? []).map((c) => c.slug).filter(Boolean);
   const reviews = (Array.isArray(apiProduct.reviews) ? apiProduct.reviews : []).map((r, idx) => ({
     id: r.id || `r-${idx}`,
     user: r.user?.name?.trim() || "Guest",
@@ -94,7 +96,7 @@ export default async function ProductPage({
             }}
           />
         </section>
-        <Tabs productId={apiProduct.id} reviews={reviews} />
+        <Tabs productId={apiProduct.id} reviews={reviews} categorySlugs={categorySlugs} />
       </div>
       <div className="mb-[50px] sm:mb-20">
         <RelatedSection productId={productData.id} />

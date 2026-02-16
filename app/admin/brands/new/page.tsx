@@ -151,6 +151,7 @@ export default function NewBrandPage() {
                   Brand Logo
                 </label>
                 <ImagePicker
+                  label="Brand Logo"
                   value={formData.logo}
                   onChange={handleImageChange}
                 />

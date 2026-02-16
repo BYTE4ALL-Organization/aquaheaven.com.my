@@ -45,3 +45,14 @@ export async function getStackUserAndSync(request: Request): Promise<{
     return null;
   }
 }
+
+/**
+ * Get current session for API routes. Pass the request so we can read cookies.
+ * Returns { user } or null. Use in admin API routes for auth checks.
+ */
+export async function auth(request: Request): Promise<{
+  user: { id: string; email: string; name: string | null; image: string | null };
+} | null> {
+  const user = await getStackUserAndSync(request);
+  return user ? { user } : null;
+}

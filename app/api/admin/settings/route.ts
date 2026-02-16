@@ -2,8 +2,8 @@ import { NextRequest, NextResponse } from 'next/server'
 import { setCurrencySymbol } from '@/lib/settings'
 import { auth } from '@/lib/auth'
 
-export async function GET() {
-  const session = await auth()
+export async function GET(request: NextRequest) {
+  const session = await auth(request)
   if (!session?.user) {
     return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 })
   }
@@ -13,7 +13,7 @@ export async function GET() {
 }
 
 export async function PUT(request: NextRequest) {
-  const session = await auth()
+  const session = await auth(request)
   if (!session?.user) {
     return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 })
   }

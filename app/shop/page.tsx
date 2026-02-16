@@ -52,6 +52,27 @@ function mapApiProductToCard(apiProduct: {
   };
 }
 
+const PER_PAGE = 12;
+
+function buildShopQuery(params: Record<string, string | string[] | undefined>, page: number): string {
+  const q = new URLSearchParams();
+  const category = typeof params?.category === "string" ? params.category : undefined;
+  const brand = typeof params?.brand === "string" ? params.brand : undefined;
+  const color = typeof params?.color === "string" ? params.color : undefined;
+  const size = typeof params?.size === "string" ? params.size : undefined;
+  const minPrice = typeof params?.minPrice === "string" ? params.minPrice : undefined;
+  const maxPrice = typeof params?.maxPrice === "string" ? params.maxPrice : undefined;
+  if (category) q.set("category", category);
+  if (brand) q.set("brand", brand);
+  if (color) q.set("color", color);
+  if (size) q.set("size", size);
+  if (minPrice) q.set("minPrice", minPrice);
+  if (maxPrice) q.set("maxPrice", maxPrice);
+  if (page > 1) q.set("page", String(page));
+  const s = q.toString();
+  return s ? `?${s}` : "";
+}
+
 export default async function ShopPage({
   searchParams,
 }: {
@@ -64,6 +85,8 @@ export default async function ShopPage({
   const size = typeof params?.size === "string" ? params.size : undefined;
   const minPrice = typeof params?.minPrice === "string" ? params.minPrice : undefined;
   const maxPrice = typeof params?.maxPrice === "string" ? params.maxPrice : undefined;
+  const page = Math.max(1, parseInt(typeof params?.page === "string" ? params.page : "", 10) || 1);
+  const offset = (page - 1) * PER_PAGE;
 
   const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:3000";
 
@@ -71,7 +94,8 @@ export default async function ShopPage({
     fetch(`${baseUrl}/api/shop/filters`, { cache: "no-store" }),
     (() => {
       const url = new URL(`${baseUrl}/api/shop/products`);
-      url.searchParams.set("limit", "12");
+      url.searchParams.set("limit", String(PER_PAGE));
+      url.searchParams.set("offset", String(offset));
       if (category) url.searchParams.set("category", category);
       if (brand) url.searchParams.set("brand", brand);
       if (color) url.searchParams.set("color", color);
@@ -106,6 +130,9 @@ export default async function ShopPage({
       ? productsData.products.map(mapApiProductToCard)
       : [];
   const total = typeof productsData?.total === "number" ? productsData.total : products.length;
+  const totalPages = Math.max(1, Math.ceil(total / PER_PAGE));
+  const start = total === 0 ? 0 : (page - 1) * PER_PAGE + 1;
+  const end = Math.min(page * PER_PAGE, total);
 
   return (
     <main className="pb-20">
@@ -128,7 +155,7 @@ export default async function ShopPage({
               </div>
               <div className="flex flex-col sm:items-center sm:flex-row">
                 <span className="text-sm md:text-base text-black/60 mr-3">
-                  Showing 1–{products.length} of {total} products
+                  Showing {total === 0 ? 0 : start}–{end} of {total} products
                 </span>
                 <div className="flex items-center">
                   Sort by:{" "}
@@ -158,19 +185,29 @@ export default async function ShopPage({
             </div>
             <hr className="border-t-black/10" />
             <Pagination className="justify-between">
-              <PaginationPrevious href="#" className="border border-black/10" />
+              <PaginationPrevious
+                href={page > 1 ? `/shop${buildShopQuery(params, page - 1)}` : "#"}
+                className="border border-black/10"
+                aria-disabled={page <= 1}
+              />
               <PaginationContent>
-                <PaginationItem>
-                  <PaginationLink
-                    href="#"
-                    className="text-black/50 font-medium text-sm"
-                    isActive
-                  >
-                    1
-                  </PaginationLink>
-                </PaginationItem>
+                {Array.from({ length: totalPages }, (_, i) => i + 1).map((p) => (
+                  <PaginationItem key={p}>
+                    <PaginationLink
+                      href={p === page ? "#" : `/shop${buildShopQuery(params, p)}`}
+                      className="text-black/50 font-medium text-sm"
+                      isActive={p === page}
+                    >
+                      {p}
+                    </PaginationLink>
+                  </PaginationItem>
+                ))}
               </PaginationContent>
-              <PaginationNext href="#" className="border border-black/10" />
+              <PaginationNext
+                href={page < totalPages ? `/shop${buildShopQuery(params, page + 1)}` : "#"}
+                className="border border-black/10"
+                aria-disabled={page >= totalPages}
+              />
             </Pagination>
           </div>
         </div>

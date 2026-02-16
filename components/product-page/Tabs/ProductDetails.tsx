@@ -1,30 +1,17 @@
-import React from "react";
+"use client";
 
-export type SpecItem = {
-  label: string;
-  value: string;
+import React from "react";
+import { getCategoryKey, getSpecsForCategory, SpecItem } from "@/lib/product-page-content";
+
+type ProductDetailsProps = {
+  /** Category slugs from the product to pick specs set. */
+  categorySlugs?: string[];
 };
 
-const specsData: SpecItem[] = [
-  {
-    label: " Material composition",
-    value: "100% Cotton",
-  },
-  {
-    label: "Care instructions",
-    value: "Machine wash warm, tumble dry",
-  },
-  {
-    label: "Fit type",
-    value: "Classic Fit",
-  },
-  {
-    label: "Pattern",
-    value: "Solid",
-  },
-];
+const ProductDetails = ({ categorySlugs = [] }: ProductDetailsProps) => {
+  const categoryKey = getCategoryKey(categorySlugs);
+  const specsData: SpecItem[] = getSpecsForCategory(categoryKey);
 
-const ProductDetails = () => {
   return (
     <>
       {specsData.map((item, i) => (

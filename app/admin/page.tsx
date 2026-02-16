@@ -30,12 +30,14 @@ export default function AdminDashboard() {
   const [currencySaving, setCurrencySaving] = useState(false)
   const [seedReviewsLoading, setSeedReviewsLoading] = useState(false)
   const [seedReviewsResult, setSeedReviewsResult] = useState<string | null>(null)
+  const [seedPersonalCareLoading, setSeedPersonalCareLoading] = useState(false)
+  const [seedPersonalCareResult, setSeedPersonalCareResult] = useState<string | null>(null)
 
   useEffect(() => {
     fetchDashboardStats()
     fetch('/api/admin/settings')
-      .then((res) => res.ok ? res.json() : {})
-      .then((data) => {
+      .then((res) => res.ok ? res.json() : null)
+      .then((data: { settings?: { currencySymbol?: string } } | null) => {
         if (data?.settings?.currencySymbol) setCurrencySymbol(data.settings.currencySymbol)
       })
       .catch(() => {})
@@ -147,6 +149,25 @@ export default function AdminDashboard() {
     }
   }
 
+  const seedPersonalCareReviews = async () => {
+    setSeedPersonalCareResult(null)
+    setSeedPersonalCareLoading(true)
+    try {
+      const res = await fetch('/api/admin/seed-personal-care-reviews', { method: 'POST' })
+      const data = await res.json()
+      if (data?.success) {
+        setSeedPersonalCareResult(`Added ${data.reviews} reviews across ${data.products} personal care product(s).`)
+        fetchDashboardStats()
+      } else {
+        setSeedPersonalCareResult(data?.error || 'Failed to seed reviews')
+      }
+    } catch (e) {
+      setSeedPersonalCareResult(e instanceof Error ? e.message : 'Request failed')
+    } finally {
+      setSeedPersonalCareLoading(false)
+    }
+  }
+
   return (
     <div>
       <div className="mb-8">
@@ -157,7 +178,7 @@ export default function AdminDashboard() {
       {/* Global settings – visible at top */}
       <div className="bg-white shadow rounded-lg border-2 border-gray-200 p-6 mb-8">
         <h2 className="text-xl font-bold text-gray-900 mb-1">Global settings</h2>
-        <p className="text-sm text-gray-500 mb-5">Site-wide currency and towel reviews. These apply across the store.</p>
+        <p className="text-sm text-gray-500 mb-5">Site-wide currency and seed reviews for towels and personal care (hair & body). These apply across the store.</p>
 
         <div className="space-y-6">
           {/* Currency */}
@@ -186,7 +207,7 @@ export default function AdminDashboard() {
           </div>
 
           {/* Add reviews to all towels */}
-          <div>
+          <div className="pb-5 border-b border-gray-100">
             <h3 className="text-lg font-medium text-gray-900 mb-2">Towel reviews</h3>
             <p className="text-sm text-gray-500 mb-3">Add 25–115 positive reviews to every towel product. Reviews are from people who love using the towels: smooth, nice after shower, premium feel, good size, gentle on skin.</p>
             <div className="flex flex-wrap items-center gap-3">
@@ -201,6 +222,27 @@ export default function AdminDashboard() {
               {seedReviewsResult && (
                 <span className={seedReviewsResult.startsWith('Added') ? 'text-green-600 text-sm font-medium' : 'text-red-600 text-sm'}>
                   {seedReviewsResult}
+                </span>
+              )}
+            </div>
+          </div>
+
+          {/* Add reviews to personal care (hair & body) products */}
+          <div>
+            <h3 className="text-lg font-medium text-gray-900 mb-2">Personal care reviews (Hair & body)</h3>
+            <p className="text-sm text-gray-500 mb-3">Add 30–125 positive reviews to every product in shampoo, conditioner, body wash, bar soap, bath & body, or hair/body categories. Reviews match each product type: shampoo, conditioner, body wash, or bar soap.</p>
+            <div className="flex flex-wrap items-center gap-3">
+              <button
+                type="button"
+                onClick={seedPersonalCareReviews}
+                disabled={seedPersonalCareLoading}
+                className="px-4 py-2 bg-gray-900 text-white text-sm font-medium rounded-md hover:bg-gray-800 disabled:opacity-50"
+              >
+                {seedPersonalCareLoading ? 'Adding reviews…' : 'Add reviews to all personal care'}
+              </button>
+              {seedPersonalCareResult && (
+                <span className={seedPersonalCareResult.startsWith('Added') ? 'text-green-600 text-sm font-medium' : 'text-red-600 text-sm'}>
+                  {seedPersonalCareResult}
                 </span>
               )}
             </div>

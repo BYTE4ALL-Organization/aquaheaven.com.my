@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@/lib/auth";
-import { seedTowelReviews } from "@/lib/seed-towel-reviews";
+import { seedBathBodyReviews } from "@/lib/seed-bath-body-reviews";
 
 export async function POST(request: NextRequest) {
   const session = await auth(request);
@@ -11,17 +11,17 @@ export async function POST(request: NextRequest) {
   try {
     const body = await request.json().catch(() => ({}));
     const productId = typeof body.productId === "string" ? body.productId : undefined;
-    const result = await seedTowelReviews(productId ? { productId } : undefined);
+    const result = await seedBathBodyReviews(productId ? { productId } : undefined);
     const message = productId
       ? `Added ${result.reviews} reviews to this product.`
-      : `Added ${result.reviews} reviews across ${result.products} towel product(s).`;
+      : `Added ${result.reviews} reviews across ${result.products} Bath & body product(s).`;
     return NextResponse.json({
       success: true,
       message,
       ...result,
     });
   } catch (error) {
-    console.error("Seed towel reviews error:", error);
+    console.error("Seed Bath & body reviews error:", error);
     return NextResponse.json(
       {
         success: false,

@@ -211,6 +211,7 @@ export default function EditBrandPage({ params }: { params: Promise<{ id: string
                   Brand Logo
                 </label>
                 <ImagePicker
+                  label="Brand Logo"
                   value={formData.logo}
                   onChange={handleImageChange}
                 />

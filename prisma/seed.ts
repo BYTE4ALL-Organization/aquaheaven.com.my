@@ -209,7 +209,7 @@ async function ensureReviewerUsers(): Promise<string[]> {
   return ids;
 }
 
-async function main() {
+export async function main() {
   console.log("Seeding: creating reviewer users and reviews...\n");
 
   const userIds = await ensureReviewerUsers();

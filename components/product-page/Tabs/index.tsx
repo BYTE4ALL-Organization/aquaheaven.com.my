@@ -31,9 +31,11 @@ const tabBtnData: TabBtn[] = [
 type TabsProps = {
   productId?: string;
   reviews?: Review[];
+  /** Category slugs from the product (e.g. ["towels"], ["shampoo"]) for FAQ and details. */
+  categorySlugs?: string[];
 };
 
-const Tabs = ({ productId, reviews = [] }: TabsProps) => {
+const Tabs = ({ productId, reviews = [], categorySlugs = [] }: TabsProps) => {
   const [active, setActive] = useState<number>(1);
 
   return (
@@ -57,9 +59,9 @@ const Tabs = ({ productId, reviews = [] }: TabsProps) => {
         ))}
       </div>
       <div className="mb-12 sm:mb-16">
-        {active === 1 && <ProductDetailsContent />}
+        {active === 1 && <ProductDetailsContent categorySlugs={categorySlugs} />}
         {active === 2 && <ReviewsContent productId={productId} reviews={reviews} />}
-        {active === 3 && <FaqContent />}
+        {active === 3 && <FaqContent categorySlugs={categorySlugs} />}
       </div>
     </div>
   );
