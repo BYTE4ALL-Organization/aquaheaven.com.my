@@ -1,5 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
+import { auth } from "@/lib/auth";
+import { hasUserPurchasedProduct } from "@/lib/purchase-check";
 
 export async function GET(
   request: NextRequest,
@@ -60,9 +62,16 @@ export async function GET(
       );
     }
 
+    let canReview = false;
+    const session = await auth(request);
+    if (session?.user) {
+      canReview = await hasUserPurchasedProduct(session.user.id, product.id);
+    }
+
     const productResponse = {
       ...product,
       categories: product.productCategories.map((pc) => pc.category),
+      canReview,
     };
 
     return NextResponse.json({

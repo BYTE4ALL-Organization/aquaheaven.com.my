@@ -18,6 +18,7 @@ interface Product {
   thumbnail: string | null
   isActive: boolean
   isFeatured: boolean
+  isBestSeller: boolean
   sku: string | null
   color: string | null
   size: string | null
@@ -71,6 +72,7 @@ export default function EditProductPage({ params }: { params: Promise<{ id: stri
     brandId: '',
     isActive: true,
     isFeatured: false,
+    isBestSeller: false,
     sku: '',
     color: '',
     size: '',
@@ -139,6 +141,7 @@ export default function EditProductPage({ params }: { params: Promise<{ id: stri
             brandId: prod.brand?.id || '',
             isActive: prod.isActive ?? true,
             isFeatured: prod.isFeatured ?? false,
+            isBestSeller: prod.isBestSeller ?? false,
             sku: prod.sku || '',
             color: prod.color || '',
             size: prod.size || '',
@@ -630,6 +633,20 @@ export default function EditProductPage({ params }: { params: Promise<{ id: stri
                   />
                   <label htmlFor="isFeatured" className="ml-2 block text-sm text-gray-900">
                     Featured
+                  </label>
+                </div>
+
+                <div className="flex items-center">
+                  <input
+                    type="checkbox"
+                    name="isBestSeller"
+                    id="isBestSeller"
+                    checked={formData.isBestSeller}
+                    onChange={handleInputChange}
+                    className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+                  />
+                  <label htmlFor="isBestSeller" className="ml-2 block text-sm text-gray-900">
+                    Best Seller
                   </label>
                 </div>
               </div>

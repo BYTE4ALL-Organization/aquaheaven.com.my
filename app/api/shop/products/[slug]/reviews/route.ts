@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
 import { getProductReviews, getProductRating } from '@/lib/seed-reviews'
+import { auth } from '@/lib/auth'
+import { hasUserPurchasedProduct } from '@/lib/purchase-check'
 
 export async function GET(
   request: NextRequest,
@@ -64,14 +66,21 @@ export async function POST(
   { params }: { params: Promise<{ slug: string }> }
 ) {
   try {
+    const session = await auth(request)
+    if (!session?.user) {
+      return NextResponse.json(
+        { success: false, error: 'You must be signed in to leave a review.' },
+        { status: 401 }
+      )
+    }
+
     const { slug } = await params
     const body = await request.json()
-    const { rating, title, comment, userId } = body
+    const { rating, title, comment } = body
 
-    // Validate required fields
-    if (!rating || !userId) {
+    if (!rating) {
       return NextResponse.json(
-        { success: false, error: 'Rating and userId are required' },
+        { success: false, error: 'Rating is required.' },
         { status: 400 }
       )
     }
@@ -82,7 +91,6 @@ export async function POST(
       select: { id: true }
     })
 
-    // If not found by slug, try by ID (for backward compatibility)
     if (!product) {
       const idMatch = slug.match(/^(\d+)/)
       if (idMatch) {
@@ -100,13 +108,21 @@ export async function POST(
       )
     }
 
-    // Create the review
+    const purchased = await hasUserPurchasedProduct(session.user.id, product.id)
+    if (!purchased) {
+      return NextResponse.json(
+        { success: false, error: 'You can only review products you have purchased.' },
+        { status: 403 }
+      )
+    }
+
+    // Create the review (use session user id only)
     const review = await prisma.review.create({
       data: {
-        rating,
-        title,
-        comment,
-        userId,
+        rating: Number(rating),
+        title: title ?? null,
+        comment: comment ?? null,
+        userId: session.user.id,
         productId: product.id
       },
       include: {

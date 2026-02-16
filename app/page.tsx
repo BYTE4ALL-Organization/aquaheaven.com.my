@@ -11,30 +11,6 @@ async function getNewArrivals(): Promise<Product[]> {
     const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:3000";
     const url = new URL(`${baseUrl}/api/shop/products`);
     url.searchParams.set("limit", "4");
-    url.searchParams.set("sortBy", "createdAt");
-    url.searchParams.set("order", "desc");
-
-    const response = await fetch(url.toString(), {
-      cache: "no-store",
-    });
-
-    if (!response.ok) {
-      return [];
-    }
-
-    const data = await response.json();
-    return data.success ? data.products : [];
-  } catch (error) {
-    console.error("Error fetching new arrivals:", error);
-    return [];
-  }
-}
-
-async function getTopSelling(): Promise<Product[]> {
-  try {
-    const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:3000";
-    const url = new URL(`${baseUrl}/api/shop/products`);
-    url.searchParams.set("limit", "4");
     url.searchParams.set("featured", "true");
     url.searchParams.set("sortBy", "createdAt");
     url.searchParams.set("order", "desc");
@@ -50,7 +26,32 @@ async function getTopSelling(): Promise<Product[]> {
     const data = await response.json();
     return data.success ? data.products : [];
   } catch (error) {
-    console.error("Error fetching top selling:", error);
+    console.error("Error fetching new arrivals (featured):", error);
+    return [];
+  }
+}
+
+async function getTopSelling(): Promise<Product[]> {
+  try {
+    const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:3000";
+    const url = new URL(`${baseUrl}/api/shop/products`);
+    url.searchParams.set("limit", "4");
+    url.searchParams.set("bestSellers", "true");
+    url.searchParams.set("sortBy", "createdAt");
+    url.searchParams.set("order", "desc");
+
+    const response = await fetch(url.toString(), {
+      cache: "no-store",
+    });
+
+    if (!response.ok) {
+      return [];
+    }
+
+    const data = await response.json();
+    return data.success ? data.products : [];
+  } catch (error) {
+    console.error("Error fetching top selling (best sellers):", error);
     return [];
   }
 }
@@ -83,13 +84,15 @@ export default async function Home() {
       <Brands />
       <main className="my-[50px] sm:my-[72px]">
         {newArrivalsData.length > 0 && (
-          <ProductListSec
-            title="BEST SELLERS"
-            data={newArrivalsData}
-            viewAllLink="/shop#new-arrivals"
-          />
+          <div className="mb-[50px] sm:mb-20">
+            <ProductListSec
+              title="NEW ARRIVALS"
+              data={newArrivalsData}
+              viewAllLink="/shop#new-arrivals"
+            />
+          </div>
         )}
-        {newArrivalsData.length > 0 && (
+        {newArrivalsData.length > 0 && topSellingData.length > 0 && (
           <div className="max-w-frame mx-auto px-4 xl:px-0">
             <hr className="h-[1px] border-t-black/10 my-10 sm:my-16" />
           </div>
@@ -97,9 +100,9 @@ export default async function Home() {
         {topSellingData.length > 0 && (
           <div className="mb-[50px] sm:mb-20">
             <ProductListSec
-              title="top selling"
+              title="TOP SELLING"
               data={topSellingData}
-              viewAllLink="/shop#top-selling"
+              viewAllLink="/shop#best-sellers"
             />
           </div>
         )}

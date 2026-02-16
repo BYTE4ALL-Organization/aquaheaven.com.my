@@ -15,6 +15,7 @@ interface Product {
   thumbnail: string | null
   isActive: boolean
   isFeatured: boolean
+  isBestSeller: boolean
   categories: {
     id: string
     name: string
@@ -308,6 +309,11 @@ export default function ProductsPage() {
                         {product.isFeatured && (
                           <span className="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-blue-100 text-blue-800">
                             Featured
+                          </span>
+                        )}
+                        {product.isBestSeller && (
+                          <span className="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-amber-100 text-amber-800">
+                            Best Seller
                           </span>
                         )}
                       </div>

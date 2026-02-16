@@ -4,6 +4,7 @@ import Header from "@/components/product-page/Header";
 import Tabs from "@/components/product-page/Tabs";
 import { Product } from "@/types/product.types";
 import { notFound } from "next/navigation";
+import { headers } from "next/headers";
 
 /** Map API product (name, slug, thumbnail, reviews) to Product type (title, srcUrl, rating, discount). */
 function mapApiProductToCard(apiProduct: {
@@ -46,8 +47,11 @@ export default async function ProductPage({
   if (!idOrSlug) notFound();
 
   const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:3000";
+  const headersList = await headers();
+  const cookie = headersList.get("cookie") ?? "";
   const res = await fetch(`${baseUrl}/api/shop/products/${encodeURIComponent(idOrSlug)}`, {
     cache: "no-store",
+    headers: cookie ? { cookie } : undefined,
   });
 
   if (!res.ok) notFound();
@@ -57,10 +61,12 @@ export default async function ProductPage({
   const productData = mapApiProductToCard(json.product);
   const apiProduct = json.product as {
     id: string;
+    slug: string;
     description?: string | null;
     color?: string | null;
     availableColors?: string[];
     availableSizes?: string[];
+    canReview?: boolean;
     categories?: Array<{ id: string; name: string; slug: string }>;
     reviews?: Array<{
       id: string;
@@ -96,7 +102,13 @@ export default async function ProductPage({
             }}
           />
         </section>
-        <Tabs productId={apiProduct.id} reviews={reviews} categorySlugs={categorySlugs} />
+        <Tabs
+          productId={apiProduct.id}
+          productSlug={apiProduct.slug}
+          reviews={reviews}
+          categorySlugs={categorySlugs}
+          canReview={apiProduct.canReview === true}
+        />
       </div>
       <div className="mb-[50px] sm:mb-20">
         <RelatedSection productId={productData.id} />

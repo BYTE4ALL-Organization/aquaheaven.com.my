@@ -7,6 +7,7 @@ export async function GET(request: NextRequest) {
     const category = searchParams.get("category");
     const brand = searchParams.get("brand");
     const featured = searchParams.get("featured");
+    const bestSellers = searchParams.get("bestSellers");
     const limit = searchParams.get("limit");
     const offset = searchParams.get("offset");
     const sortBy = searchParams.get("sortBy") || "createdAt";
@@ -38,6 +39,10 @@ export async function GET(request: NextRequest) {
 
     if (featured === "true") {
       where.isFeatured = true;
+    }
+
+    if (bestSellers === "true") {
+      where.isBestSeller = true;
     }
 
     const minPriceNum = minPrice != null && minPrice !== "" ? parseFloat(minPrice) : NaN;

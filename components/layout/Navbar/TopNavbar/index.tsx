@@ -50,7 +50,7 @@ const data: NavMenu = [
     id: 3,
     type: "MenuItem",
     label: "Best Sellers",
-    url: "/shop#new-arrivals",
+    url: "/shop#best-sellers",
     children: [],
   },
   {

@@ -38,6 +38,7 @@ export default function NewProductPage() {
     brandId: '',
     isActive: true,
     isFeatured: false,
+    isBestSeller: false,
     sku: '',
     color: '',
     size: '',
@@ -498,6 +499,20 @@ export default function NewProductPage() {
                   />
                   <label htmlFor="isFeatured" className="ml-2 block text-sm text-gray-900">
                     Featured
+                  </label>
+                </div>
+
+                <div className="flex items-center">
+                  <input
+                    type="checkbox"
+                    name="isBestSeller"
+                    id="isBestSeller"
+                    checked={formData.isBestSeller}
+                    onChange={handleInputChange}
+                    className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+                  />
+                  <label htmlFor="isBestSeller" className="ml-2 block text-sm text-gray-900">
+                    Best Seller
                   </label>
                 </div>
               </div>
