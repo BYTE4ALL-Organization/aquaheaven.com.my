@@ -48,21 +48,7 @@ const Header = ({ data }: { data: ProductWithColor }) => {
           >
             {title}
           </h1>
-          <div className="flex items-center mb-3 sm:mb-3.5">
-            <Rating
-              initialValue={data.rating}
-              allowFraction
-              SVGclassName="inline-block"
-              emptyClassName="fill-gray-50"
-              size={25}
-              readonly
-            />
-            <span className="text-black text-xs sm:text-sm ml-[11px] sm:ml-[13px] pb-0.5 sm:pb-0">
-              {data.rating.toFixed(1)}
-              <span className="text-black/60">/5</span>
-            </span>
-          </div>
-          <div className="flex items-center space-x-2.5 sm:space-x-3 mb-5">
+          <div className="flex flex-wrap items-center gap-x-3 gap-y-1 mb-5">
             {discount.percentage > 0 ? (
               <span className="font-bold text-black text-2xl sm:text-[32px]">
                 {formatPrice(Math.round(data.price - (data.price * discount.percentage) / 100))}
@@ -76,27 +62,35 @@ const Header = ({ data }: { data: ProductWithColor }) => {
                 {formatPrice(data.price)}
               </span>
             )}
+            {(discount.percentage > 0 || discount.amount > 0) && (
+              <span className="font-bold text-black/40 line-through text-xl sm:text-2xl">
+                {formatPrice(data.price)}
+              </span>
+            )}
             {discount.percentage > 0 && (
-              <span className="font-bold text-black/40 line-through text-2xl sm:text-[32px]">
-                {formatPrice(data.price)}
-              </span>
-            )}
-            {discount.amount > 0 && (
-              <span className="font-bold text-black/40 line-through text-2xl sm:text-[32px]">
-                {formatPrice(data.price)}
-              </span>
-            )}
-            {discount.percentage > 0 ? (
               <span className="font-medium text-[10px] sm:text-xs py-1.5 px-3.5 rounded-full bg-[#FF3333]/10 text-[#FF3333]">
                 {`-${discount.percentage}%`}
               </span>
-            ) : (
-              discount.amount > 0 && (
-                <span className="font-medium text-[10px] sm:text-xs py-1.5 px-3.5 rounded-full bg-[#FF3333]/10 text-[#FF3333]">
-                  {`-${formatPrice(discount.amount)}`}
-                </span>
-              )
             )}
+            {discount.amount > 0 && !discount.percentage && (
+              <span className="font-medium text-[10px] sm:text-xs py-1.5 px-3.5 rounded-full bg-[#FF3333]/10 text-[#FF3333]">
+                {`-${formatPrice(discount.amount)}`}
+              </span>
+            )}
+            <span className="inline-flex items-center gap-2 ml-0.5">
+              <Rating
+                initialValue={data.rating}
+                allowFraction
+                SVGclassName="inline-block"
+                emptyClassName="fill-gray-200"
+                size={22}
+                readonly
+              />
+              <span className="text-black text-sm font-medium tabular-nums">
+                {data.rating.toFixed(1)}
+                <span className="text-black/60">/5</span>
+              </span>
+            </span>
           </div>
           {typeof data.description === "string" && data.description.trim() && (
             <p className="text-sm sm:text-base text-black/60 mb-5">

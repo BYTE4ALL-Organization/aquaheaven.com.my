@@ -89,6 +89,7 @@ export default async function Home() {
               title="NEW ARRIVALS"
               data={newArrivalsData}
               viewAllLink="/shop#new-arrivals"
+              compact
             />
           </div>
         )}
@@ -103,6 +104,7 @@ export default async function Home() {
               title="TOP SELLING"
               data={topSellingData}
               viewAllLink="/shop#best-sellers"
+              compact
             />
           </div>
         )}

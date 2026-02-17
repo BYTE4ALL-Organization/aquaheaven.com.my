@@ -6,6 +6,8 @@ import {
   Carousel,
   CarouselContent,
   CarouselItem,
+  CarouselPrevious,
+  CarouselNext,
 } from "@/components/ui/carousel";
 import ProductCard from "./ProductCard";
 import { Product } from "@/types/product.types";
@@ -15,9 +17,11 @@ type ProductListSecProps = {
   title: string;
   data: Product[];
   viewAllLink?: string;
+  /** Use refined price + stars styling (main page only) */
+  compact?: boolean;
 };
 
-const ProductListSec = ({ title, data, viewAllLink }: ProductListSecProps) => {
+const ProductListSec = ({ title, data, viewAllLink, compact = false }: ProductListSecProps) => {
   return (
     <section className="max-w-frame mx-auto text-center">
       <motion.h2
@@ -38,23 +42,28 @@ const ProductListSec = ({ title, data, viewAllLink }: ProductListSecProps) => {
         viewport={{ once: true }}
         transition={{ delay: 0.6, duration: 0.6 }}
       >
-        <Carousel
-          opts={{
-            align: "start",
-          }}
-          className="w-full mb-6 md:mb-9"
-        >
-          <CarouselContent className="mx-4 xl:mx-0 space-x-4 sm:space-x-5">
-            {data.map((product) => (
-              <CarouselItem
-                key={product.id}
-                className="w-full max-w-[198px] sm:max-w-[295px] pl-0"
-              >
-                <ProductCard data={product} />
-              </CarouselItem>
-            ))}
-          </CarouselContent>
-        </Carousel>
+        <div className="relative w-full mb-6 md:mb-9">
+          <Carousel
+            opts={{
+              align: "start",
+              loop: true,
+            }}
+            className="w-full"
+          >
+            <CarouselContent className="mx-4 xl:mx-0 space-x-4 sm:space-x-5">
+              {data.map((product) => (
+                <CarouselItem
+                  key={product.id}
+                  className="w-full max-w-[198px] sm:max-w-[295px] pl-0"
+                >
+                  <ProductCard data={product} compact={compact} />
+                </CarouselItem>
+              ))}
+            </CarouselContent>
+            <CarouselPrevious className="left-0 -translate-y-1/2 top-1/2 hidden sm:flex h-9 w-9 rounded-full border-2 border-brand/30 bg-white/95 hover:bg-white shadow-md" />
+            <CarouselNext className="right-0 -translate-y-1/2 top-1/2 hidden sm:flex h-9 w-9 rounded-full border-2 border-brand/30 bg-white/95 hover:bg-white shadow-md" />
+          </Carousel>
+        </div>
         {viewAllLink && (
           <div className="w-full px-4 sm:px-0 text-center">
             <Link
