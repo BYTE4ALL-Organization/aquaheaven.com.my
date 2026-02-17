@@ -84,6 +84,17 @@ To get started with Shopco locally, follow these steps:
 4. **Open in your browser:**
    Navigate to [http://localhost:3000](http://localhost:3000) to view the app.
 
+### Resend email list (Stack Auth users)
+
+Signed-in Stack Auth users and users who place orders are automatically added to your Resend contact list so you can email them (newsletters, promos, etc.).
+
+- Get an API key at [resend.com](https://resend.com) and create an audience/contacts if needed.
+- Add to your `.env`:
+  ```bash
+  RESEND_API_KEY=re_xxxxxxxxx
+  ```
+- If `RESEND_API_KEY` is not set, contact sync is skipped (no errors). Contacts are added on **auth sync** (login/signup) and when a **logged-in user places an order**.
+
 ## Usage
 
 - To explore or modify the code, navigate through the `components`, `features`, and `app` directories.

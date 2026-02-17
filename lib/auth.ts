@@ -1,4 +1,5 @@
 import { prisma } from "@/lib/prisma";
+import { addContactToResend } from "@/lib/resend";
 import { stackServerApp } from "@/stack";
 
 /**
@@ -38,6 +39,11 @@ export async function getStackUserAndSync(request: Request): Promise<{
         image,
       },
     });
+
+    // Add Stack Auth user to Resend email list (fire-and-forget)
+    addContactToResend({ email: user.email, name: user.name }).catch((err) =>
+      console.error("Resend sync after auth:", err)
+    );
 
     return user;
   } catch (error) {

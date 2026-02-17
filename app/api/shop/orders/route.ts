@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { getStackUserAndSync } from "@/lib/auth";
+import { addContactToResend } from "@/lib/resend";
 
 function generateOrderNumber(): string {
   return `ORD-${Date.now()}-${Math.random().toString(36).slice(2, 8).toUpperCase()}`;
@@ -101,6 +102,13 @@ export async function POST(request: Request) {
 
       return newOrder;
     });
+
+    // Add ordering user to Resend email list when logged in (fire-and-forget)
+    if (dbUser) {
+      addContactToResend({ email: dbUser.email, name: dbUser.name }).catch((err) =>
+        console.error("Resend sync after order:", err)
+      );
+    }
 
     return NextResponse.json({
       success: true,
