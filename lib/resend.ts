@@ -33,7 +33,7 @@ export async function addContactToResend(params: {
   const normalized = email?.trim().toLowerCase();
   if (!normalized || normalized.endsWith("@user.local")) return { ok: true };
 
-  const { firstName, lastName } = splitName(name ?? undefined);
+  const { firstName, lastName } = splitName(name ?? null);
 
   try {
     const { error } = await resend.contacts.create({

@@ -157,6 +157,8 @@ model Order {
   paymentMethod   String?
   paymentStatus   PaymentStatus @default(PENDING)
   transactionId   String?
+  /** Billplz bill id (set when bill is created; used for callback) */
+  billplzBillId   String?
   userId          String?
   createdAt       DateTime      @default(now())
   updatedAt       DateTime      @updatedAt
