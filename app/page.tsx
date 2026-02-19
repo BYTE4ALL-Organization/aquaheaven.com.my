@@ -6,9 +6,17 @@ import Reviews from "@/components/homepage/Reviews";
 import { Product } from "@/types/product.types";
 import { Review } from "@/types/review.types";
 
+// Homepage fetches fresh products/reviews; must be server-rendered per request.
+export const dynamic = "force-dynamic";
+
+function getBaseUrl(): string {
+  if (process.env.VERCEL_URL) return `https://${process.env.VERCEL_URL}`;
+  return process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:3000";
+}
+
 async function getNewArrivals(): Promise<Product[]> {
   try {
-    const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:3000";
+    const baseUrl = getBaseUrl();
     const url = new URL(`${baseUrl}/api/shop/products`);
     url.searchParams.set("limit", "4");
     url.searchParams.set("featured", "true");
@@ -33,7 +41,7 @@ async function getNewArrivals(): Promise<Product[]> {
 
 async function getTopSelling(): Promise<Product[]> {
   try {
-    const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:3000";
+    const baseUrl = getBaseUrl();
     const url = new URL(`${baseUrl}/api/shop/products`);
     url.searchParams.set("limit", "4");
     url.searchParams.set("bestSellers", "true");
@@ -58,7 +66,7 @@ async function getTopSelling(): Promise<Product[]> {
 
 async function getReviewsFromDb(): Promise<Review[]> {
   try {
-    const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:3000";
+    const baseUrl = getBaseUrl();
     const response = await fetch(`${baseUrl}/api/shop/reviews`, {
       cache: "no-store",
     });
