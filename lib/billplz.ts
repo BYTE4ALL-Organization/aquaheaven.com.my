@@ -89,7 +89,29 @@ export async function createBill(params: CreateBillParams): Promise<BillplzBillR
       body: body.toString(),
     });
 
-    const data = (await res.json()) as BillplzBillResponse & { error?: { message?: string } };
+    const text = await res.text();
+    let data: BillplzBillResponse & { error?: { message?: string } };
+    const contentType = res.headers.get("content-type") ?? "";
+    if (contentType.includes("application/json") && text.trim() && !text.trimStart().startsWith("<")) {
+      try {
+        data = JSON.parse(text) as BillplzBillResponse & { error?: { message?: string } };
+      } catch {
+        console.error("Billplz create bill: invalid JSON response", res.status, text.slice(0, 200));
+        return null;
+      }
+    } else {
+      // Billplz returned HTML (e.g. error page, login page) – wrong URL or auth failed
+      console.error(
+        "Billplz create bill: expected JSON, got HTML.",
+        "Status:",
+        res.status,
+        "URL:",
+        `${baseUrl}/bills`,
+        "Check BILLPLZ_API_SECRET_KEY and BILLPLZ_COLLECTION_ID (and sandbox vs production)."
+      );
+      return null;
+    }
+
     if (!res.ok) {
       console.error("Billplz create bill error:", res.status, data);
       return null;

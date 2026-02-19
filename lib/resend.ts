@@ -45,12 +45,33 @@ export async function addContactToResend(params: {
     if (error) {
       // Resend may return "already exists" – contact is still in list
       if (error.message?.toLowerCase().includes("already exists")) return { ok: true };
+      // API key restricted to "send only" cannot use contacts API – skip without failing
+      const errMsg = error.message ?? "";
+      const restricted = (error as { name?: string }).name === "restricted_api_key" ||
+        errMsg.toLowerCase().includes("restricted") ||
+        (error as { statusCode?: number }).statusCode === 401;
+      if (restricted) {
+        if (process.env.NODE_ENV !== "production") {
+          console.warn("Resend: API key is send-only; contacts not updated. Use a full-access key to add contacts.");
+        }
+        return { ok: true };
+      }
+      // Network / temporary errors – don't fail the main flow
+      if (errMsg.includes("could not be resolved") || errMsg.includes("Unable to fetch")) {
+        if (process.env.NODE_ENV !== "production") {
+          console.warn("Resend: temporary error (", errMsg, "). Contact not added.");
+        }
+        return { ok: true };
+      }
       console.error("Resend add contact error:", error);
       return { ok: false, error: error.message };
     }
     return { ok: true };
   } catch (err) {
-    console.error("Resend add contact exception:", err);
-    return { ok: false, error: err instanceof Error ? err.message : "Unknown error" };
+    // Don't fail sign-in/checkout if Resend is down or key restricted
+    if (process.env.NODE_ENV !== "production") {
+      console.warn("Resend add contact exception:", err);
+    }
+    return { ok: true };
   }
 }
