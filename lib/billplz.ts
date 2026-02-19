@@ -1,12 +1,13 @@
 /**
- * Billplz API v4 integration.
+ * Billplz API integration.
+ * Create bill uses v3; callback/docs reference v4 for other features.
  * Docs: https://www.billplz.com/api
  * Sandbox: https://www.billplz-sandbox.com/api/
  * Amounts are in sen (1 RM = 100 sen).
  */
 
-const BILLPLZ_SANDBOX = "https://www.billplz-sandbox.com/api/v4";
-const BILLPLZ_PRODUCTION = "https://www.billplz.com/api/v4";
+const BILLPLZ_SANDBOX = "https://www.billplz-sandbox.com/api/v3";
+const BILLPLZ_PRODUCTION = "https://www.billplz.com/api/v3";
 
 export function getBillplzBaseUrl(): string {
   const useSandbox = process.env.BILLPLZ_USE_SANDBOX !== "false";
