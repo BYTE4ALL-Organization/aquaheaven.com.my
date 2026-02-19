@@ -18,7 +18,8 @@ import {
   PaginationNext,
   PaginationPrevious,
 } from "@/components/ui/pagination";
-import { getBaseUrl } from "@/lib/base-url";
+import { prisma } from "@/lib/prisma";
+import { getFilters, getProductsList } from "@/lib/shop-data";
 import { Product } from "@/types/product.types";
 
 function mapApiProductToCard(apiProduct: {
@@ -89,48 +90,46 @@ export default async function ShopPage({
   const page = Math.max(1, parseInt(typeof params?.page === "string" ? params.page : "", 10) || 1);
   const offset = (page - 1) * PER_PAGE;
 
-  const baseUrl = getBaseUrl();
+  const minPriceNum = minPrice != null && minPrice !== "" ? parseFloat(minPrice) : undefined;
+  const maxPriceNum = maxPrice != null && maxPrice !== "" ? parseFloat(maxPrice) : undefined;
 
-  const [filtersRes, productsRes] = await Promise.all([
-    fetch(`${baseUrl}/api/shop/filters`, { cache: "no-store" }),
-    (() => {
-      const url = new URL(`${baseUrl}/api/shop/products`);
-      url.searchParams.set("limit", String(PER_PAGE));
-      url.searchParams.set("offset", String(offset));
-      if (category) url.searchParams.set("category", category);
-      if (brand) url.searchParams.set("brand", brand);
-      if (color) url.searchParams.set("color", color);
-      if (size) url.searchParams.set("size", size);
-      if (minPrice) url.searchParams.set("minPrice", minPrice);
-      if (maxPrice) url.searchParams.set("maxPrice", maxPrice);
-      return fetch(url.toString(), { cache: "no-store" });
-    })(),
-  ]);
+  const [filtersData, { products: productsRaw, total }] =
+    await Promise.all([
+      getFilters(prisma),
+      getProductsList(prisma, {
+        category,
+        brand,
+        color,
+        size,
+        minPrice: minPriceNum,
+        maxPrice: maxPriceNum,
+        limit: PER_PAGE,
+        offset,
+        sortBy: "createdAt",
+        order: "desc",
+      }),
+    ]);
 
-  const filtersData = filtersRes.ok ? await filtersRes.json() : null;
-  const productsData = productsRes.ok ? await productsRes.json() : null;
-
-  const options = filtersData?.success
-    ? {
-        categories: filtersData.categories ?? [],
-        brands: filtersData.brands ?? [],
-        priceRange: filtersData.priceRange ?? { min: 0, max: 250 },
-        colors: filtersData.colors ?? [],
-        sizes: filtersData.sizes ?? [],
-      }
-    : {
-        categories: [],
-        brands: [],
-        priceRange: { min: 0, max: 250 },
-        colors: [],
-        sizes: [],
-      };
+  const options = {
+    categories: filtersData.categories ?? [],
+    brands: filtersData.brands ?? [],
+    priceRange: filtersData.priceRange ?? { min: 0, max: 250 },
+    colors: filtersData.colors ?? [],
+    sizes: filtersData.sizes ?? [],
+  };
 
   const products: (Product & { name?: string; slug?: string; thumbnail?: string; images?: string[]; reviews?: { rating: number }[] })[] =
-    productsData?.success && Array.isArray(productsData?.products)
-      ? productsData.products.map(mapApiProductToCard)
-      : [];
-  const total = typeof productsData?.total === "number" ? productsData.total : products.length;
+    productsRaw.map((p) =>
+      mapApiProductToCard({
+        id: p.id,
+        name: p.name,
+        slug: p.slug,
+        price: p.price,
+        thumbnail: p.thumbnail,
+        images: p.images,
+        reviews: p.reviews?.map((r) => ({ rating: r.rating })) ?? [],
+      })
+    );
   const totalPages = Math.max(1, Math.ceil(total / PER_PAGE));
   const start = total === 0 ? 0 : (page - 1) * PER_PAGE + 1;
   const end = Math.min(page * PER_PAGE, total);

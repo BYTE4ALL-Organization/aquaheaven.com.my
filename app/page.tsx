@@ -3,84 +3,59 @@ import Brands from "@/components/homepage/Brands";
 import DressStyle from "@/components/homepage/DressStyle";
 import Header from "@/components/homepage/Header";
 import Reviews from "@/components/homepage/Reviews";
-import { getBaseUrl } from "@/lib/base-url";
+import { prisma } from "@/lib/prisma";
+import { getProductsList, getReviews } from "@/lib/shop-data";
 import { Product } from "@/types/product.types";
 import { Review } from "@/types/review.types";
 
-// Homepage fetches fresh products/reviews; must be server-rendered per request.
+// Homepage uses DB directly so it works with Vercel Deployment Protection.
 export const dynamic = "force-dynamic";
 
-async function getNewArrivals(): Promise<Product[]> {
-  try {
-    const baseUrl = getBaseUrl();
-    const url = new URL(`${baseUrl}/api/shop/products`);
-    url.searchParams.set("limit", "4");
-    url.searchParams.set("featured", "true");
-    url.searchParams.set("sortBy", "createdAt");
-    url.searchParams.set("order", "desc");
-
-    const response = await fetch(url.toString(), {
-      cache: "no-store",
-    });
-
-    if (!response.ok) {
-      return [];
-    }
-
-    const data = await response.json();
-    return data.success ? data.products : [];
-  } catch (error) {
-    console.error("Error fetching new arrivals (featured):", error);
-    return [];
-  }
-}
-
-async function getTopSelling(): Promise<Product[]> {
-  try {
-    const baseUrl = getBaseUrl();
-    const url = new URL(`${baseUrl}/api/shop/products`);
-    url.searchParams.set("limit", "4");
-    url.searchParams.set("bestSellers", "true");
-    url.searchParams.set("sortBy", "createdAt");
-    url.searchParams.set("order", "desc");
-
-    const response = await fetch(url.toString(), {
-      cache: "no-store",
-    });
-
-    if (!response.ok) {
-      return [];
-    }
-
-    const data = await response.json();
-    return data.success ? data.products : [];
-  } catch (error) {
-    console.error("Error fetching top selling (best sellers):", error);
-    return [];
-  }
-}
-
-async function getReviewsFromDb(): Promise<Review[]> {
-  try {
-    const baseUrl = getBaseUrl();
-    const response = await fetch(`${baseUrl}/api/shop/reviews`, {
-      cache: "no-store",
-    });
-    if (!response.ok) return [];
-    const data = await response.json();
-    return data.success && Array.isArray(data.reviews) ? data.reviews : [];
-  } catch (error) {
-    console.error("Error fetching reviews:", error);
-    return [];
-  }
+function mapToProduct(p: {
+  id: string;
+  name: string;
+  price: unknown;
+  thumbnail?: string | null;
+  images?: string[] | null;
+  reviews?: { rating: number }[];
+}): Product {
+  const reviews = p.reviews ?? [];
+  const rating =
+    reviews.length > 0
+      ? reviews.reduce((a, r) => a + (r?.rating ?? 0), 0) / reviews.length
+      : 0;
+  return {
+    id: p.id as unknown as number,
+    title: p.name,
+    srcUrl:
+      p.thumbnail ||
+      (Array.isArray(p.images) && p.images[0]) ||
+      "/images/placeholder.png",
+    price: Number(p.price) || 0,
+    discount: { amount: 0, percentage: 0 },
+    rating,
+  };
 }
 
 export default async function Home() {
-  const [newArrivalsData, topSellingData, reviewsFromDb] = await Promise.all([
-    getNewArrivals(),
-    getTopSelling(),
-    getReviewsFromDb(),
+  const [newArrivalsRes, topSellingRes, reviewsFromDb] = await Promise.all([
+    getProductsList(prisma, {
+      featured: true,
+      limit: 4,
+      sortBy: "createdAt",
+      order: "desc",
+    }),
+    getProductsList(prisma, {
+      bestSellers: true,
+      limit: 4,
+      sortBy: "createdAt",
+      order: "desc",
+    }),
+    getReviews(prisma, 12),
   ]);
+
+  const newArrivalsData: Product[] = newArrivalsRes.products.map(mapToProduct);
+  const topSellingData: Product[] = topSellingRes.products.map(mapToProduct);
 
   return (
     <>

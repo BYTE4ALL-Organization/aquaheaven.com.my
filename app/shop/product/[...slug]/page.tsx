@@ -2,7 +2,10 @@ import ProductListSec from "@/components/common/ProductListSec";
 import BreadcrumbProduct from "@/components/product-page/BreadcrumbProduct";
 import Header from "@/components/product-page/Header";
 import Tabs from "@/components/product-page/Tabs";
-import { getBaseUrl } from "@/lib/base-url";
+import { auth } from "@/lib/auth";
+import { prisma } from "@/lib/prisma";
+import { hasUserPurchasedProduct } from "@/lib/purchase-check";
+import { getProductDetail, getProductsList } from "@/lib/shop-data";
 import { Product } from "@/types/product.types";
 import { notFound } from "next/navigation";
 import { headers } from "next/headers";
@@ -47,45 +50,53 @@ export default async function ProductPage({
   const idOrSlug = slug?.[0];
   if (!idOrSlug) notFound();
 
-  const baseUrl = getBaseUrl();
   const headersList = await headers();
   const cookie = headersList.get("cookie") ?? "";
-  const res = await fetch(`${baseUrl}/api/shop/products/${encodeURIComponent(idOrSlug)}`, {
-    cache: "no-store",
-    headers: cookie ? { cookie } : undefined,
+  const request = new Request("http://localhost", {
+    headers: { cookie },
   });
 
-  if (!res.ok) notFound();
-  const json = await res.json();
-  if (!json.success || !json.product) notFound();
+  const [productRow, session] = await Promise.all([
+    getProductDetail(prisma, idOrSlug),
+    auth(request),
+  ]);
 
-  const productData = mapApiProductToCard(json.product);
-  const apiProduct = json.product as {
-    id: string;
-    slug: string;
-    description?: string | null;
-    color?: string | null;
-    availableColors?: string[];
-    availableSizes?: string[];
-    canReview?: boolean;
-    categories?: Array<{ id: string; name: string; slug: string }>;
-    reviews?: Array<{
-      id: string;
-      rating: number;
-      title?: string | null;
-      comment?: string | null;
-      createdAt: string;
-      user?: { name: string | null } | null;
-    }>;
-  };
-  const categorySlugs = (apiProduct.categories ?? []).map((c) => c.slug).filter(Boolean);
-  const reviews = (Array.isArray(apiProduct.reviews) ? apiProduct.reviews : []).map((r, idx) => ({
+  if (!productRow) notFound();
+
+  let canReview = false;
+  if (session?.user) {
+    canReview = await hasUserPurchasedProduct(session.user.id, productRow.id);
+  }
+
+  const productData = mapApiProductToCard({
+    id: productRow.id,
+    name: productRow.name,
+    slug: productRow.slug,
+    description: productRow.description,
+    price: productRow.price,
+    thumbnail: productRow.thumbnail,
+    images: productRow.images,
+    reviews: productRow.reviews?.map((r) => ({ rating: r.rating })) ?? [],
+  });
+  const categorySlugs = (productRow.productCategories ?? []).map((pc) => pc.category.slug).filter(Boolean);
+  const reviews = (productRow.reviews ?? []).map((r, idx) => ({
     id: r.id || `r-${idx}`,
     user: r.user?.name?.trim() || "Guest",
     content: (r.comment || r.title || "").trim() || "No comment.",
     rating: r.rating,
     date: new Date(r.createdAt).toLocaleDateString("en-US", { year: "numeric", month: "long", day: "numeric" }),
   }));
+  const apiProduct = {
+    id: productRow.id,
+    slug: productRow.slug,
+    description: productRow.description,
+    color: productRow.color,
+    availableColors: productRow.availableColors,
+    availableSizes: productRow.availableSizes,
+    canReview,
+    categories: (productRow.productCategories ?? []).map((pc) => pc.category),
+    reviews: productRow.reviews,
+  };
 
   return (
     <main>
@@ -119,16 +130,21 @@ export default async function ProductPage({
 }
 
 async function RelatedSection({ productId }: { productId: number | string }) {
-  const baseUrl = getBaseUrl();
-  const url = new URL(`${baseUrl}/api/shop/products`);
-  url.searchParams.set("limit", "4");
-  const res = await fetch(url.toString(), { cache: "no-store" });
-  const data = res.ok ? await res.json() : null;
-  const products = (data?.success && data?.products) ? data.products : [];
+  const { products } = await getProductsList(prisma, { limit: 8 });
   const related = products
-    .filter((p: { id: string }) => p.id !== String(productId))
+    .filter((p) => p.id !== String(productId))
     .slice(0, 4)
-    .map(mapApiProductToCard);
+    .map((p) =>
+      mapApiProductToCard({
+        id: p.id,
+        name: p.name,
+        slug: p.slug,
+        price: p.price,
+        thumbnail: p.thumbnail,
+        images: p.images,
+        reviews: p.reviews?.map((r) => ({ rating: r.rating })) ?? [],
+      })
+    );
 
   if (related.length === 0) return null;
   return (
