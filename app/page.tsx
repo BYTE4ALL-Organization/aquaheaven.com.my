@@ -3,16 +3,12 @@ import Brands from "@/components/homepage/Brands";
 import DressStyle from "@/components/homepage/DressStyle";
 import Header from "@/components/homepage/Header";
 import Reviews from "@/components/homepage/Reviews";
+import { getBaseUrl } from "@/lib/base-url";
 import { Product } from "@/types/product.types";
 import { Review } from "@/types/review.types";
 
 // Homepage fetches fresh products/reviews; must be server-rendered per request.
 export const dynamic = "force-dynamic";
-
-function getBaseUrl(): string {
-  if (process.env.VERCEL_URL) return `https://${process.env.VERCEL_URL}`;
-  return process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:3000";
-}
 
 async function getNewArrivals(): Promise<Product[]> {
   try {

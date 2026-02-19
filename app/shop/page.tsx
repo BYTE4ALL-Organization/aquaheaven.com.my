@@ -18,6 +18,7 @@ import {
   PaginationNext,
   PaginationPrevious,
 } from "@/components/ui/pagination";
+import { getBaseUrl } from "@/lib/base-url";
 import { Product } from "@/types/product.types";
 
 function mapApiProductToCard(apiProduct: {
@@ -88,7 +89,7 @@ export default async function ShopPage({
   const page = Math.max(1, parseInt(typeof params?.page === "string" ? params.page : "", 10) || 1);
   const offset = (page - 1) * PER_PAGE;
 
-  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:3000";
+  const baseUrl = getBaseUrl();
 
   const [filtersRes, productsRes] = await Promise.all([
     fetch(`${baseUrl}/api/shop/filters`, { cache: "no-store" }),

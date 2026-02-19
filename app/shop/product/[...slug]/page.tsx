@@ -2,6 +2,7 @@ import ProductListSec from "@/components/common/ProductListSec";
 import BreadcrumbProduct from "@/components/product-page/BreadcrumbProduct";
 import Header from "@/components/product-page/Header";
 import Tabs from "@/components/product-page/Tabs";
+import { getBaseUrl } from "@/lib/base-url";
 import { Product } from "@/types/product.types";
 import { notFound } from "next/navigation";
 import { headers } from "next/headers";
@@ -46,7 +47,7 @@ export default async function ProductPage({
   const idOrSlug = slug?.[0];
   if (!idOrSlug) notFound();
 
-  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:3000";
+  const baseUrl = getBaseUrl();
   const headersList = await headers();
   const cookie = headersList.get("cookie") ?? "";
   const res = await fetch(`${baseUrl}/api/shop/products/${encodeURIComponent(idOrSlug)}`, {
@@ -118,7 +119,7 @@ export default async function ProductPage({
 }
 
 async function RelatedSection({ productId }: { productId: number | string }) {
-  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:3000";
+  const baseUrl = getBaseUrl();
   const url = new URL(`${baseUrl}/api/shop/products`);
   url.searchParams.set("limit", "4");
   const res = await fetch(url.toString(), { cache: "no-store" });
