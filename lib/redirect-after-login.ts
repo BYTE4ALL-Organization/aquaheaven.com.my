@@ -1,4 +1,6 @@
-const COOKIE_NAME = "redirect_after_login";
+/** Cookie name for redirect-after-login (used by middleware and client). */
+export const REDIRECT_AFTER_LOGIN_COOKIE_NAME = "redirect_after_login";
+const COOKIE_NAME = REDIRECT_AFTER_LOGIN_COOKIE_NAME;
 const COOKIE_MAX_AGE_SEC = 600; // 10 minutes
 const SESSION_STORAGE_KEY = "redirectAfterLogin";
 

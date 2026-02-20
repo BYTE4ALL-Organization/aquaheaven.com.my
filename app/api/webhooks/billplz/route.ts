@@ -1,12 +1,14 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { verifyCallbackSignature } from "@/lib/billplz";
-import { getBaseUrl } from "@/lib/base-url";
+import { sendOrderConfirmationEmail } from "@/lib/resend";
 
 /**
- * Billplz sends callback as POST with application/x-www-form-urlencoded.
- * Params: id (bill id), paid ("true"|"false"), state, reference_1 (our order id), etc.
- * If X-Signature is enabled in Billplz, verify using BILLPLZ_X_SIGNATURE_KEY.
+ * Billplz callback (v3/v4): POST application/x-www-form-urlencoded.
+ * Params: id (bill id), paid ("true"|"false"), state; reference_1 is optional in callback.
+ * If reference_1 is missing, we look up order by billplzBillId === id.
+ * Enable "Basic Callback URL" or "X Signature Callback URL" in Billplz collection/dashboard.
+ * If X-Signature is enabled, set BILLPLZ_X_SIGNATURE_KEY.
  */
 export async function POST(request: NextRequest) {
   try {
@@ -47,8 +49,8 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "Unsupported content type" }, { status: 400 });
     }
 
-    if (!orderId || !String(orderId).trim()) {
-      return NextResponse.json({ error: "Missing reference_1" }, { status: 400 });
+    if (!billId || !String(billId).trim()) {
+      return NextResponse.json({ error: "Missing id (bill id)" }, { status: 400 });
     }
 
     const xSignature = request.headers.get("x-signature") ?? request.headers.get("X-Signature") ?? null;
@@ -62,17 +64,31 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const orderIdTrimmed = String(orderId).trim();
-    let order = await prisma.order.findUnique({
-      where: { id: orderIdTrimmed },
-      include: {
-        user: { select: { email: true, name: true } },
-        items: { include: { product: { select: { name: true } } } },
-      },
-    });
-    if (!order) {
+    const billIdTrimmed = String(billId).trim();
+    const orderIdTrimmed = orderId ? String(orderId).trim() : null;
+
+    let order = null;
+    if (orderIdTrimmed) {
       order = await prisma.order.findUnique({
-        where: { orderNumber: orderIdTrimmed },
+        where: { id: orderIdTrimmed },
+        include: {
+          user: { select: { email: true, name: true } },
+          items: { include: { product: { select: { name: true } } } },
+        },
+      });
+      if (!order) {
+        order = await prisma.order.findUnique({
+          where: { orderNumber: orderIdTrimmed },
+          include: {
+            user: { select: { email: true, name: true } },
+            items: { include: { product: { select: { name: true } } } },
+          },
+        });
+      }
+    }
+    if (!order && billIdTrimmed) {
+      order = await prisma.order.findFirst({
+        where: { billplzBillId: billIdTrimmed },
         include: {
           user: { select: { email: true, name: true } },
           items: { include: { product: { select: { name: true } } } },
@@ -81,7 +97,7 @@ export async function POST(request: NextRequest) {
     }
 
     if (!order) {
-      console.warn("Billplz callback: order not found for reference_1", orderIdTrimmed);
+      console.warn("Billplz callback: order not found for id/reference_1", { billId: billIdTrimmed, reference_1: orderIdTrimmed });
       return NextResponse.json({ error: "Order not found" }, { status: 404 });
     }
 
@@ -111,29 +127,19 @@ export async function POST(request: NextRequest) {
           country?: string;
           phone?: string;
         } | null;
-        const baseUrl = getBaseUrl();
-        try {
-          const res = await fetch(`${baseUrl}/api/send`, {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
-              to: customerEmail,
-              orderNumber: order.orderNumber,
-              items: order.items.map((oi) => ({
-                name: oi.product.name,
-                quantity: oi.quantity,
-                price: Number(oi.price),
-              })),
-              total: Number(order.total),
-              shippingAddress: shippingAddress ?? undefined,
-            }),
-          });
-          if (!res.ok) {
-            const errBody = await res.text();
-            console.error("Order confirmation email failed:", res.status, errBody);
-          }
-        } catch (err) {
-          console.error("Order confirmation email request failed:", err);
+        const { ok, error } = await sendOrderConfirmationEmail({
+          to: customerEmail,
+          orderNumber: order.orderNumber,
+          items: order.items.map((oi) => ({
+            name: oi.product.name,
+            quantity: oi.quantity,
+            price: Number(oi.price),
+          })),
+          total: Number(order.total),
+          shippingAddress: shippingAddress ?? undefined,
+        });
+        if (!ok) {
+          console.error("Order confirmation email failed:", error);
         }
       }
     }

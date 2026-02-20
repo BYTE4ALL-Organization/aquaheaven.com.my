@@ -157,6 +157,8 @@ export async function POST(request: Request) {
     });
 
     const collectionId = process.env.BILLPLZ_COLLECTION_ID;
+    // Callback URL must be reachable by Billplz: set BILLPLZ_CALLBACK_BASE_URL in production (e.g. https://aquaheaven.com.my).
+    // In Billplz dashboard enable "Basic Callback URL" or "X Signature Callback URL" for the collection.
     const callbackBase =
       process.env.BILLPLZ_CALLBACK_BASE_URL ||
       (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : null) ||
