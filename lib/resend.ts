@@ -3,6 +3,9 @@ import { Resend } from "resend";
 const apiKey = process.env.RESEND_API_KEY;
 const resend = apiKey ? new Resend(apiKey) : null;
 
+/** From address for transactional emails. Use a verified domain in production. */
+const FROM_EMAIL = process.env.RESEND_FROM_EMAIL || "Aquaheaven <onboarding@resend.dev>";
+
 /**
  * Split "John Doe" into firstName "John", lastName "Doe".
  * Single name goes to firstName.
@@ -74,4 +77,96 @@ export async function addContactToResend(params: {
     }
     return { ok: true };
   }
+}
+
+export type OrderSummaryItem = { name: string; quantity: number; price: number };
+export type OrderSummaryAddress = {
+  fullName?: string;
+  address?: string;
+  city?: string;
+  state?: string;
+  zip?: string;
+  country?: string;
+  phone?: string;
+};
+
+/**
+ * Send order confirmation email (order summary) to the customer.
+ * Uses Resend's send API – works with "send only" API keys.
+ */
+export async function sendOrderConfirmationEmail(params: {
+  to: string;
+  orderNumber: string;
+  items: OrderSummaryItem[];
+  total: number;
+  shippingAddress?: OrderSummaryAddress | null;
+}): Promise<{ ok: boolean; error?: string }> {
+  if (!resend) return { ok: true };
+  const { to, orderNumber, items, total, shippingAddress } = params;
+  const normalizedTo = to?.trim().toLowerCase();
+  if (!normalizedTo || normalizedTo.endsWith("@user.local")) return { ok: true };
+
+  const lines = items.map(
+    (i) => `<tr><td>${escapeHtml(i.name)}</td><td>${i.quantity}</td><td>RM ${Number(i.price).toFixed(2)}</td><td>RM ${(i.quantity * Number(i.price)).toFixed(2)}</td></tr>`
+  ).join("");
+  const addressBlock = shippingAddress && (shippingAddress.fullName || shippingAddress.address)
+    ? `
+    <h3 style="margin-top:24px">Shipping address</h3>
+    <p style="margin:0;color:#374151">
+      ${escapeHtml(shippingAddress.fullName ?? "")}<br/>
+      ${escapeHtml(shippingAddress.address ?? "")}<br/>
+      ${[shippingAddress.city, shippingAddress.state, shippingAddress.zip].filter(Boolean).join(", ")}<br/>
+      ${escapeHtml(shippingAddress.country ?? "")}
+      ${shippingAddress.phone ? `<br/>${escapeHtml(shippingAddress.phone)}` : ""}
+    </p>`
+    : "";
+
+  const html = `
+<!DOCTYPE html>
+<html>
+<head><meta charset="utf-8"><title>Order ${escapeHtml(orderNumber)}</title></head>
+<body style="font-family:sans-serif;max-width:560px;margin:0 auto;padding:24px;color:#111">
+  <h2 style="margin:0 0 16px">Thank you for your order</h2>
+  <p>Your payment has been received. Order reference: <strong>${escapeHtml(orderNumber)}</strong></p>
+  <table style="width:100%;border-collapse:collapse;margin-top:16px">
+    <thead>
+      <tr style="border-bottom:2px solid #e5e7eb;text-align:left">
+        <th style="padding:8px 0">Item</th>
+        <th style="padding:8px 0">Qty</th>
+        <th style="padding:8px 0">Unit price</th>
+        <th style="padding:8px 0">Subtotal</th>
+      </tr>
+    </thead>
+    <tbody>${lines}</tbody>
+  </table>
+  <p style="margin-top:16px;font-size:18px"><strong>Total: RM ${Number(total).toFixed(2)}</strong></p>
+  ${addressBlock}
+  <p style="margin-top:24px;color:#6b7280;font-size:14px">— Aquaheaven</p>
+</body>
+</html>`;
+
+  try {
+    const { data, error } = await resend.emails.send({
+      from: FROM_EMAIL,
+      to: normalizedTo,
+      subject: `Order confirmation ${orderNumber} – Aquaheaven`,
+      html,
+    });
+    if (error) {
+      console.error("Resend order confirmation error:", error);
+      return { ok: false, error: error.message };
+    }
+    return { ok: true };
+  } catch (err) {
+    console.error("Resend order confirmation exception:", err);
+    return { ok: false, error: err instanceof Error ? err.message : "Unknown error" };
+  }
+}
+
+function escapeHtml(s: string): string {
+  return s
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;");
 }

@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { verifyCallbackSignature } from "@/lib/billplz";
+import { sendOrderConfirmationEmail } from "@/lib/resend";
 
 /**
  * Billplz sends callback as POST with application/x-www-form-urlencoded.
@@ -52,6 +53,10 @@ export async function POST(request: NextRequest) {
 
     const order = await prisma.order.findUnique({
       where: { id: orderId },
+      include: {
+        user: { select: { email: true, name: true } },
+        items: { include: { product: { select: { name: true } } } },
+      },
     });
 
     if (!order) {
@@ -71,6 +76,32 @@ export async function POST(request: NextRequest) {
         ...(paid && { status: "CONFIRMED" }),
       },
     });
+
+    if (paid) {
+      const customerEmail = order.user?.email?.trim().toLowerCase();
+      if (customerEmail && !customerEmail.endsWith("@user.local")) {
+        const shippingAddress = order.shippingAddress as {
+          fullName?: string;
+          address?: string;
+          city?: string;
+          state?: string;
+          zip?: string;
+          country?: string;
+          phone?: string;
+        } | null;
+        sendOrderConfirmationEmail({
+          to: customerEmail,
+          orderNumber: order.orderNumber,
+          items: order.items.map((oi) => ({
+            name: oi.product.name,
+            quantity: oi.quantity,
+            price: Number(oi.price),
+          })),
+          total: Number(order.total),
+          shippingAddress: shippingAddress ?? undefined,
+        }).catch((err) => console.error("Order confirmation email failed:", err));
+      }
+    }
 
     return NextResponse.json({ success: true });
   } catch (error) {
