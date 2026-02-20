@@ -99,6 +99,17 @@ export async function POST(
     }
 
     if (!bill.paid) {
+      // Only mark FAILED after the bill is past due (due_at passed or state is overdue).
+      // Until then leave PENDING so the customer can still pay.
+      const dueAt = bill.due_at ? new Date(bill.due_at).getTime() : 0;
+      const isOverdue = dueAt > 0 && Date.now() > dueAt;
+      const stateOverdue = String(bill.state || "").toLowerCase() === "overdue";
+      if (order.paymentStatus === "PENDING" && (isOverdue || stateOverdue)) {
+        await prisma.order.update({
+          where: { id: order.id },
+          data: { paymentStatus: "FAILED" },
+        });
+      }
       return NextResponse.json({ success: true, paid: false });
     }
 
