@@ -11,4 +11,6 @@ export type Product = {
   price: number;
   discount: Discount;
   rating: number;
+  /** Available stock. Used to cap quantity selector and add-to-cart. */
+  quantity?: number;
 };

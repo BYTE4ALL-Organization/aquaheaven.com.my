@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { getBill } from "@/lib/billplz";
 import { markOrderPaidAndSendEmail } from "@/lib/order-confirmation";
+import { sendOrderConfirmationEmail } from "@/lib/resend";
 import { getStackUserAndSync } from "@/lib/auth";
 
 /**
@@ -43,8 +44,43 @@ export async function POST(
       return NextResponse.json({ error: "Forbidden" }, { status: 403 });
     }
 
+    // Order already marked paid (e.g. by webhook). Still send confirmation email
+    // in case webhook didn't send it or email failed, so user gets it on success page.
     if (order.status === "CONFIRMED" && order.paymentStatus === "COMPLETED") {
-      return NextResponse.json({ success: true, paid: true, alreadySynced: true });
+      let emailSent = false;
+      const customerEmail = order.user?.email?.trim().toLowerCase();
+      if (customerEmail && !customerEmail.endsWith("@user.local")) {
+        const shippingAddress = order.shippingAddress as {
+          fullName?: string;
+          address?: string;
+          city?: string;
+          state?: string;
+          zip?: string;
+          country?: string;
+          phone?: string;
+        } | null;
+        const emailResult = await sendOrderConfirmationEmail({
+          to: customerEmail,
+          orderNumber: order.orderNumber,
+          items: order.items.map((oi) => ({
+            name: oi.product.name,
+            quantity: oi.quantity,
+            price: Number(oi.price),
+          })),
+          total: Number(order.total),
+          shippingAddress: shippingAddress ?? undefined,
+        });
+        emailSent = emailResult.ok;
+        if (!emailResult.ok) {
+          console.error("sync-payment: confirmation email failed (already paid)", emailResult.error);
+        }
+      }
+      return NextResponse.json({
+        success: true,
+        paid: true,
+        alreadySynced: true,
+        emailSent,
+      });
     }
 
     if (!order.billplzBillId?.trim()) {

@@ -101,7 +101,12 @@ export async function sendOrderConfirmationEmail(params: {
   total: number;
   shippingAddress?: OrderSummaryAddress | null;
 }): Promise<{ ok: boolean; error?: string }> {
-  if (!resend) return { ok: true };
+  if (!resend) {
+    if (process.env.NODE_ENV !== "test") {
+      console.warn("Resend: order confirmation not sent (RESEND_API_KEY not set). Set RESEND_API_KEY and RESEND_FROM_EMAIL to send emails.");
+    }
+    return { ok: true };
+  }
   const { to, orderNumber, items, total, shippingAddress } = params;
   const normalizedTo = to?.trim().toLowerCase();
   if (!normalizedTo || normalizedTo.endsWith("@user.local")) return { ok: true };

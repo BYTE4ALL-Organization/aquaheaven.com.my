@@ -30,6 +30,8 @@ export type CartItem = {
   attributes: string[];
   discount: Discount;
   quantity: number;
+  /** Max quantity allowed (e.g. available stock). Optional for backward compatibility. */
+  availableQuantity?: number;
 };
 
 export type Cart = {
@@ -61,15 +63,24 @@ export const cartsSlice = createSlice({
     addToCart: (state, action: PayloadAction<CartItem>) => {
       // if cart is empty then add
       if (state.cart === null) {
-        state.cart = {
-          items: [action.payload],
-          totalQuantities: action.payload.quantity,
+        const maxQty = action.payload.availableQuantity;
+        const qty =
+          maxQty != null
+            ? Math.min(Math.max(1, action.payload.quantity), maxQty)
+            : action.payload.quantity;
+        const item = {
+          ...action.payload,
+          quantity: qty,
+          availableQuantity: maxQty,
         };
-        state.totalPrice =
-          state.totalPrice + action.payload.price * action.payload.quantity;
+        state.cart = {
+          items: [item],
+          totalQuantities: qty,
+        };
+        state.totalPrice = state.totalPrice + action.payload.price * qty;
         state.adjustedTotalPrice =
           state.adjustedTotalPrice +
-          calcAdjustedTotalPrice(state.totalPrice, action.payload);
+          calcAdjustedTotalPrice(state.totalPrice, item);
         return;
       }
 
@@ -81,6 +92,16 @@ export const cartsSlice = createSlice({
       );
 
       if (isItemInCart) {
+        const addedQty = action.payload.quantity;
+        const newTotal = isItemInCart.quantity + addedQty;
+        const maxQty =
+          typeof action.payload.availableQuantity === "number"
+            ? action.payload.availableQuantity
+            : isItemInCart.availableQuantity;
+        const cappedTotal =
+          maxQty != null ? Math.min(newTotal, maxQty) : newTotal;
+        const actualAdded = cappedTotal - isItemInCart.quantity;
+
         state.cart = {
           ...state.cart,
           items: state.cart.items.map((eachCartItem) => {
@@ -96,29 +117,39 @@ export const cartsSlice = createSlice({
 
             return {
               ...isItemInCart,
-              quantity: action.payload.quantity + isItemInCart.quantity,
+              quantity: cappedTotal,
+              availableQuantity: maxQty ?? isItemInCart.availableQuantity,
             };
           }),
-          totalQuantities: state.cart.totalQuantities + action.payload.quantity,
+          totalQuantities: state.cart.totalQuantities + actualAdded,
         };
         state.totalPrice =
-          state.totalPrice + action.payload.price * action.payload.quantity;
+          state.totalPrice + action.payload.price * actualAdded;
         state.adjustedTotalPrice =
           state.adjustedTotalPrice +
-          calcAdjustedTotalPrice(state.totalPrice, action.payload);
+          calcAdjustedTotalPrice(state.totalPrice, { ...action.payload, quantity: actualAdded });
         return;
       }
 
+      const maxQty = action.payload.availableQuantity;
+      const qty =
+        maxQty != null
+          ? Math.min(Math.max(1, action.payload.quantity), maxQty)
+          : action.payload.quantity;
+      const item = {
+        ...action.payload,
+        quantity: qty,
+        availableQuantity: maxQty,
+      };
       state.cart = {
         ...state.cart,
-        items: [...state.cart.items, action.payload],
-        totalQuantities: state.cart.totalQuantities + action.payload.quantity,
+        items: [...state.cart.items, item],
+        totalQuantities: state.cart.totalQuantities + qty,
       };
-      state.totalPrice =
-        state.totalPrice + action.payload.price * action.payload.quantity;
+      state.totalPrice = state.totalPrice + action.payload.price * qty;
       state.adjustedTotalPrice =
         state.adjustedTotalPrice +
-        calcAdjustedTotalPrice(state.totalPrice, action.payload);
+        calcAdjustedTotalPrice(state.totalPrice, item);
     },
     removeCartItem: (state, action: PayloadAction<RemoveCartItem>) => {
       if (state.cart === null) return;

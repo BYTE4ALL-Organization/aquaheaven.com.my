@@ -6,16 +6,24 @@ import { RootState } from "@/lib/store";
 import { Product } from "@/types/product.types";
 import React from "react";
 
-const AddToCartBtn = ({ data }: { data: Product & { quantity: number } }) => {
+const AddToCartBtn = ({
+  data,
+  availableQuantity,
+}: {
+  data: Product & { quantity: number };
+  availableQuantity?: number;
+}) => {
   const dispatch = useAppDispatch();
   const { sizeSelection, colorSelection } = useAppSelector(
     (state: RootState) => state.products
   );
 
+  const outOfStock = typeof availableQuantity === "number" && availableQuantity < 1;
+
   return (
     <button
       type="button"
-      className="bg-gradient-to-r from-brand to-brand-accent w-full ml-3 sm:ml-5 rounded-full h-11 md:h-[52px] text-sm sm:text-base text-white hover:opacity-90 transition-all font-medium"
+      className="bg-gradient-to-r from-brand to-brand-accent w-full ml-3 sm:ml-5 rounded-full h-11 md:h-[52px] text-sm sm:text-base text-white hover:opacity-90 transition-all font-medium disabled:opacity-60 disabled:cursor-not-allowed"
       onClick={() =>
         dispatch(
           addToCart({
@@ -26,11 +34,14 @@ const AddToCartBtn = ({ data }: { data: Product & { quantity: number } }) => {
             attributes: [sizeSelection, colorSelection.name],
             discount: data.discount,
             quantity: data.quantity,
+            availableQuantity,
           })
         )
       }
+      disabled={outOfStock}
+      aria-disabled={outOfStock}
     >
-      Add to Cart
+      {outOfStock ? "Out of stock" : "Add to Cart"}
     </button>
   );
 };

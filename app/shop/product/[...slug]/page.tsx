@@ -20,6 +20,7 @@ function mapApiProductToCard(apiProduct: {
   thumbnail?: string | null;
   images?: string[];
   reviews?: { rating: number }[];
+  quantity?: number;
 }): Product {
   const price = Number(apiProduct.price) || 0;
   const reviews = Array.isArray(apiProduct.reviews) ? apiProduct.reviews : [];
@@ -38,6 +39,7 @@ function mapApiProductToCard(apiProduct: {
     price,
     discount: { amount: 0, percentage: 0 },
     rating,
+    quantity: apiProduct.quantity,
   };
 }
 
@@ -77,6 +79,7 @@ export default async function ProductPage({
     thumbnail: productRow.thumbnail,
     images: productRow.images,
     reviews: productRow.reviews?.map((r) => ({ rating: r.rating })) ?? [],
+    quantity: productRow.quantity,
   });
   const categorySlugs = (productRow.productCategories ?? []).map((pc) => pc.category.slug).filter(Boolean);
   const reviews = (productRow.reviews ?? []).map((r, idx) => ({
