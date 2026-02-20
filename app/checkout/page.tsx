@@ -11,6 +11,7 @@ import { cn } from "@/lib/utils";
 import Link from "next/link";
 import { useCurrency } from "@/components/providers/CurrencyProvider";
 import { useUser } from "@stackframe/stack";
+import { setRedirectAfterLoginCookie } from "@/lib/redirect-after-login";
 
 export default function CheckoutPage() {
   const router = useRouter();
@@ -23,6 +24,7 @@ export default function CheckoutPage() {
   React.useEffect(() => {
     if (user === undefined) return;
     if (user === null) {
+      setRedirectAfterLoginCookie("/checkout");
       router.replace(`/sign-in?redirect=${encodeURIComponent("/checkout")}`);
     }
   }, [user, router]);

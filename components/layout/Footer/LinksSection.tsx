@@ -28,7 +28,7 @@ const footerLinksData: FooterLinks[] = [
     id: 3,
     title: "faq",
     children: [
-      { id: 31, label: "account", url: "/handler/account-settings" },
+      { id: 31, label: "account", url: "/account" },
       { id: 32, label: "manage deliveries", url: "/placeholder" },
       { id: 33, label: "orders", url: "/placeholder" },
       { id: 34, label: "payments", url: "/placeholder" },

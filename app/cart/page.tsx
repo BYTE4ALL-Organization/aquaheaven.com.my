@@ -14,8 +14,10 @@ import { RootState } from "@/lib/store";
 import { useAppSelector } from "@/lib/hooks/redux";
 import Link from "next/link";
 import { useCurrency } from "@/components/providers/CurrencyProvider";
+import { useUser } from "@stackframe/stack";
 
 export default function CartPage() {
+  const user = useUser({ or: "return-null" });
   const { cart, totalPrice, adjustedTotalPrice } = useAppSelector(
     (state: RootState) => state.carts
   );
@@ -105,7 +107,9 @@ export default function CartPage() {
                   className="text-sm md:text-base font-medium bg-black rounded-full w-full py-4 h-[54px] md:h-[60px] group"
                   asChild
                 >
-                  <Link href="/checkout">
+                  <Link
+                    href={user === null ? "/sign-in?redirect=" + encodeURIComponent("/checkout") : "/checkout"}
+                  >
                     Go to Checkout{" "}
                     <FaArrowRight className="text-xl ml-2 group-hover:translate-x-1 transition-all" />
                   </Link>

@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { verifyCallbackSignature } from "@/lib/billplz";
-import { sendOrderConfirmationEmail } from "@/lib/resend";
+import { getBaseUrl } from "@/lib/base-url";
 
 /**
  * Billplz sends callback as POST with application/x-www-form-urlencoded.
@@ -89,17 +89,30 @@ export async function POST(request: NextRequest) {
           country?: string;
           phone?: string;
         } | null;
-        sendOrderConfirmationEmail({
-          to: customerEmail,
-          orderNumber: order.orderNumber,
-          items: order.items.map((oi) => ({
-            name: oi.product.name,
-            quantity: oi.quantity,
-            price: Number(oi.price),
-          })),
-          total: Number(order.total),
-          shippingAddress: shippingAddress ?? undefined,
-        }).catch((err) => console.error("Order confirmation email failed:", err));
+        const baseUrl = getBaseUrl();
+        try {
+          const res = await fetch(`${baseUrl}/api/send`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              to: customerEmail,
+              orderNumber: order.orderNumber,
+              items: order.items.map((oi) => ({
+                name: oi.product.name,
+                quantity: oi.quantity,
+                price: Number(oi.price),
+              })),
+              total: Number(order.total),
+              shippingAddress: shippingAddress ?? undefined,
+            }),
+          });
+          if (!res.ok) {
+            const errBody = await res.text();
+            console.error("Order confirmation email failed:", res.status, errBody);
+          }
+        } catch (err) {
+          console.error("Order confirmation email request failed:", err);
+        }
       }
     }
 

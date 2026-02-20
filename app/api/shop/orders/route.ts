@@ -3,6 +3,43 @@ import { prisma } from "@/lib/prisma";
 import { getStackUserAndSync } from "@/lib/auth";
 import { addContactToResend } from "@/lib/resend";
 
+/** GET: list orders (payments) for the current user. */
+export async function GET(request: Request) {
+  try {
+    const user = await getStackUserAndSync(request);
+    if (!user) {
+      return NextResponse.json({ error: "Please sign in to view orders." }, { status: 401 });
+    }
+    const orders = await prisma.order.findMany({
+      where: { userId: user.id },
+      include: {
+        items: { include: { product: { select: { name: true, slug: true } } } },
+      },
+      orderBy: { createdAt: "desc" },
+    });
+    const data = orders.map((o) => ({
+      id: o.id,
+      orderNumber: o.orderNumber,
+      status: o.status,
+      paymentStatus: o.paymentStatus,
+      total: Number(o.total),
+      createdAt: o.createdAt.toISOString(),
+      items: o.items.map((i) => ({
+        productName: i.product.name,
+        quantity: i.quantity,
+        price: Number(i.price),
+      })),
+    }));
+    return NextResponse.json({ orders: data });
+  } catch (error) {
+    console.error("GET /api/shop/orders error:", error);
+    return NextResponse.json(
+      { error: "Failed to load orders." },
+      { status: 500 }
+    );
+  }
+}
+
 function generateOrderNumber(): string {
   return `ORD-${Date.now()}-${Math.random().toString(36).slice(2, 8).toUpperCase()}`;
 }
