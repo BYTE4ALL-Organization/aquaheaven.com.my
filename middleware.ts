@@ -31,7 +31,7 @@ export function middleware(request: NextRequest) {
   res.cookies.set(REDIRECT_AFTER_LOGIN_COOKIE_NAME, "", {
     path: "/",
     maxAge: 0,
-    SameSite: "Lax",
+    sameSite: "lax",
   });
   return res;
 }
