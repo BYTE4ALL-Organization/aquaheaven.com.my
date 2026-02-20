@@ -126,6 +126,34 @@ export async function createBill(params: CreateBillParams): Promise<BillplzBillR
 }
 
 /**
+ * Get a bill by ID (v3 API). Use to verify payment status when callback is not received.
+ */
+export async function getBill(billId: string): Promise<BillplzBillResponse | null> {
+  const apiKey = process.env.BILLPLZ_API_SECRET_KEY;
+  const baseUrl = getBillplzBaseUrl();
+
+  if (!apiKey || !billId?.trim()) return null;
+
+  const auth = Buffer.from(`${apiKey}:`).toString("base64");
+  try {
+    const res = await fetch(`${baseUrl}/bills/${encodeURIComponent(billId.trim())}`, {
+      method: "GET",
+      headers: { Authorization: `Basic ${auth}` },
+    });
+
+    const text = await res.text();
+    const contentType = res.headers.get("content-type") ?? "";
+    if (!contentType.includes("application/json") || !text.trim()) return null;
+    const data = JSON.parse(text) as BillplzBillResponse & { error?: { message?: string } };
+    if (!res.ok || !data.id) return null;
+    return data;
+  } catch (err) {
+    console.error("Billplz getBill failed:", err);
+    return null;
+  }
+}
+
+/**
  * Verify Billplz callback X-Signature (if you use X-Signature in Billplz dashboard).
  * Payload is the raw request body string; xSignature is the header value.
  */

@@ -30,8 +30,24 @@ export default function PaymentsSection() {
         if (!res.ok) throw new Error(res.status === 401 ? "Please sign in." : "Failed to load payments.");
         return res.json();
       })
-      .then((data: { orders: Order[] }) => {
-        if (!cancelled) setOrders(data.orders ?? []);
+      .then(async (data: { orders: Order[] }) => {
+        const list = data.orders ?? [];
+        if (!cancelled) setOrders(list);
+        // Sync any PENDING orders with Billplz (in case webhook never fired)
+        const pending = list.filter((o) => o.paymentStatus === "PENDING");
+        for (const order of pending) {
+          const res = await fetch(`/api/shop/orders/${encodeURIComponent(order.id)}/sync-payment`, {
+            method: "POST",
+            credentials: "include",
+          });
+          const sync = await res.json().catch(() => ({}));
+          if (sync.paid && !cancelled) {
+            const refetch = await fetch("/api/shop/orders", { credentials: "include" });
+            const next = await refetch.json().catch(() => ({}));
+            if (!cancelled && next.orders) setOrders(next.orders);
+            break;
+          }
+        }
       })
       .catch((err) => {
         if (!cancelled) setError(err.message ?? "Failed to load payments.");
