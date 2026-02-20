@@ -16,23 +16,30 @@ export async function POST(request: NextRequest) {
     let paid = false;
     let billId: string | null = null;
 
+    function parsePaid(value: string | boolean | null | undefined): boolean {
+      if (value === true || value === "true" || value === "1" || value === "yes") return true;
+      if (typeof value === "string" && value.toLowerCase() === "true") return true;
+      return false;
+    }
+
     if (contentType.includes("application/x-www-form-urlencoded")) {
       bodyText = await request.text();
       const params = new URLSearchParams(bodyText);
       billId = params.get("id");
-      orderId = params.get("reference_1");
-      paid = params.get("paid") === "true";
+      orderId = params.get("reference_1") ?? params.get("reference1");
+      paid = parsePaid(params.get("paid"));
     } else if (contentType.includes("application/json")) {
       bodyText = await request.text();
       try {
         const json = JSON.parse(bodyText) as {
           id?: string;
-          paid?: boolean;
+          paid?: boolean | string;
           reference_1?: string;
+          reference1?: string;
         };
         billId = json.id ?? null;
-        orderId = json.reference_1 ?? null;
-        paid = json.paid === true;
+        orderId = json.reference_1 ?? json.reference1 ?? null;
+        paid = parsePaid(json.paid);
       } catch {
         return NextResponse.json({ error: "Invalid JSON" }, { status: 400 });
       }
@@ -40,27 +47,41 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "Unsupported content type" }, { status: 400 });
     }
 
-    if (!orderId) {
+    if (!orderId || !String(orderId).trim()) {
       return NextResponse.json({ error: "Missing reference_1" }, { status: 400 });
     }
 
-    const xSignature = request.headers.get("x-signature") ?? null;
+    const xSignature = request.headers.get("x-signature") ?? request.headers.get("X-Signature") ?? null;
     const xSignatureKey = process.env.BILLPLZ_X_SIGNATURE_KEY ?? null;
     const valid = await verifyCallbackSignature(bodyText, xSignature, xSignatureKey);
     if (!valid) {
-      return NextResponse.json({ error: "Invalid signature" }, { status: 401 });
+      console.warn("Billplz callback: signature verification failed. Check BILLPLZ_X_SIGNATURE_KEY or disable X-Signature in Billplz dashboard.");
+      return NextResponse.json(
+        { error: "Invalid signature. Check BILLPLZ_X_SIGNATURE_KEY." },
+        { status: 401 }
+      );
     }
 
-    const order = await prisma.order.findUnique({
-      where: { id: orderId },
+    const orderIdTrimmed = String(orderId).trim();
+    let order = await prisma.order.findUnique({
+      where: { id: orderIdTrimmed },
       include: {
         user: { select: { email: true, name: true } },
         items: { include: { product: { select: { name: true } } } },
       },
     });
+    if (!order) {
+      order = await prisma.order.findUnique({
+        where: { orderNumber: orderIdTrimmed },
+        include: {
+          user: { select: { email: true, name: true } },
+          items: { include: { product: { select: { name: true } } } },
+        },
+      });
+    }
 
     if (!order) {
-      console.warn("Billplz callback: order not found", orderId);
+      console.warn("Billplz callback: order not found for reference_1", orderIdTrimmed);
       return NextResponse.json({ error: "Order not found" }, { status: 404 });
     }
 
@@ -69,7 +90,7 @@ export async function POST(request: NextRequest) {
     }
 
     await prisma.order.update({
-      where: { id: orderId },
+      where: { id: order.id },
       data: {
         paymentStatus: paid ? "COMPLETED" : "FAILED",
         ...(billId && { transactionId: billId }),
@@ -78,6 +99,7 @@ export async function POST(request: NextRequest) {
     });
 
     if (paid) {
+      console.info("Billplz: order marked as paid", { orderId: order.id, orderNumber: order.orderNumber });
       const customerEmail = order.user?.email?.trim().toLowerCase();
       if (customerEmail && !customerEmail.endsWith("@user.local")) {
         const shippingAddress = order.shippingAddress as {
