@@ -10,13 +10,22 @@ import { integralCF } from "@/styles/fonts";
 import { cn } from "@/lib/utils";
 import Link from "next/link";
 import { useCurrency } from "@/components/providers/CurrencyProvider";
+import { useUser } from "@stackframe/stack";
 
 export default function CheckoutPage() {
   const router = useRouter();
+  const user = useUser({ or: "return-null" });
   const { cart, adjustedTotalPrice } = useAppSelector((state: RootState) => state.carts);
   const { formatPrice } = useCurrency();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  React.useEffect(() => {
+    if (user === undefined) return;
+    if (user === null) {
+      router.replace(`/sign-in?redirect=${encodeURIComponent("/checkout")}`);
+    }
+  }, [user, router]);
 
   const [shipping, setShipping] = useState({
     fullName: "",
@@ -73,6 +82,15 @@ export default function CheckoutPage() {
       setLoading(false);
     }
   };
+
+  if (user === undefined || user === null) {
+    return (
+      <main className="pb-20 max-w-frame mx-auto px-4 xl:px-0 py-12 flex flex-col items-center justify-center min-h-[40vh]">
+        <div className="animate-spin rounded-full h-10 w-10 border-2 border-brand border-t-transparent mb-4" />
+        <p className="text-black/60">Redirecting to sign in…</p>
+      </main>
+    );
+  }
 
   if (!cart || cart.items.length === 0) {
     return (

@@ -53,7 +53,13 @@ export async function POST(request: Request) {
     };
 
     const dbUser = await getStackUserAndSync(request);
-    const userId = dbUser?.id ?? bodyUserId ?? null;
+    if (!dbUser) {
+      return NextResponse.json(
+        { success: false, error: "Please sign in to checkout." },
+        { status: 401 }
+      );
+    }
+    const userId = dbUser.id;
 
     if (!shippingAddress || !rawItems || !Array.isArray(rawItems) || rawItems.length === 0) {
       return NextResponse.json(
