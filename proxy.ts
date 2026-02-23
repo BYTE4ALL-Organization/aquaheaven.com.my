@@ -8,7 +8,7 @@ import { REDIRECT_AFTER_LOGIN_COOKIE_NAME } from "@/lib/redirect-after-login";
  * /checkout instead of the homepage. Stack Auth may redirect to "/" after
  * magic link; this ensures they are sent to the intended page.
  */
-export function middleware(request: NextRequest) {
+export function proxy(request: NextRequest) {
   if (request.nextUrl.pathname !== "/") {
     return NextResponse.next();
   }
