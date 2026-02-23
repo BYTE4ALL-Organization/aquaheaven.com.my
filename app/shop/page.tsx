@@ -64,12 +64,14 @@ function buildShopQuery(params: Record<string, string | string[] | undefined>, p
   const size = typeof params?.size === "string" ? params.size : undefined;
   const minPrice = typeof params?.minPrice === "string" ? params.minPrice : undefined;
   const maxPrice = typeof params?.maxPrice === "string" ? params.maxPrice : undefined;
+  const bestSellers = params?.bestSellers === "1" || params?.bestSellers === "true";
   if (category) q.set("category", category);
   if (brand) q.set("brand", brand);
   if (color) q.set("color", color);
   if (size) q.set("size", size);
   if (minPrice) q.set("minPrice", minPrice);
   if (maxPrice) q.set("maxPrice", maxPrice);
+  if (bestSellers) q.set("bestSellers", "1");
   if (page > 1) q.set("page", String(page));
   const s = q.toString();
   return s ? `?${s}` : "";
@@ -87,6 +89,7 @@ export default async function ShopPage({
   const size = typeof params?.size === "string" ? params.size : undefined;
   const minPrice = typeof params?.minPrice === "string" ? params.minPrice : undefined;
   const maxPrice = typeof params?.maxPrice === "string" ? params.maxPrice : undefined;
+  const bestSellers = params?.bestSellers === "1" || params?.bestSellers === "true";
   const page = Math.max(1, parseInt(typeof params?.page === "string" ? params.page : "", 10) || 1);
   const offset = (page - 1) * PER_PAGE;
 
@@ -101,6 +104,7 @@ export default async function ShopPage({
         brand,
         color,
         size,
+        bestSellers: bestSellers || undefined,
         minPrice: minPriceNum,
         maxPrice: maxPriceNum,
         limit: PER_PAGE,
@@ -138,7 +142,10 @@ export default async function ShopPage({
     <main className="pb-20">
       <div className="max-w-frame mx-auto px-4 xl:px-0">
         <hr className="h-[1px] border-t-black/10 mb-5 sm:mb-6" />
-        <BreadcrumbShop />
+        <BreadcrumbShop
+          categoryName={category ? options.categories.find((c) => c.slug === category)?.name : undefined}
+          bestSellers={bestSellers}
+        />
         <div className="flex md:space-x-5 items-start">
           <div className="hidden md:block min-w-[295px] max-w-[295px] border border-black/10 rounded-[20px] px-5 md:px-6 py-5 space-y-5 md:space-y-6">
             <div className="flex items-center justify-between">
