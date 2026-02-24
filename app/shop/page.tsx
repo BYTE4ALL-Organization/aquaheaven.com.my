@@ -143,7 +143,19 @@ export default async function ShopPage({
       <div className="max-w-frame mx-auto px-4 xl:px-0">
         <hr className="h-[1px] border-t-black/10 mb-5 sm:mb-6" />
         <BreadcrumbShop
-          categoryName={category ? options.categories.find((c) => c.slug === category)?.name : undefined}
+          categoryName={
+            category
+              ? (() => {
+                  const parent = options.categories.find((c) => c.slug === category);
+                  if (parent) return parent.name;
+                  for (const p of options.categories) {
+                    const child = p.children?.find((ch) => ch.slug === category);
+                    if (child) return child.name;
+                  }
+                  return undefined;
+                })()
+              : undefined
+          }
           bestSellers={bestSellers}
         />
         <div className="flex md:space-x-5 items-start">

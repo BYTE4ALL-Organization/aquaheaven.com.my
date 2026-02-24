@@ -53,11 +53,25 @@ export async function getProductsList(
   };
 
   if (category) {
-    where.productCategories = {
-      some: {
-        category: { slug: category },
-      },
-    };
+    const catRow = await prisma.category.findFirst({
+      where: { slug: category },
+      select: { id: true, parentId: true },
+      include: { children: { select: { id: true } } },
+    });
+    if (catRow) {
+      const categoryIds = [catRow.id, ...(catRow.children?.map((ch) => ch.id) ?? [])];
+      where.productCategories = {
+        some: {
+          categoryId: { in: categoryIds },
+        },
+      };
+    } else {
+      where.productCategories = {
+        some: {
+          category: { slug: category },
+        },
+      };
+    }
   }
   if (brand?.trim()) {
     where.brand = { slug: brand.trim() };
@@ -175,15 +189,13 @@ export async function getFilters(prisma: PrismaClient) {
     if (Array.isArray(p.availableSizes))
       p.availableSizes.forEach((s) => s?.trim() && sizeSet.add(s.trim()));
   }
-  const categoriesFlat: { name: string; slug: string }[] = [];
-  for (const c of categories) {
-    categoriesFlat.push({ name: c.name, slug: c.slug });
-    for (const child of c.children || []) {
-      categoriesFlat.push({ name: child.name, slug: child.slug });
-    }
-  }
+  const categoriesHierarchical: { name: string; slug: string; children: { name: string; slug: string }[] }[] = categories.map((c) => ({
+    name: c.name,
+    slug: c.slug,
+    children: (c.children ?? []).map((ch) => ({ name: ch.name, slug: ch.slug })),
+  }));
   return {
-    categories: categoriesFlat,
+    categories: categoriesHierarchical,
     brands: brands.map((b) => ({ name: b.name, slug: b.slug })),
     priceRange: { min: priceMin, max: Math.max(priceMax, priceMin) },
     colors: Array.from(colorSet).sort(),

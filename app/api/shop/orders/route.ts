@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { getStackUserAndSync } from "@/lib/auth";
 import { addContactToResend } from "@/lib/resend";
+import { roundTo2 } from "@/lib/currency";
 
 /** GET: list orders (payments) for the current user. */
 export async function GET(request: Request) {
@@ -94,13 +95,15 @@ export async function POST(request: Request) {
         );
       }
       const price = Number(product.price);
-      subtotal += price * item.quantity;
+      const lineTotal = roundTo2(price * item.quantity);
+      subtotal += lineTotal;
       orderItems.push({ productId: product.id, quantity: item.quantity, price });
     }
 
     const tax = 0;
-    const shipping = 0;
-    const total = subtotal + tax + shipping;
+    const subtotalRounded = roundTo2(subtotal);
+    const shipping = subtotalRounded >= 85 ? 0 : 8;
+    const total = roundTo2(subtotalRounded + tax + shipping);
     const orderNumber = generateOrderNumber();
 
     const order = await prisma.$transaction(async (tx) => {
@@ -108,7 +111,7 @@ export async function POST(request: Request) {
         data: {
           orderNumber,
           status: "PENDING",
-          subtotal,
+          subtotal: subtotalRounded,
           total,
           tax,
           shipping,

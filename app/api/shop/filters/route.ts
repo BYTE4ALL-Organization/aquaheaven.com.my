@@ -54,17 +54,15 @@ export async function GET() {
     const colors = Array.from(colorSet).sort();
     const sizes = Array.from(sizeSet).sort();
 
-    const categoriesFlat: { name: string; slug: string }[] = [];
-    for (const c of categories) {
-      categoriesFlat.push({ name: c.name, slug: c.slug });
-      for (const child of c.children || []) {
-        categoriesFlat.push({ name: child.name, slug: child.slug });
-      }
-    }
+    const categoriesHierarchical = categories.map((c) => ({
+      name: c.name,
+      slug: c.slug,
+      children: (c.children ?? []).map((ch) => ({ name: ch.name, slug: ch.slug })),
+    }));
 
     return NextResponse.json({
       success: true,
-      categories: categoriesFlat,
+      categories: categoriesHierarchical,
       brands: brands.map((b) => ({ name: b.name, slug: b.slug })),
       priceRange: { min: priceMin, max: Math.max(priceMax, priceMin) },
       colors,

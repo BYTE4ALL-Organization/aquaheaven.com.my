@@ -14,6 +14,7 @@ import { RootState } from "@/lib/store";
 import { useAppSelector } from "@/lib/hooks/redux";
 import Link from "next/link";
 import { useCurrency } from "@/components/providers/CurrencyProvider";
+import { roundTo2 } from "@/lib/currency";
 import { useUser } from "@stackframe/stack";
 
 export default function CartPage() {
@@ -22,6 +23,9 @@ export default function CartPage() {
     (state: RootState) => state.carts
   );
   const { formatPrice } = useCurrency();
+  const subtotalRounded = roundTo2(totalPrice);
+  const deliveryFee = subtotalRounded >= 85 ? 0 : 8;
+  const totalRounded = roundTo2(subtotalRounded + deliveryFee);
 
   return (
     <main className="pb-20">
@@ -55,31 +59,21 @@ export default function CartPage() {
                 <div className="flex flex-col space-y-5">
                   <div className="flex items-center justify-between">
                     <span className="md:text-xl text-black/60">Subtotal</span>
-                    <span className="md:text-xl font-bold">{formatPrice(totalPrice)}</span>
-                  </div>
-                  <div className="flex items-center justify-between">
-                    <span className="md:text-xl text-black/60">
-                      Discount (-
-                      {Math.round(
-                        ((totalPrice - adjustedTotalPrice) / totalPrice) * 100
-                      )}
-                      %)
-                    </span>
-                    <span className="md:text-xl font-bold text-red-600">
-                      -{formatPrice(Math.round(totalPrice - adjustedTotalPrice))}
-                    </span>
+                    <span className="md:text-xl font-bold">{formatPrice(subtotalRounded)}</span>
                   </div>
                   <div className="flex items-center justify-between">
                     <span className="md:text-xl text-black/60">
                       Delivery Fee
                     </span>
-                    <span className="md:text-xl font-bold">Free</span>
+                    <span className="md:text-xl font-bold">
+                      {deliveryFee === 0 ? "FREE SHIPPING" : formatPrice(8)}
+                    </span>
                   </div>
                   <hr className="border-t-black/10" />
                   <div className="flex items-center justify-between">
                     <span className="md:text-xl text-black">Total</span>
                     <span className="text-xl md:text-2xl font-bold">
-                      {formatPrice(Math.round(adjustedTotalPrice))}
+                      {formatPrice(totalRounded)}
                     </span>
                   </div>
                 </div>

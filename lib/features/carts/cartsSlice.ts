@@ -1,20 +1,15 @@
+import { roundTo2 } from "@/lib/currency";
 import { compareArrays } from "@/lib/utils";
 import { Discount } from "@/types/product.types";
 import { createSlice } from "@reduxjs/toolkit";
 import type { PayloadAction } from "@reduxjs/toolkit";
 
 const calcAdjustedTotalPrice = (
-  totalPrice: number,
+  _totalPrice: number,
   data: CartItem,
   quantity?: number
 ): number => {
-  return (
-    (totalPrice + data.discount.percentage > 0
-      ? Math.round(data.price - (data.price * data.discount.percentage) / 100)
-      : data.discount.amount > 0
-      ? Math.round(data.price - data.discount.amount)
-      : data.price) * (quantity ? quantity : data.quantity)
-  );
+  return data.price * (quantity ?? data.quantity);
 };
 
 export type RemoveCartItem = {
@@ -77,10 +72,10 @@ export const cartsSlice = createSlice({
           items: [item],
           totalQuantities: qty,
         };
-        state.totalPrice = state.totalPrice + action.payload.price * qty;
-        state.adjustedTotalPrice =
-          state.adjustedTotalPrice +
-          calcAdjustedTotalPrice(state.totalPrice, item);
+        state.totalPrice = roundTo2(state.totalPrice + action.payload.price * qty);
+        state.adjustedTotalPrice = roundTo2(
+          state.adjustedTotalPrice + calcAdjustedTotalPrice(state.totalPrice, item)
+        );
         return;
       }
 
@@ -123,11 +118,13 @@ export const cartsSlice = createSlice({
           }),
           totalQuantities: state.cart.totalQuantities + actualAdded,
         };
-        state.totalPrice =
-          state.totalPrice + action.payload.price * actualAdded;
-        state.adjustedTotalPrice =
+        state.totalPrice = roundTo2(
+          state.totalPrice + action.payload.price * actualAdded
+        );
+        state.adjustedTotalPrice = roundTo2(
           state.adjustedTotalPrice +
-          calcAdjustedTotalPrice(state.totalPrice, { ...action.payload, quantity: actualAdded });
+            calcAdjustedTotalPrice(state.totalPrice, { ...action.payload, quantity: actualAdded })
+        );
         return;
       }
 
@@ -146,10 +143,10 @@ export const cartsSlice = createSlice({
         items: [...state.cart.items, item],
         totalQuantities: state.cart.totalQuantities + qty,
       };
-      state.totalPrice = state.totalPrice + action.payload.price * qty;
-      state.adjustedTotalPrice =
-        state.adjustedTotalPrice +
-        calcAdjustedTotalPrice(state.totalPrice, item);
+      state.totalPrice = roundTo2(state.totalPrice + action.payload.price * qty);
+      state.adjustedTotalPrice = roundTo2(
+        state.adjustedTotalPrice + calcAdjustedTotalPrice(state.totalPrice, item)
+      );
     },
     removeCartItem: (state, action: PayloadAction<RemoveCartItem>) => {
       if (state.cart === null) return;
@@ -185,10 +182,11 @@ export const cartsSlice = createSlice({
           totalQuantities: state.cart.totalQuantities - 1,
         };
 
-        state.totalPrice = state.totalPrice - isItemInCart.price * 1;
-        state.adjustedTotalPrice =
+        state.totalPrice = roundTo2(state.totalPrice - isItemInCart.price * 1);
+        state.adjustedTotalPrice = roundTo2(
           state.adjustedTotalPrice -
-          calcAdjustedTotalPrice(isItemInCart.price, isItemInCart, 1);
+            calcAdjustedTotalPrice(isItemInCart.price, isItemInCart, 1)
+        );
       }
     },
     remove: (
@@ -215,15 +213,17 @@ export const cartsSlice = createSlice({
         }),
         totalQuantities: state.cart.totalQuantities - isItemInCart.quantity,
       };
-      state.totalPrice =
-        state.totalPrice - isItemInCart.price * isItemInCart.quantity;
-      state.adjustedTotalPrice =
+      state.totalPrice = roundTo2(
+        state.totalPrice - isItemInCart.price * isItemInCart.quantity
+      );
+      state.adjustedTotalPrice = roundTo2(
         state.adjustedTotalPrice -
-        calcAdjustedTotalPrice(
-          isItemInCart.price,
-          isItemInCart,
-          isItemInCart.quantity
-        );
+          calcAdjustedTotalPrice(
+            isItemInCart.price,
+            isItemInCart,
+            isItemInCart.quantity
+          )
+      );
     },
   },
 });

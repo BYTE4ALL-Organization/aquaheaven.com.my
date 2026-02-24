@@ -10,14 +10,18 @@ import { integralCF } from "@/styles/fonts";
 import { cn } from "@/lib/utils";
 import Link from "next/link";
 import { useCurrency } from "@/components/providers/CurrencyProvider";
+import { roundTo2 } from "@/lib/currency";
 import { useUser } from "@stackframe/stack";
 import { setRedirectAfterLoginCookie } from "@/lib/redirect-after-login";
 
 export default function CheckoutPage() {
   const router = useRouter();
   const user = useUser({ or: "return-null" });
-  const { cart, adjustedTotalPrice } = useAppSelector((state: RootState) => state.carts);
+  const { cart, totalPrice, adjustedTotalPrice } = useAppSelector((state: RootState) => state.carts);
   const { formatPrice } = useCurrency();
+  const subtotalRounded = roundTo2(totalPrice);
+  const deliveryFee = subtotalRounded >= 85 ? 0 : 8;
+  const orderTotalRounded = roundTo2(subtotalRounded + deliveryFee);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -43,6 +47,11 @@ export default function CheckoutPage() {
     e.preventDefault();
     if (!cart || cart.items.length === 0) {
       setError("Your cart is empty.");
+      return;
+    }
+    const zipNum = parseInt(shipping.zip.replace(/\D/g, "").slice(0, 5), 10);
+    if (Number.isNaN(zipNum) || zipNum < 50000 || zipNum > 60000) {
+      setError("We only deliver to Kuala Lumpur. Please enter a postcode between 50000 and 60000.");
       return;
     }
     setError(null);
@@ -165,11 +174,15 @@ export default function CheckoutPage() {
             </div>
             <InputGroup className="bg-[#F0F0F0]">
               <InputGroup.Input
-                placeholder="Postcode"
+                placeholder="Postcode (Kuala Lumpur: 50000–60000)"
                 value={shipping.zip}
                 onChange={(e) => setShipping((s) => ({ ...s, zip: e.target.value }))}
                 className="bg-transparent"
+                maxLength={5}
+                inputMode="numeric"
+                pattern="[0-9]*"
               />
+              <p className="text-xs text-black/50 mt-1">Kuala Lumpur: 50000–60000</p>
             </InputGroup>
             <InputGroup className="bg-[#F0F0F0]">
               <InputGroup.Input
@@ -183,7 +196,7 @@ export default function CheckoutPage() {
           <div className="lg:w-[400px] p-5 rounded-[20px] border border-black/10 h-fit">
             <h6 className="text-xl font-bold text-black mb-4">Order total</h6>
             <p className="text-2xl font-bold mb-6">
-              {formatPrice(Math.round(adjustedTotalPrice))}
+              {formatPrice(orderTotalRounded)}
             </p>
             <p className="text-sm text-black/60 mb-4">
               You will be redirected to Billplz to pay securely.

@@ -3,6 +3,7 @@ import { prisma } from "@/lib/prisma";
 import { getStackUserAndSync } from "@/lib/auth";
 import { addContactToResend } from "@/lib/resend";
 import { createBill } from "@/lib/billplz";
+import { roundTo2 } from "@/lib/currency";
 
 function generateOrderNumber(): string {
   return `ORD-${Date.now()}-${Math.random().toString(36).slice(2, 8).toUpperCase()}`;
@@ -68,6 +69,18 @@ export async function POST(request: Request) {
       );
     }
 
+    const zipRaw = typeof shippingAddress.zip === "string" ? shippingAddress.zip : "";
+    const zipNum = parseInt(zipRaw.replace(/\D/g, "").slice(0, 5), 10);
+    if (Number.isNaN(zipNum) || zipNum < 50000 || zipNum > 60000) {
+      return NextResponse.json(
+        {
+          success: false,
+          error: "We only deliver to Kuala Lumpur. Postcode must be between 50000 and 60000.",
+        },
+        { status: 400 }
+      );
+    }
+
     const items = await resolveItems(rawItems);
     if (items.length === 0) {
       return NextResponse.json(
@@ -109,13 +122,15 @@ export async function POST(request: Request) {
         );
       }
       const price = Number(product.price);
-      subtotal += price * item.quantity;
+      const lineTotal = roundTo2(price * item.quantity);
+      subtotal += lineTotal;
       orderItems.push({ productId: product.id, quantity: item.quantity, price });
     }
 
     const tax = 0;
-    const shipping = 0;
-    const total = subtotal + tax + shipping;
+    const subtotalRounded = roundTo2(subtotal);
+    const shipping = subtotalRounded >= 85 ? 0 : 8;
+    const total = roundTo2(subtotalRounded + tax + shipping);
     const orderNumber = generateOrderNumber();
 
     const order = await prisma.$transaction(async (tx) => {
@@ -123,7 +138,7 @@ export async function POST(request: Request) {
         data: {
           orderNumber,
           status: "PENDING",
-          subtotal,
+          subtotal: subtotalRounded,
           total,
           tax,
           shipping,
