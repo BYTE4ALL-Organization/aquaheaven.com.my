@@ -24,8 +24,10 @@ export async function GET(request: NextRequest) {
     if (category) {
       const catRow = await prisma.category.findFirst({
         where: { slug: category },
-        select: { id: true },
-        include: { children: { select: { id: true } } },
+        select: {
+          id: true,
+          children: { select: { id: true } },
+        },
       });
       if (catRow) {
         const categoryIds = [catRow.id, ...(catRow.children?.map((ch) => ch.id) ?? [])];

@@ -55,8 +55,11 @@ export async function getProductsList(
   if (category) {
     const catRow = await prisma.category.findFirst({
       where: { slug: category },
-      select: { id: true, parentId: true },
-      include: { children: { select: { id: true } } },
+      select: {
+        id: true,
+        parentId: true,
+        children: { select: { id: true } },
+      },
     });
     if (catRow) {
       const categoryIds = [catRow.id, ...(catRow.children?.map((ch) => ch.id) ?? [])];

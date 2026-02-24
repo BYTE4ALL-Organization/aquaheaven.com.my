@@ -2,7 +2,8 @@ import { NextRequest, NextResponse } from "next/server";
 import { Resend } from "resend";
 import { OrderConfirmationEmail } from "@/components/email-template";
 
-const resend = new Resend(process.env.RESEND_API_KEY);
+const apiKey = process.env.RESEND_API_KEY;
+const resend = apiKey ? new Resend(apiKey) : null;
 const FROM_EMAIL = process.env.RESEND_FROM_EMAIL || "Aquaheaven <onboarding@resend.dev>";
 
 type OrderConfirmationBody = {
