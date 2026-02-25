@@ -8,6 +8,7 @@ import HolyLoader from "holy-loader";
 import Providers from "./providers";
 import ConditionalLayout from "@/components/layout/ConditionalLayout";
 import AuthSync from "@/components/auth/AuthSync";
+import CartSync from "@/components/cart/CartSync";
 
 export const metadata: Metadata = {
   title: "Aquaheaven",
@@ -29,6 +30,7 @@ export default function RootLayout({
         <HolyLoader color="#868686" />
         <Providers>
           <AuthSync />
+          <CartSync />
           <ConditionalLayout>
             {children}
           </ConditionalLayout>

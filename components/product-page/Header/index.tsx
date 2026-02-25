@@ -12,6 +12,7 @@ import AddToCardSection from "./AddToCardSection";
 import { useCurrency } from "@/components/providers/CurrencyProvider";
 
 type ProductWithColor = Product & {
+  slug?: string;
   color?: string;
   availableColors?: string[];
   availableSizes?: string[];

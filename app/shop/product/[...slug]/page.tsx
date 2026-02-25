@@ -110,6 +110,7 @@ export default async function ProductPage({
           <Header
             data={{
               ...productData,
+              slug: apiProduct.slug,
               color: apiProduct.color ?? undefined,
               availableColors: Array.isArray(apiProduct.availableColors) ? apiProduct.availableColors : undefined,
               availableSizes: Array.isArray(apiProduct.availableSizes) ? apiProduct.availableSizes : undefined,

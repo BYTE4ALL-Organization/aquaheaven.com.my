@@ -27,6 +27,8 @@ export type CartItem = {
   quantity: number;
   /** Max quantity allowed (e.g. available stock). Optional for backward compatibility. */
   availableQuantity?: number;
+  /** Product slug; used when syncing cart to account. */
+  slug?: string;
 };
 
 export type Cart = {
@@ -217,17 +219,41 @@ export const cartsSlice = createSlice({
         state.totalPrice - isItemInCart.price * isItemInCart.quantity
       );
       state.adjustedTotalPrice = roundTo2(
-        state.adjustedTotalPrice -
-          calcAdjustedTotalPrice(
-            isItemInCart.price,
-            isItemInCart,
-            isItemInCart.quantity
-          )
+          state.adjustedTotalPrice -
+            calcAdjustedTotalPrice(
+              isItemInCart.price,
+              isItemInCart,
+              isItemInCart.quantity
+            )
       );
+    },
+    /** Replace cart with server state (e.g. after login). */
+    setCartFromServer: (state, action: PayloadAction<CartItem[]>) => {
+      const items = action.payload;
+      if (!items.length) {
+        state.cart = null;
+        state.totalPrice = 0;
+        state.adjustedTotalPrice = 0;
+        return;
+      }
+      let totalPrice = 0;
+      let adjustedTotalPrice = 0;
+      let totalQuantities = 0;
+      for (const item of items) {
+        totalQuantities += item.quantity;
+        totalPrice += item.price * item.quantity;
+        adjustedTotalPrice += calcAdjustedTotalPrice(totalPrice, item);
+      }
+      state.cart = {
+        items: [...items],
+        totalQuantities,
+      };
+      state.totalPrice = roundTo2(totalPrice);
+      state.adjustedTotalPrice = roundTo2(adjustedTotalPrice);
     },
   },
 });
 
-export const { addToCart, removeCartItem, remove } = cartsSlice.actions;
+export const { addToCart, removeCartItem, remove, setCartFromServer } = cartsSlice.actions;
 
 export default cartsSlice.reducer;

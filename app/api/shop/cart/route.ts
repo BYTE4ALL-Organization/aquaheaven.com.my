@@ -1,15 +1,16 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
+import { getStackUserAndSync } from "@/lib/auth";
 
 export async function GET(request: NextRequest) {
   try {
-    const userId = request.nextUrl.searchParams.get("userId");
-    if (!userId) {
+    const user = await getStackUserAndSync(request);
+    if (!user) {
       return NextResponse.json({ success: true, items: [] });
     }
 
     const cart = await prisma.cart.findUnique({
-      where: { userId },
+      where: { userId: user.id },
       include: {
         items: {
           include: {
@@ -30,6 +31,7 @@ export async function GET(request: NextRequest) {
     const formattedItems = cart.items.map((item) => ({
       ...item.product,
       quantity: item.quantity,
+      availableQuantity: item.product.quantity,
     }));
 
     return NextResponse.json({ success: true, items: formattedItems });
@@ -44,15 +46,22 @@ export async function GET(request: NextRequest) {
 
 export async function POST(request: Request) {
   try {
+    const user = await getStackUserAndSync(request);
+    if (!user) {
+      return NextResponse.json(
+        { success: false, error: "Unauthorized" },
+        { status: 401 }
+      );
+    }
+
     const body = await request.json();
-    const { userId, items } = body as {
-      userId?: string;
+    const { items } = body as {
       items: { slug: string; quantity: number }[];
     };
 
-    if (!userId || !items || !Array.isArray(items)) {
+    if (!items || !Array.isArray(items)) {
       return NextResponse.json(
-        { success: false, error: "userId and items array required" },
+        { success: false, error: "items array required" },
         { status: 400 }
       );
     }
@@ -63,10 +72,10 @@ export async function POST(request: Request) {
     });
     const productBySlug = new Map(products.map((p) => [p.slug, p]));
 
-    let cart = await prisma.cart.findUnique({ where: { userId } });
+    let cart = await prisma.cart.findUnique({ where: { userId: user.id } });
     if (!cart) {
       cart = await prisma.cart.create({
-        data: { userId },
+        data: { userId: user.id },
       });
     }
 
@@ -80,7 +89,7 @@ export async function POST(request: Request) {
           cartId: cart.id,
           productId: product.id,
           quantity: item.quantity,
-          userId,
+          userId: user.id,
         },
       });
     }
