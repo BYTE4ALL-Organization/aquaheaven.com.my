@@ -42,7 +42,7 @@ function mapApiCartItemToCartItem(apiItem: ApiCartItem): CartItem {
 function mergeApiCartItems(apiItems: ApiCartItem[]): CartItem[] {
   const byId = new Map<string, { item: ApiCartItem; quantity: number }>();
   for (const apiItem of apiItems) {
-    const id = apiItem.id;
+    const id = String(apiItem.id);
     const qty = apiItem.quantity;
     const existing = byId.get(id);
     if (existing) {
@@ -54,6 +54,26 @@ function mergeApiCartItems(apiItems: ApiCartItem[]): CartItem[] {
   return Array.from(byId.values()).map(({ item, quantity }) =>
     mapApiCartItemToCartItem({ ...item, quantity })
   );
+}
+
+/** Merge server cart with guest cart (same product id => sum quantities; guest-only items appended). */
+function mergeGuestCartWithServer(serverItems: CartItem[], guestItems: CartItem[]): CartItem[] {
+  const byId = new Map<string, CartItem>();
+  for (const item of serverItems) {
+    byId.set(String(item.id), { ...item });
+  }
+  for (const item of guestItems) {
+    const id = String(item.id);
+    const existing = byId.get(id);
+    if (existing) {
+      existing.quantity = (existing.quantity ?? 0) + (item.quantity ?? 0);
+      if (item.slug && !existing.slug) existing.slug = item.slug;
+      if (item.availableQuantity != null) existing.availableQuantity = item.availableQuantity;
+    } else {
+      byId.set(id, { ...item });
+    }
+  }
+  return Array.from(byId.values());
 }
 
 /**
@@ -68,6 +88,8 @@ export default function CartSync() {
   const loadedForUser = useRef<string | null>(null);
   const prevUserId = useRef<string | null>(null);
   const syncTimeout = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const cartRef = useRef(cart);
+  cartRef.current = cart;
 
   // When user logs out (had id, now null), clear cart so persisted state doesn't conflict on next login.
   useEffect(() => {
@@ -80,21 +102,27 @@ export default function CartSync() {
     }
   }, [user?.id, dispatch]);
 
-  // Load cart from API when user logs in (or on mount if already logged in).
+  // On login: fetch server cart, merge with current (guest) cart, set merged result and sync to server.
   useEffect(() => {
     if (!user?.id) return;
     if (loadedForUser.current === user.id) return;
     loadedForUser.current = user.id;
+    const guestItems = cartRef.current?.items ?? [];
 
     fetch("/api/shop/cart", { credentials: "include" })
       .then((res) => res.json())
       .then((data) => {
-        if (!data.success || !Array.isArray(data.items)) return;
-        const items = mergeApiCartItems(data.items);
-        dispatch(setCartFromServer(items));
+        if (!data.success || !Array.isArray(data.items)) {
+          if (guestItems.length > 0) dispatch(setCartFromServer(mergeGuestCartWithServer([], guestItems)));
+          return;
+        }
+        const serverItems = mergeApiCartItems(data.items);
+        const merged = mergeGuestCartWithServer(serverItems, guestItems);
+        dispatch(setCartFromServer(merged));
       })
       .catch(() => {
         loadedForUser.current = null;
+        if (guestItems.length > 0) dispatch(setCartFromServer(mergeGuestCartWithServer([], guestItems)));
       });
   }, [user?.id, dispatch]);
 
