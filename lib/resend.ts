@@ -26,19 +26,29 @@ function splitName(name: string | null): { firstName?: string; lastName?: string
  * Add or update a contact in Resend (your email list).
  * Only runs when RESEND_API_KEY is set. Skips placeholder emails (e.g. stack-xxx@user.local).
  * Used for Stack Auth users on sign-in/sync, on order, and for newsletter signups.
- * @param audienceId - Optional Resend audience ID to add the contact to (e.g. for newsletter).
+ * Resend now uses "segments" (not audiences). Pass segmentId or audienceId (legacy) so the
+ * contact is added to a list; otherwise the contact is created but not in any segment.
+ * @param audienceId - Optional Resend audience/segment ID (legacy env RESEND_AUDIENCE_ID).
+ * @param segmentId - Optional Resend segment ID (preferred; RESEND_SEGMENT_ID).
  */
 export async function addContactToResend(params: {
   email: string;
   name?: string | null;
   audienceId?: string | null;
+  segmentId?: string | null;
 }): Promise<{ ok: boolean; error?: string }> {
   if (!resend) return { ok: true }; // no-op when Resend not configured
-  const { email, name, audienceId } = params;
+  const { email, name, audienceId, segmentId } = params;
   const normalized = email?.trim().toLowerCase();
   if (!normalized || normalized.endsWith("@user.local")) return { ok: true };
 
   const { firstName, lastName } = splitName(name ?? null);
+
+  // Resend API: use segments to add contact to a list (audienceId treated as segment for compatibility)
+  const segmentIds = [segmentId, audienceId].filter((id): id is string => Boolean(id?.trim()));
+  const segments = segmentIds.length > 0
+    ? segmentIds.map((id) => ({ id: id.trim() }))
+    : undefined;
 
   try {
     const { error } = await resend.contacts.create({
@@ -46,7 +56,7 @@ export async function addContactToResend(params: {
       firstName: firstName ?? undefined,
       lastName: lastName ?? undefined,
       unsubscribed: false,
-      ...(audienceId ? { audienceId } : {}),
+      ...(segments?.length ? { segments } : {}),
     });
     if (error) {
       // Resend may return "already exists" – contact is still in list
