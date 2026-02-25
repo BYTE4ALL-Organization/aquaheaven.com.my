@@ -10,7 +10,7 @@ const AddToCartBtn = ({
   data,
   availableQuantity,
 }: {
-  data: Product & { quantity: number; slug?: string };
+  data: Product & { quantity: number; slug?: string; brand?: string };
   availableQuantity?: number;
 }) => {
   const dispatch = useAppDispatch();
@@ -36,6 +36,7 @@ const AddToCartBtn = ({
             quantity: data.quantity,
             availableQuantity,
             ...(data.slug && { slug: data.slug }),
+            ...(data.brand && { brand: data.brand }),
           })
         )
       }

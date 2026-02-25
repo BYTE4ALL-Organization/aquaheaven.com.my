@@ -16,6 +16,7 @@ type ApiCartItem = {
   images?: string[];
   quantity: number;
   availableQuantity?: number;
+  brand?: string;
 };
 
 /** Map one API cart item to CartItem for Redux. */
@@ -35,6 +36,7 @@ function mapApiCartItemToCartItem(apiItem: ApiCartItem): CartItem {
     quantity: apiItem.quantity,
     availableQuantity: apiItem.availableQuantity,
     ...(apiItem.slug && { slug: apiItem.slug }),
+    ...(apiItem.brand && { brand: apiItem.brand }),
   };
 }
 
@@ -76,6 +78,9 @@ function mergeGuestCartWithServer(serverItems: CartItem[], guestItems: CartItem[
   return Array.from(byId.values());
 }
 
+/** Persists across remounts (e.g. navigation, Strict Mode). Ensures we only merge guest+server once per user; later loads just replace with server. */
+let loadedForUserId: string | null = null;
+
 /**
  * When the user is signed in:
  * - Load their saved cart from the API and hydrate Redux (so cart survives logout → login).
@@ -85,44 +90,47 @@ export default function CartSync() {
   const user = useUser({ or: "return-null" });
   const dispatch = useAppDispatch();
   const cart = useAppSelector((state: RootState) => state.carts.cart);
-  const loadedForUser = useRef<string | null>(null);
   const prevUserId = useRef<string | null>(null);
   const syncTimeout = useRef<ReturnType<typeof setTimeout> | null>(null);
   const cartRef = useRef(cart);
   cartRef.current = cart;
 
-  // When user logs out (had id, now null), clear cart so persisted state doesn't conflict on next login.
+  // When user logs out (had id, now null), clear cart and module-level flag so next login does a fresh merge.
   useEffect(() => {
     const hadUser = prevUserId.current != null;
     const hasUser = user?.id != null;
     prevUserId.current = user?.id ?? null;
     if (!hasUser) {
-      loadedForUser.current = null;
+      loadedForUserId = null;
       if (hadUser) dispatch(setCartFromServer([]));
     }
   }, [user?.id, dispatch]);
 
-  // On login: fetch server cart, merge with current (guest) cart, set merged result and sync to server.
+  // On login (or remount while logged in): fetch server cart. Only merge with guest on first load for this user; otherwise replace with server to avoid doubling.
   useEffect(() => {
     if (!user?.id) return;
-    if (loadedForUser.current === user.id) return;
-    loadedForUser.current = user.id;
+    const isFirstLoadForUser = loadedForUserId !== user.id;
+    if (isFirstLoadForUser) loadedForUserId = user.id;
     const guestItems = cartRef.current?.items ?? [];
 
     fetch("/api/shop/cart", { credentials: "include" })
       .then((res) => res.json())
       .then((data) => {
         if (!data.success || !Array.isArray(data.items)) {
-          if (guestItems.length > 0) dispatch(setCartFromServer(mergeGuestCartWithServer([], guestItems)));
+          if (guestItems.length > 0 && isFirstLoadForUser)
+            dispatch(setCartFromServer(mergeGuestCartWithServer([], guestItems)));
           return;
         }
         const serverItems = mergeApiCartItems(data.items);
-        const merged = mergeGuestCartWithServer(serverItems, guestItems);
+        const merged = isFirstLoadForUser
+          ? mergeGuestCartWithServer(serverItems, guestItems)
+          : serverItems;
         dispatch(setCartFromServer(merged));
       })
       .catch(() => {
-        loadedForUser.current = null;
-        if (guestItems.length > 0) dispatch(setCartFromServer(mergeGuestCartWithServer([], guestItems)));
+        if (isFirstLoadForUser) loadedForUserId = null;
+        if (guestItems.length > 0 && isFirstLoadForUser)
+          dispatch(setCartFromServer(mergeGuestCartWithServer([], guestItems)));
       });
   }, [user?.id, dispatch]);
 

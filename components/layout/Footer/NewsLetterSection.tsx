@@ -83,7 +83,7 @@ const NewsLetterSection = () => {
           {message && (
             <p
               className={cn(
-                "mb-2 text-sm",
+                "mb-2 text-sm text-center",
                 status === "success" ? "text-white" : "text-red-100"
               )}
             >

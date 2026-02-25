@@ -14,10 +14,12 @@ type BreadcrumbShopProps = {
   categoryName?: string;
   /** When true, show "Best Sellers" as the current segment */
   bestSellers?: boolean;
+  /** When true, show "Brands" as the current segment */
+  viewBrands?: boolean;
 };
 
-const BreadcrumbShop = ({ categoryName, bestSellers }: BreadcrumbShopProps) => {
-  const currentSegment = bestSellers ? "Best Sellers" : categoryName;
+const BreadcrumbShop = ({ categoryName, bestSellers, viewBrands }: BreadcrumbShopProps) => {
+  const currentSegment = viewBrands ? "Brands" : bestSellers ? "Best Sellers" : categoryName;
 
   return (
     <Breadcrumb className="mb-5 sm:mb-9">

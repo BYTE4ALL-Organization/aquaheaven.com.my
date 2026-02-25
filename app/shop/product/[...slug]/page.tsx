@@ -99,6 +99,7 @@ export default async function ProductPage({
     canReview,
     categories: (productRow.productCategories ?? []).map((pc) => pc.category),
     reviews: productRow.reviews,
+    brand: productRow.brand?.name,
   };
 
   return (
@@ -115,6 +116,7 @@ export default async function ProductPage({
               availableColors: Array.isArray(apiProduct.availableColors) ? apiProduct.availableColors : undefined,
               availableSizes: Array.isArray(apiProduct.availableSizes) ? apiProduct.availableSizes : undefined,
               description: apiProduct.description ?? undefined,
+              brand: apiProduct.brand ?? undefined,
             }}
           />
         </section>

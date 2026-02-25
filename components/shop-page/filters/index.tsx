@@ -11,6 +11,9 @@ import { Button } from "@/components/ui/button";
 import type { CategoryOption } from "@/components/shop-page/filters/CategoriesSection";
 import type { BrandOption } from "@/components/shop-page/filters/BrandsSection";
 
+/** Category slugs that have products with color attributes. Towel Colors is shown on All Categories or when one of these is selected; hidden when a single category with no colors is selected. */
+const CATEGORIES_WITH_COLORS = ["kiwi-towels"];
+
 export type ShopFilterOptions = {
   categories: CategoryOption[];
   brands: BrandOption[];
@@ -115,18 +118,16 @@ export default function Filters({ options }: FiltersProps) {
         value={priceRange}
         onRangeChange={(a, b) => setPriceRange([a, b])}
       />
-      <hr className="border-t-black/10" />
-      <ColorsSection
-        colors={options.colors}
-        selectedColor={color}
-        buildUrl={(o) => buildUrl({ color: o.color })}
-      />
-      <hr className="border-t-black/10" />
-      <SizeSection
-        sizes={options.sizes}
-        selectedSize={size}
-        buildUrl={(o) => buildUrl({ size: o.size })}
-      />
+      {(!category || CATEGORIES_WITH_COLORS.includes(category)) && (
+        <>
+          <hr className="border-t-black/10" />
+          <ColorsSection
+            colors={options.colors}
+            selectedColor={color}
+            buildUrl={(o) => buildUrl({ color: o.color })}
+          />
+        </>
+      )}
       <hr className="border-t-black/10" />
       <BrandsSection
         brands={options.brands}

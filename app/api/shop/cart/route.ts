@@ -17,6 +17,7 @@ export async function GET(request: NextRequest) {
             product: {
               include: {
                 reviews: { select: { rating: true } },
+                brand: { select: { name: true } },
               },
             },
           },
@@ -32,6 +33,7 @@ export async function GET(request: NextRequest) {
       ...item.product,
       quantity: item.quantity,
       availableQuantity: item.product.quantity,
+      brand: item.product.brand?.name ?? undefined,
     }));
 
     return NextResponse.json({ success: true, items: formattedItems });

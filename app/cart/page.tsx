@@ -36,7 +36,7 @@ export default function CartPage() {
             <h2
               className={cn([
                 integralCF.className,
-                "font-bold text-[32px] md:text-[40px] text-black uppercase mb-5 md:mb-6",
+                "font-bold text-[32px] md:text-[40px] uppercase mb-5 md:mb-6 bg-gradient-to-r from-brand to-brand-accent bg-clip-text text-transparent",
               ])}
             >
               your cart
@@ -63,7 +63,7 @@ export default function CartPage() {
                   </div>
                   <div className="flex items-center justify-between">
                     <span className="md:text-xl text-black/60">
-                      Delivery Fee
+                      Shipping (3-7 days)
                     </span>
                     <span className="md:text-xl font-bold">
                       {deliveryFee === 0 ? "FREE SHIPPING" : formatPrice(8)}

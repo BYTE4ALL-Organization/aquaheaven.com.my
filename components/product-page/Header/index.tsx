@@ -17,6 +17,7 @@ type ProductWithColor = Product & {
   availableColors?: string[];
   availableSizes?: string[];
   description?: string | null;
+  brand?: string;
 };
 
 /** Show color section when product has at least one color option. */

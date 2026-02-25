@@ -9,6 +9,7 @@ const productInclude = {
       },
     },
   },
+  brand: { select: { id: true, name: true, slug: true } },
   reviews: {
     select: { rating: true },
   },
@@ -228,6 +229,7 @@ const productDetailInclude = {
       },
     },
   },
+  brand: { select: { id: true, name: true } },
   reviews: {
     include: {
       user: { select: { name: true } },

@@ -64,7 +64,7 @@ const data: NavMenu = [
     id: 4,
     type: "MenuItem",
     label: "Brands",
-    url: "/shop",
+    url: "/shop?view=brands",
     children: [],
   },
 ];

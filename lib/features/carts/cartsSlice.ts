@@ -29,6 +29,8 @@ export type CartItem = {
   availableQuantity?: number;
   /** Product slug; used when syncing cart to account. */
   slug?: string;
+  /** Brand name; shown in cart when product has no size/color attributes. */
+  brand?: string;
 };
 
 export type Cart = {
