@@ -9,6 +9,7 @@ interface SliderProps
   min: number;
   max: number;
   step?: number;
+  value?: [number, number];
   defaultValue?: [number, number];
   label?: string;
 }
@@ -23,6 +24,7 @@ const Slider = React.forwardRef<
       min,
       max,
       step = 1,
+      value: valueProp,
       defaultValue = [min, max],
       label,
       onValueChange: onValueChangeProp,
@@ -30,10 +32,12 @@ const Slider = React.forwardRef<
     },
     ref
   ) => {
-    const [values, setValues] = React.useState<[number, number]>(defaultValue);
+    const [internalValues, setInternalValues] = React.useState<[number, number]>(defaultValue);
+    const isControlled = valueProp !== undefined;
+    const values = isControlled ? valueProp : internalValues;
 
     const handleValueChange = (newValues: number[]) => {
-      setValues([newValues[0], newValues[1]]);
+      if (!isControlled) setInternalValues([newValues[0], newValues[1]]);
       onValueChangeProp?.(newValues);
     };
 

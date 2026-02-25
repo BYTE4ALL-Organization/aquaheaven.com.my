@@ -15,6 +15,8 @@ type PriceSectionProps = {
   priceMax: number;
   valueMin: number;
   valueMax: number;
+  /** When provided, slider is controlled by parent (fixes decreasing/range updates) */
+  value?: [number, number];
   onRangeChange: (min: number, max: number) => void;
 };
 
@@ -23,12 +25,14 @@ const PriceSection = ({
   priceMax,
   valueMin,
   valueMax,
+  value: controlledValue,
   onRangeChange,
 }: PriceSectionProps) => {
   const { currencySymbol } = useCurrency();
   const effectiveMax = Math.max(priceMax, priceMin + (priceMin === priceMax ? 1 : 0));
   const defaultMin = valueMin > 0 ? valueMin : priceMin;
   const defaultMax = valueMax > 0 ? valueMax : effectiveMax;
+  const sliderValue = controlledValue ?? [defaultMin, defaultMax];
 
   return (
     <Accordion type="single" collapsible defaultValue="filter-price">
@@ -38,11 +42,10 @@ const PriceSection = ({
         </AccordionTrigger>
         <AccordionContent className="pt-4" contentClassName="overflow-visible">
           <Slider
-            key={`${defaultMin}-${defaultMax}`}
             min={priceMin}
             max={effectiveMax}
             step={1}
-            defaultValue={[defaultMin, defaultMax]}
+            value={sliderValue}
             label={currencySymbol}
             onValueChange={(v) => onRangeChange(v[0], v[1])}
           />

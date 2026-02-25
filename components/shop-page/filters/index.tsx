@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useCallback, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import CategoriesSection from "@/components/shop-page/filters/CategoriesSection";
 import BrandsSection from "@/components/shop-page/filters/BrandsSection";
@@ -39,6 +39,25 @@ export default function Filters({ options }: FiltersProps) {
     valueMin || options.priceRange.min,
     valueMax || options.priceRange.max,
   ]);
+
+  // Keep price range in sync with URL so slider reflects applied filters and responds to decreases
+  useEffect(() => {
+    const min = valueMin > 0 ? valueMin : options.priceRange.min;
+    const max = valueMax > 0 ? valueMax : options.priceRange.max;
+    setPriceRange([min, max]);
+  }, [valueMin, valueMax, options.priceRange.min, options.priceRange.max]);
+
+  const hasActiveFilters =
+    !!category ||
+    !!brand ||
+    !!color ||
+    !!size ||
+    valueMin > options.priceRange.min ||
+    valueMax > 0 && valueMax < options.priceRange.max;
+
+  const clearFilters = () => {
+    router.push("/shop");
+  };
 
   const buildUrl = useCallback(
     (overrides: {
@@ -93,6 +112,7 @@ export default function Filters({ options }: FiltersProps) {
         priceMax={options.priceRange.max}
         valueMin={valueMin}
         valueMax={valueMax}
+        value={priceRange}
         onRangeChange={(a, b) => setPriceRange([a, b])}
       />
       <hr className="border-t-black/10" />
@@ -120,6 +140,16 @@ export default function Filters({ options }: FiltersProps) {
       >
         Apply Filter
       </Button>
+      {hasActiveFilters && (
+        <Button
+          type="button"
+          variant="outline"
+          onClick={clearFilters}
+          className="w-full rounded-full text-sm font-medium py-4 h-12 mt-2 border-black/20"
+        >
+          Clear filters
+        </Button>
+      )}
     </>
   );
 }
