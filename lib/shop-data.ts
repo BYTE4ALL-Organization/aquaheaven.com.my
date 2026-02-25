@@ -238,6 +238,31 @@ const productDetailInclude = {
   },
 } as const;
 
+/** URL-safe slug from name: alphanumeric and hyphens only, collapse/trim dashes. */
+function toNameSlug(name: string | null | undefined, fallback: string): string {
+  if (!name?.trim()) return fallback;
+  const slug = name
+    .trim()
+    .replace(/\s+/g, "-")
+    .replace(/[^a-zA-Z0-9-]/g, "")
+    .replace(/-+/g, "-")
+    .replace(/^-|-$/g, "");
+  return slug || fallback;
+}
+
+/** All active product id/slug/name for static path generation (e.g. generateStaticParams, sitemap). */
+export async function getAllProductPaths(prisma: PrismaClient) {
+  const rows = await prisma.product.findMany({
+    where: { isActive: true },
+    select: { id: true, slug: true, name: true },
+  });
+  return rows.map((p) => ({
+    id: p.id,
+    slug: p.slug,
+    nameSlug: toNameSlug(p.name, p.slug || p.id),
+  }));
+}
+
 /** Single product with categories and full reviews for product page. */
 export async function getProductDetail(prisma: PrismaClient, slugOrId: string) {
   const product = await prisma.product.findFirst({

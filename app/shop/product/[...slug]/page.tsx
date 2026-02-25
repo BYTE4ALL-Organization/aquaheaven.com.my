@@ -5,10 +5,18 @@ import Tabs from "@/components/product-page/Tabs";
 import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { hasUserPurchasedProduct } from "@/lib/purchase-check";
-import { getProductDetail, getProductsList } from "@/lib/shop-data";
+import { getAllProductPaths, getProductDetail, getProductsList } from "@/lib/shop-data";
 import { Product } from "@/types/product.types";
 import { notFound } from "next/navigation";
 import { headers } from "next/headers";
+
+/** Pre-render all product pages at build for SEO. */
+export async function generateStaticParams() {
+  const paths = await getAllProductPaths(prisma);
+  return paths.map((p) => ({
+    slug: [p.id, p.nameSlug],
+  }));
+}
 
 /** Map API product (name, slug, thumbnail, reviews) to Product type (title, srcUrl, rating, discount). */
 function mapApiProductToCard(apiProduct: {
