@@ -79,11 +79,14 @@ const Reviews = ({ data }: ReviewsProps) => {
               </CarouselNext>
             </div>
           </div>
-          <CarouselContent>
+          <CarouselContent className="gap-5 pl-5 pr-5">
             {data.map((review, index) => (
               <CarouselItem
                 key={review.id}
-                className="w-full max-w-[358px] sm:max-w-[400px] pl-5"
+                className={cn(
+                  "w-full max-w-[358px] sm:max-w-[400px] pl-0",
+                  index === data.length - 1 && "mr-5"
+                )}
               >
                 <ReviewCard
                   className="h-full"

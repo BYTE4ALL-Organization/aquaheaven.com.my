@@ -50,11 +50,14 @@ const ProductListSec = ({ title, data, viewAllLink, compact = false }: ProductLi
             }}
             className="w-full"
           >
-            <CarouselContent className="mx-4 xl:mx-0 space-x-4 sm:space-x-5">
-              {data.map((product) => (
+            <CarouselContent className="mx-4 xl:mx-0 gap-4 sm:gap-5 pr-4 sm:pr-5">
+              {data.map((product, index) => (
                 <CarouselItem
                   key={product.id}
-                  className="w-full max-w-[198px] sm:max-w-[295px] pl-0"
+                  className={cn(
+                    "w-full max-w-[198px] sm:max-w-[295px] pl-0",
+                    index === data.length - 1 && "mr-4 sm:mr-5"
+                  )}
                 >
                   <ProductCard data={product} compact={compact} />
                 </CarouselItem>

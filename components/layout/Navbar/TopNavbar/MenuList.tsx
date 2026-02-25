@@ -1,5 +1,8 @@
+"use client";
+
 import * as React from "react";
 import Link from "next/link";
+import { usePathname, useSearchParams } from "next/navigation";
 
 import { cn } from "@/lib/utils";
 import {
@@ -16,10 +19,29 @@ export type MenuListProps = {
 };
 
 export function MenuList({ data, label }: MenuListProps) {
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
+  // Highlight Shop only when viewing a category (e.g. Body Wash, Towels); not when Best Sellers or Brands is active
+  const isShopActive =
+    pathname.startsWith("/shop") && searchParams.has("category");
+
   return (
     <NavigationMenuItem>
-      <NavigationMenuTrigger className="font-normal px-3 bg-gradient-to-r from-brand to-brand-accent bg-clip-text text-transparent">
-        {label}
+      <NavigationMenuTrigger
+        className={cn(
+          "font-normal px-3 transition-colors",
+          isShopActive
+            ? "bg-neutral-100 rounded-md"
+            : "text-foreground hover:text-foreground/80"
+        )}
+      >
+        {isShopActive ? (
+          <span className="bg-gradient-to-r from-brand to-brand-accent bg-clip-text text-transparent">
+            {label}
+          </span>
+        ) : (
+          label
+        )}
       </NavigationMenuTrigger>
       <NavigationMenuContent>
         <ul className="grid w-[400px] gap-3 p-4 md:w-[500px] md:grid-cols-2 lg:w-[600px] ">
@@ -36,20 +58,41 @@ export function MenuList({ data, label }: MenuListProps) {
 
 const ListItem = React.forwardRef<
   React.ElementRef<typeof Link>,
-  React.ComponentPropsWithoutRef<typeof Link>
->(({ className, title, children, ...props }, ref) => {
+  React.ComponentPropsWithoutRef<typeof Link> & { title: string }
+>(({ className, title, children, href = "/", ...props }, ref) => {
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
+  const [path, query] = (href ?? "/").split("?");
+  const sameQuery = (a: URLSearchParams, q: string) => {
+    const A = [...a.entries()].sort((x, y) => x[0].localeCompare(y[0]));
+    const B = [...new URLSearchParams(q).entries()].sort((x, y) => x[0].localeCompare(y[0]));
+    return A.length === B.length && A.every(([k, v], i) => k === B[i][0] && v === B[i][1]);
+  };
+  const isActive =
+    pathname === path && (!query ? !searchParams.toString() : sameQuery(searchParams, query));
+
   return (
     <li>
       <NavigationMenuLink asChild>
         <Link
           ref={ref}
+          href={href}
+          scroll={false}
           className={cn(
             "block select-none space-y-1 rounded-md p-3 leading-none no-underline outline-none transition-colors hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground",
+            isActive && "bg-neutral-100",
             className
           )}
           {...props}
         >
-          <div className="text-sm font-medium leading-none">{title}</div>
+          <div
+            className={cn(
+              "text-sm font-medium leading-none",
+              isActive && "bg-gradient-to-r from-brand to-brand-accent bg-clip-text text-transparent"
+            )}
+          >
+            {title}
+          </div>
           <p className="line-clamp-2 text-sm leading-snug text-muted-foreground">
             {children}
           </p>

@@ -25,14 +25,16 @@ function splitName(name: string | null): { firstName?: string; lastName?: string
 /**
  * Add or update a contact in Resend (your email list).
  * Only runs when RESEND_API_KEY is set. Skips placeholder emails (e.g. stack-xxx@user.local).
- * Used for Stack Auth users on sign-in/sync and on order so you can email them.
+ * Used for Stack Auth users on sign-in/sync, on order, and for newsletter signups.
+ * @param audienceId - Optional Resend audience ID to add the contact to (e.g. for newsletter).
  */
 export async function addContactToResend(params: {
   email: string;
   name?: string | null;
+  audienceId?: string | null;
 }): Promise<{ ok: boolean; error?: string }> {
   if (!resend) return { ok: true }; // no-op when Resend not configured
-  const { email, name } = params;
+  const { email, name, audienceId } = params;
   const normalized = email?.trim().toLowerCase();
   if (!normalized || normalized.endsWith("@user.local")) return { ok: true };
 
@@ -44,6 +46,7 @@ export async function addContactToResend(params: {
       firstName: firstName ?? undefined,
       lastName: lastName ?? undefined,
       unsubscribed: false,
+      ...(audienceId ? { audienceId } : {}),
     });
     if (error) {
       // Resend may return "already exists" – contact is still in list

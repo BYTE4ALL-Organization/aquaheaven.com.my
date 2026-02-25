@@ -120,7 +120,7 @@ export default function CheckoutPage() {
         <h2
           className={cn([
             integralCF.className,
-            "font-bold text-[32px] md:text-[40px] text-black uppercase mb-6",
+            "font-bold text-[32px] md:text-[40px] uppercase mb-6 text-center bg-gradient-to-r from-brand to-brand-accent bg-clip-text text-transparent",
           ])}
         >
           Checkout

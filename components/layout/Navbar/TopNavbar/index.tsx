@@ -42,13 +42,13 @@ const data: NavMenu = [
       {
         id: 15,
         label: "Towels",
-        url: "/shop?category=towels",
+        url: "/shop?category=kiwi-towels",
         description: "Soft, absorbent towels for bath and beyond",
       },
       {
         id: 16,
         label: "Soap Bar",
-        url: "/shop?category=bar-soap",
+        url: "/shop?category=soap-bar",
         description: "Classic bars for cleansing and care",
       },
     ],

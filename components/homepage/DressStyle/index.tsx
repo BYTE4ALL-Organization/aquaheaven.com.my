@@ -47,13 +47,13 @@ const DressStyle = () => {
         >
           <DressStyleCard
             title="Towels"
-            url="/shop#towels"
+            url="/shop#kiwi-towels"
             className="md:max-w-[684px] h-[190px] bg-[url('/products/category/towels.jpg')]"
           />
           <DressStyleCard
             title="Bar Soap"
-            url="/shop#bar-soap"
-            className="md:max-w-[260px] lg:max-w-[360px] xl:max-w-[407px] h-[190px] bg-[url('/products/category/bar-soap.jpg')]"
+            url="/shop#soap-bar"
+            className="md:max-w-[260px] lg:max-w-[360px] xl:max-w-[407px] h-[190px] bg-[url('/products/category/soap-bar.jpg')]"
           />
         </motion.div>
       </section>
