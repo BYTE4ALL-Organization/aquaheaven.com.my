@@ -56,13 +56,32 @@ export function MenuList({ data, label }: MenuListProps) {
   );
 }
 
+function hrefToPathAndQuery(
+  href: React.ComponentPropsWithoutRef<typeof Link>["href"]
+): [path: string, query: string] {
+  const s =
+    typeof href === "string"
+      ? href
+      : href && typeof href === "object" && "pathname" in href
+        ? (href.pathname ?? "/") +
+          (href.query && Object.keys(href.query).length
+            ? "?" +
+              new URLSearchParams(
+                href.query as Record<string, string>
+              ).toString()
+            : "")
+        : "/";
+  const [path = "/", query = ""] = s.split("?");
+  return [path, query];
+}
+
 const ListItem = React.forwardRef<
   React.ElementRef<typeof Link>,
   React.ComponentPropsWithoutRef<typeof Link> & { title: string }
 >(({ className, title, children, href = "/", ...props }, ref) => {
   const pathname = usePathname();
   const searchParams = useSearchParams();
-  const [path, query] = (href ?? "/").split("?");
+  const [path, query] = hrefToPathAndQuery(href);
   const sameQuery = (a: URLSearchParams, q: string) => {
     const A = [...a.entries()].sort((x, y) => x[0].localeCompare(y[0]));
     const B = [...new URLSearchParams(q).entries()].sort((x, y) => x[0].localeCompare(y[0]));
