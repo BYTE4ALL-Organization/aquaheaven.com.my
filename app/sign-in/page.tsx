@@ -14,7 +14,7 @@ export default function Page() {
         firstTab="magic-link"
         extraInfo={
           <>
-            When signing in, you agree to our <a href="/terms">Terms</a>
+            When signing in, you agree to our <a href="/terms-of-service">Terms</a>
           </>
         }
       />

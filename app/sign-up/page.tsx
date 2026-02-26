@@ -9,7 +9,7 @@ export default function Page() {
         firstTab="magic-link" // or "magic-link"
         extraInfo={
           <>
-            When signing up, you agree to our <a href="/terms">Terms</a>
+            When signing up, you agree to our <a href="/terms-of-service">Terms</a>
           </>
         }
       />

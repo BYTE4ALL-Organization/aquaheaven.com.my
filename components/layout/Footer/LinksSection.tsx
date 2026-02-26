@@ -8,30 +8,27 @@ const footerLinksData: FooterLinks[] = [
     id: 1,
     title: "company",
     children: [
-      { id: 11, label: "about", url: "/about" },
-      { id: 12, label: "features", url: "/placeholder" },
-      { id: 13, label: "works", url: "/placeholder" },
-      { id: 14, label: "career", url: "/placeholder" },
+      { id: 11, label: "About Us", url: "/about-us" },
+      { id: 12, label: "Privacy Policy", url: "/privacy-policy" },
+      { id: 13, label: "Terms Of Service", url: "/terms-of-service" },
     ],
   },
   {
     id: 2,
     title: "help",
     children: [
-      { id: 21, label: "customer support", url: "/placeholder" },
-      { id: 22, label: "delivery details", url: "/placeholder" },
-      { id: 23, label: "terms & conditions", url: "/terms" },
-      { id: 24, label: "privacy policy", url: "/privacy" },
+      { id: 21, label: "Contact Us", url: "/contact-us" },
+      { id: 22, label: "Track My Order", url: "/track-my-order" },
+      { id: 23, label: "Customer Support", url: "/customer-support" },
     ],
   },
   {
     id: 3,
     title: "faq",
     children: [
-      { id: 31, label: "account", url: "/account" },
-      { id: 32, label: "manage deliveries", url: "/placeholder" },
-      { id: 33, label: "orders", url: "/placeholder" },
-      { id: 34, label: "payments", url: "/placeholder" },
+      { id: 31, label: "General FAQ", url: "/faq#general" },
+      { id: 32, label: "Payment & Billing", url: "/faq#payment-billing" },
+      { id: 33, label: "Shipping Questions", url: "/faq#shipping" },
     ],
   },
   {
@@ -59,7 +56,7 @@ const LinksSection = () => {
               href={link.url}
               key={link.id}
               className={cn([
-                link.id !== 41 && link.id !== 43 && "capitalize",
+                (link.id === 41 || link.id === 43) ? "" : "capitalize",
                 "text-black/60 text-sm md:text-base mb-4 w-fit",
               ])}
             >

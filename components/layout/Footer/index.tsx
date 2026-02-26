@@ -57,7 +57,7 @@ const paymentBadgesData: PaymentBadge[] = [
 
 const Footer = () => {
   return (
-    <footer className="mt-10">
+    <footer className="mt-0">
       <div className="relative">
         <div className="absolute bottom-0 w-full h-1/2 bg-[#F0F0F0]"></div>
         <div className="px-4">
