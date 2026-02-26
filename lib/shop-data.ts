@@ -250,17 +250,30 @@ function toNameSlug(name: string | null | undefined, fallback: string): string {
   return slug || fallback;
 }
 
-/** All active product id/slug/name for static path generation (e.g. generateStaticParams, sitemap). */
+/** All active product paths with category for URLs like /shop/{categorySlug}/{productSlug}. */
 export async function getAllProductPaths(prisma: PrismaClient) {
   const rows = await prisma.product.findMany({
     where: { isActive: true },
-    select: { id: true, slug: true, name: true },
+    select: {
+      id: true,
+      slug: true,
+      name: true,
+      productCategories: {
+        take: 1,
+        select: { category: { select: { slug: true } } },
+      },
+    },
   });
-  return rows.map((p) => ({
-    id: p.id,
-    slug: p.slug,
-    nameSlug: toNameSlug(p.name, p.slug || p.id),
-  }));
+  return rows.map((p) => {
+    const categorySlug =
+      p.productCategories?.[0]?.category?.slug?.trim() || "shop";
+    return {
+      id: p.id,
+      slug: p.slug,
+      nameSlug: toNameSlug(p.name, p.slug || p.id),
+      categorySlug,
+    };
+  });
 }
 
 /** Single product with categories and full reviews for product page. */

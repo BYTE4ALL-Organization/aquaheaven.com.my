@@ -30,17 +30,20 @@ function mapApiProductToCard(apiProduct: {
   thumbnail?: string | null;
   images?: string[];
   reviews?: { rating: number }[];
-}): Product & { name?: string; slug?: string; thumbnail?: string; images?: string[]; reviews?: { rating: number }[] } {
+  productCategories?: { category: { slug: string } }[];
+}): Product & { name?: string; slug?: string; thumbnail?: string; images?: string[]; reviews?: { rating: number }[]; categorySlug?: string } {
   const reviews = Array.isArray(apiProduct.reviews) ? apiProduct.reviews : [];
   const rating =
     reviews.length > 0
       ? reviews.reduce((a, r) => a + (r?.rating ?? 0), 0) / reviews.length
       : 0;
+  const categorySlug = apiProduct.productCategories?.[0]?.category?.slug?.trim() ?? "shop";
   return {
     id: apiProduct.id as unknown as number,
     title: apiProduct.name,
     name: apiProduct.name,
     slug: apiProduct.slug,
+    categorySlug,
     srcUrl:
       apiProduct.thumbnail ||
       (Array.isArray(apiProduct.images) && apiProduct.images[0]) ||
@@ -141,7 +144,7 @@ export default async function ShopPage({
   };
 
   type ProductWithBrand = (typeof productsRaw)[number] & { brand?: { name: string; slug?: string } | null };
-  const products: (Product & { name?: string; slug?: string; thumbnail?: string; images?: string[]; reviews?: { rating: number }[] })[] =
+  const products: (Product & { name?: string; slug?: string; thumbnail?: string; images?: string[]; reviews?: { rating: number }[]; categorySlug?: string })[] =
     productsRaw.map((p) =>
       mapApiProductToCard({
         id: p.id,
@@ -151,11 +154,12 @@ export default async function ShopPage({
         thumbnail: p.thumbnail,
         images: p.images,
         reviews: p.reviews?.map((r) => ({ rating: r.rating })) ?? [],
+        productCategories: p.productCategories,
       })
     );
 
   const brandOrder: string[] = [];
-  const byBrand = new Map<string, (Product & { name?: string; slug?: string; thumbnail?: string; images?: string[]; reviews?: { rating: number }[] })[]>();
+  const byBrand = new Map<string, (Product & { name?: string; slug?: string; thumbnail?: string; images?: string[]; reviews?: { rating: number }[]; categorySlug?: string })[]>();
   if (viewBrands) {
     const rawWithBrand = productsRaw as ProductWithBrand[];
     for (let i = 0; i < rawWithBrand.length; i++) {

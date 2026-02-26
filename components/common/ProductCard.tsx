@@ -8,7 +8,7 @@ import { Product } from "@/types/product.types";
 import { useCurrency } from "@/components/providers/CurrencyProvider";
 
 type ProductCardProps = {
-  data: Product & { name?: string; slug?: string; thumbnail?: string; images?: string[]; reviews?: { rating: number }[] };
+  data: Product & { name?: string; slug?: string; thumbnail?: string; images?: string[]; reviews?: { rating: number }[]; categorySlug?: string };
   /** When true, uses refined price + stars styling (main page only) */
   compact?: boolean;
 };
@@ -50,10 +50,12 @@ const ProductCard = ({ data, compact = false }: ProductCardProps) => {
   const discount = productDiscount(data);
   const rating = productRating(data);
   const { formatPrice } = useCurrency();
+  const categorySlug = data.categorySlug ?? "shop";
+  const href = `/shop/${categorySlug}/${slug}`;
 
   return (
     <Link
-      href={`/shop/product/${data.id}/${slug}`}
+      href={href}
       className="flex flex-col items-start aspect-auto"
     >
       <div className="bg-[#F0EEED] rounded-[13px] lg:rounded-[20px] w-full lg:max-w-[295px] aspect-square mb-2.5 xl:mb-4 overflow-hidden">

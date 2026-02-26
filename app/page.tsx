@@ -14,19 +14,24 @@ export const dynamic = "force-dynamic";
 function mapToProduct(p: {
   id: string;
   name: string;
+  slug?: string;
   price: unknown;
   thumbnail?: string | null;
   images?: string[] | null;
   reviews?: { rating: number }[];
-}): Product {
+  productCategories?: { category: { slug: string } }[];
+}): Product & { slug?: string; categorySlug?: string } {
   const reviews = p.reviews ?? [];
   const rating =
     reviews.length > 0
       ? reviews.reduce((a, r) => a + (r?.rating ?? 0), 0) / reviews.length
       : 0;
+  const categorySlug = p.productCategories?.[0]?.category?.slug?.trim() ?? "shop";
   return {
     id: p.id as unknown as number,
     title: p.name,
+    slug: p.slug,
+    categorySlug,
     srcUrl:
       p.thumbnail ||
       (Array.isArray(p.images) && p.images[0]) ||
@@ -54,8 +59,8 @@ export default async function Home() {
     getReviews(prisma, 12),
   ]);
 
-  const newArrivalsData: Product[] = newArrivalsRes.products.map(mapToProduct);
-  const topSellingData: Product[] = topSellingRes.products.map(mapToProduct);
+  const newArrivalsData = newArrivalsRes.products.map(mapToProduct);
+  const topSellingData = topSellingRes.products.map(mapToProduct);
 
   return (
     <>

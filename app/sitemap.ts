@@ -19,7 +19,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   try {
     const paths = await getAllProductPaths(prisma);
     productPages = paths.map((p) => ({
-      url: `${base}/shop/product/${p.id}/${p.nameSlug}`,
+      url: `${base}/shop/${p.categorySlug}/${p.slug}`,
       lastModified: new Date(),
       changeFrequency: "weekly" as const,
       priority: 0.8,
