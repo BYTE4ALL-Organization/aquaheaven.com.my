@@ -33,12 +33,11 @@ const footerLinksData: FooterLinks[] = [
   },
   {
     id: 4,
-    title: "resources",
+    title: "account",
     children: [
-      { id: 41, label: "Free eBooks", url: "/placeholder" },
-      { id: 42, label: "development tutorial", url: "/placeholder" },
-      { id: 43, label: "How to - Blog", url: "/placeholder" },
-      { id: 44, label: "youtube playlist", url: "/placeholder" },
+      { id: 41, label: "Login", url: "/sign-in" },
+      { id: 42, label: "Register", url: "/sign-up" },
+      { id: 43, label: "My Orders", url: "/account#payments" },
     ],
   },
 ];
@@ -56,7 +55,7 @@ const LinksSection = () => {
               href={link.url}
               key={link.id}
               className={cn([
-                (link.id === 41 || link.id === 43) ? "" : "capitalize",
+                (link.id === 41 || link.id === 42 || link.id === 43) ? "" : "capitalize",
                 "text-black/60 text-sm md:text-base mb-4 w-fit",
               ])}
             >

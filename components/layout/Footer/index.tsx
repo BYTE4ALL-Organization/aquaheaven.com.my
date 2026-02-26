@@ -12,23 +12,22 @@ import LayoutSpacing from "./LayoutSpacing";
 const socialsData: SocialNetworks[] = [
   {
     id: 1,
-    icon: <FaTwitter />,
-    url: "https://twitter.com",
+    icon: <FaFacebookF />,
+    url: "https://facebook.com/Aquaheavenmy",
   },
   {
     id: 2,
-    icon: <FaFacebookF />,
-    url: "https://facebook.com",
+    icon: <FaInstagram />,
+    url: "https://instagram.com/aquaheavenmy",
   },
   {
     id: 3,
-    icon: <FaInstagram />,
-    url: "https://instagram.com",
+    icon: <FaGithub />,
+    url: "https://github.com/BYTE4ALL-Organization/aquaheaven.com.my",
   },
   {
     id: 4,
-    icon: <FaGithub />,
-    url: "https://github.com/mohammadoftadeh",
+    icon: <FaTwitter />,
   },
 ];
 
@@ -80,15 +79,29 @@ const Footer = () => {
               Quality essentials for your body and home. From luxurious soaps to Saint-Tropez inspired towels.
               </p>
               <div className="flex items-center">
-                {socialsData.map((social) => (
-                  <Link
-                    href={social.url}
-                    key={social.id}
-                    className="bg-white hover:bg-black hover:text-white transition-all mr-3 w-7 h-7 rounded-full border border-black/20 flex items-center justify-center p-1.5"
-                  >
-                    {social.icon}
-                  </Link>
-                ))}
+                {socialsData.map((social) => {
+                  const iconClassName = "bg-gradient-to-r from-brand to-brand-accent text-white hover:opacity-90 transition-all mr-3 w-7 h-7 rounded-full border border-brand/30 flex items-center justify-center p-1.5";
+                  if (social.url) {
+                    return (
+                      <Link
+                        href={social.url}
+                        key={social.id}
+                        className={iconClassName}
+                      >
+                        {social.icon}
+                      </Link>
+                    );
+                  }
+                  return (
+                    <span
+                      key={social.id}
+                      className={iconClassName}
+                      aria-hidden
+                    >
+                      {social.icon}
+                    </span>
+                  );
+                })}
               </div>
             </div>
             <div className="hidden lg:grid col-span-9 lg:grid-cols-4 lg:pl-10">
@@ -123,7 +136,7 @@ const Footer = () => {
                 <FaGithub className="w-4 h-4" />
               </Link>
               <Link
-                href="https://www.byte4all.com"
+                href="https://github.com/BYTE4ALL-Organization/aquaheaven.com.my"
                 className="text-black font-medium"
                 target="_blank"
                 rel="noopener noreferrer"

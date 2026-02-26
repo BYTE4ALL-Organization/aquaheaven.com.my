@@ -3,7 +3,7 @@ import React from "react";
 export type SocialNetworks = {
   id: number;
   icon: React.ReactNode;
-  url: string;
+  url?: string;
 };
 
 export type FLink = {
