@@ -52,7 +52,7 @@ const Header = () => {
             whileInView={{ y: "0", opacity: 1 }}
             viewport={{ once: true }}
             transition={{ delay: 1.5, duration: 0.6 }}
-            className="flex md:h-full md:max-h-11 lg:max-h-[52px] xl:max-h-[68px] items-center justify-center md:justify-start flex-nowrap gap-6 md:gap-3 lg:gap-6 xl:gap-8 md:mb-[116px]"
+            className="flex md:h-full md:max-h-11 lg:max-h-[52px] xl:max-h-[68px] items-center justify-center md:justify-start flex-nowrap gap-6 md:gap-3 lg:gap-6 xl:gap-8 mb-6 md:mb-[116px]"
           >
             <div className="flex flex-col text-center md:text-left">
               <span className="font-bold text-2xl md:text-xl lg:text-3xl xl:text-[40px] xl:mb-2 text-white">
@@ -93,7 +93,7 @@ const Header = () => {
           whileInView={{ y: "0", opacity: 1, rotate: 0 }}
           viewport={{ once: true }}
           transition={{ delay: 2.3, duration: 0.8 }}
-          className="relative md:px-4 min-h-[448px] md:min-h-[428px] bg-cover bg-top xl:bg-[center_top_-1.6rem] bg-no-repeat bg-[url('/products/homepage/summer-vacation-vibes.jpg')] md:bg-[url('/products/homepage/summer-vacation-vibes-resized.jpg')]"
+          className="relative md:px-4 min-h-[448px] md:min-h-[428px] mb-6 md:mb-0 bg-cover bg-top xl:bg-[center_top_-1.6rem] bg-no-repeat bg-[url('/products/homepage/summer-vacation-vibes.jpg')] md:bg-[url('/products/homepage/summer-vacation-vibes-resized.jpg')]"
         >
         </motion.section>
       </div>
