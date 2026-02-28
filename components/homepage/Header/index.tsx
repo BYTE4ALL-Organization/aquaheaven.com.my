@@ -29,7 +29,7 @@ const Header = () => {
             whileInView={{ y: "0", opacity: 1 }}
             viewport={{ once: true }}
             transition={{ delay: 0.5, duration: 0.6 }}
-            className="text-white/90 text-sm lg:text-base mb-6 lg:mb-8 max-w-[545px]"
+            className="text-white/90 text-base lg:text-lg mb-6 lg:mb-8 max-w-[545px]"
           >
             Explore our carefully selected collection of luxurious soaps and Saint-Tropez style towels that bring elegance to your everyday moments.
           </motion.p>
@@ -52,37 +52,37 @@ const Header = () => {
             whileInView={{ y: "0", opacity: 1 }}
             viewport={{ once: true }}
             transition={{ delay: 1.5, duration: 0.6 }}
-            className="flex md:h-full md:max-h-11 lg:max-h-[52px] xl:max-h-[68px] items-center justify-center md:justify-start flex-wrap sm:flex-nowrap md:space-x-3 lg:space-x-6 xl:space-x-8 md:mb-[116px]"
+            className="flex md:h-full md:max-h-11 lg:max-h-[52px] xl:max-h-[68px] items-center justify-center md:justify-start flex-nowrap gap-6 md:gap-3 lg:gap-6 xl:gap-8 md:mb-[116px]"
           >
-            <div className="flex flex-col">
+            <div className="flex flex-col text-center md:text-left">
               <span className="font-bold text-2xl md:text-xl lg:text-3xl xl:text-[40px] xl:mb-2 text-white">
                 <AnimatedCounter from={0} to={5} />+
               </span>
-              <span className="text-xs xl:text-base text-white/80 text-nowrap">
+              <span className="text-sm md:text-base xl:text-lg text-white/80 text-nowrap">
                 International Brands
               </span>
             </div>
             <Separator
-              className="ml-6 md:ml-0 h-12 md:h-full bg-white/30"
+              className="ml-0 h-12 md:h-full bg-white/30 hidden sm:block"
               orientation="vertical"
             />
-            <div className="flex flex-col ml-6 md:ml-0">
+            <div className="flex flex-col ml-0 text-center md:text-left">
               <span className="font-bold text-2xl md:text-xl lg:text-3xl xl:text-[40px] xl:mb-2 text-white">
                 <AnimatedCounter from={0} to={20} />+
               </span>
-              <span className="text-xs xl:text-base text-white/80 text-nowrap">
+              <span className="text-sm md:text-base xl:text-lg text-white/80 text-nowrap">
                 High-Quality Products
               </span>
             </div>
             <Separator
-              className="hidden sm:block sm:h-12 md:h-full ml-6 md:ml-0 bg-white/30"
+              className="hidden sm:block sm:h-12 md:h-full ml-0 bg-white/30"
               orientation="vertical"
             />
-            <div className="flex flex-col w-full text-center sm:w-auto sm:text-left mt-3 sm:mt-0 sm:ml-6 md:ml-0">
+            <div className="flex flex-col w-full text-center sm:w-auto sm:text-left mt-0 sm:ml-0 md:ml-0">
               <span className="font-bold text-2xl md:text-xl lg:text-3xl xl:text-[40px] xl:mb-2 text-white">
                 <AnimatedCounter from={0} to={300} />+
               </span>
-              <span className="text-xs xl:text-base text-white/80 text-nowrap">
+              <span className="text-sm md:text-base xl:text-lg text-white/80 text-nowrap">
                 Happy Customers
               </span>
             </div>
