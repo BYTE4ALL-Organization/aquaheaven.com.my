@@ -2,14 +2,17 @@
 
 import React from "react";
 import { getCategoryKey, getSpecsForCategory, SpecItem } from "@/lib/product-page-content";
+import type { CategoryKey } from "@/lib/product-page-content";
 
 type ProductDetailsProps = {
-  /** Category slugs from the product to pick specs set. */
+  /** Category slugs from the product to pick specs set when categoryKey not set. */
   categorySlugs?: string[];
+  /** Override: use this template key instead of deriving from categorySlugs. */
+  categoryKey?: CategoryKey;
 };
 
-const ProductDetails = ({ categorySlugs = [] }: ProductDetailsProps) => {
-  const categoryKey = getCategoryKey(categorySlugs);
+const ProductDetails = ({ categorySlugs = [], categoryKey: categoryKeyOverride }: ProductDetailsProps) => {
+  const categoryKey = categoryKeyOverride ?? getCategoryKey(categorySlugs);
   const specsData: SpecItem[] = getSpecsForCategory(categoryKey);
 
   return (

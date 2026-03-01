@@ -7,7 +7,19 @@ export type FaqItem = { question: string; answer: string };
 export type SpecItem = { label: string; value: string };
 
 /** Category key: derived from product categories (e.g. towel, shampoo, conditioner, body-wash, soap). */
-export type CategoryKey = "towel" | "shampoo" | "conditioner" | "body-wash" | "soap" | "default";
+export type CategoryKey = "towel" | "shampoo" | "shampoo-colored" | "conditioner" | "body-wash" | "soap" | "default";
+
+/** Options for admin dropdown: value is CategoryKey; empty string = Auto (from category). */
+export const TEMPLATE_OPTIONS: { value: CategoryKey | ""; label: string }[] = [
+  { value: "", label: "Auto (from category)" },
+  { value: "towel", label: "Towel" },
+  { value: "shampoo", label: "Shampoo" },
+  { value: "shampoo-colored", label: "Shampoo (colored hair)" },
+  { value: "conditioner", label: "Conditioner" },
+  { value: "body-wash", label: "Body wash" },
+  { value: "soap", label: "Soap" },
+  { value: "default", label: "Default" },
+];
 
 /** Resolve category key from category slugs (e.g. from product.productCategories). */
 export function getCategoryKey(categorySlugs: string[]): CategoryKey {
@@ -32,6 +44,12 @@ const FAQ_BY_CATEGORY: Record<CategoryKey, FaqItem[]> = {
     { question: "What hair types is this shampoo suitable for?", answer: "This shampoo is formulated to suit a range of hair types." },
     { question: "How often should I use this shampoo?", answer: "Most of our shampoos are safe for daily use. For best results, follow the usage instructions on the bottle." },
     { question: "Does it work with color-treated hair?", answer: "Yes ! Many of our shampoos are gentle enough for color-treated hair." },
+    { question: "What is your return policy?", answer: "No return once bought. No return is available." },
+  ],
+  "shampoo-colored": [
+    { question: "What hair types is this shampoo suitable for?", answer: "This shampoo is formulated specifically for color-treated or colored hair. It helps protect and extend the life of your color while keeping hair healthy." },
+    { question: "How often should I use this shampoo?", answer: "Most of our shampoos are safe for daily use. For best results, follow the usage instructions on the bottle." },
+    { question: "Does it work with color-treated hair?", answer: "Yes. This shampoo is designed for color-treated hair and is gentle enough for regular use." },
     { question: "What is your return policy?", answer: "No return once bought. No return is available." },
   ],
   conditioner: [
@@ -74,6 +92,12 @@ const SPECS_BY_CATEGORY: Record<CategoryKey, SpecItem[]> = {
     { label: "Volume", value: "See bottle size" },
     { label: "Hair type", value: "See product description" },
     { label: "Key benefits", value: "Cleansing, care as described" },
+    { label: "Usage", value: "Apply to wet hair, lather, rinse" },
+  ],
+  "shampoo-colored": [
+    { label: "Volume", value: "See bottle size" },
+    { label: "Hair type", value: "Colored / color-treated hair only" },
+    { label: "Key benefits", value: "Color protection, cleansing, care as described" },
     { label: "Usage", value: "Apply to wet hair, lather, rinse" },
   ],
   conditioner: [

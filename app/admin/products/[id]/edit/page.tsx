@@ -6,6 +6,7 @@ import Link from 'next/link'
 import { FiArrowLeft, FiSave, FiX, FiPlus } from 'react-icons/fi'
 import ImagePicker from '@/components/admin/ImagePicker'
 import { ALL_COLORS, ALL_SIZES } from '@/lib/constants/attributes'
+import { TEMPLATE_OPTIONS } from '@/lib/product-page-content'
 
 interface Product {
   id: string
@@ -33,6 +34,8 @@ interface Product {
     id: string
     name: string
   } | null
+  faqTemplateOverride?: string
+  detailsTemplateOverride?: string
 }
 
 interface Category {
@@ -78,7 +81,9 @@ export default function EditProductPage({ params }: { params: Promise<{ id: stri
     size: '',
     material: '',
     availableColors: [] as string[],
-    availableSizes: [] as string[]
+    availableSizes: [] as string[],
+    faqTemplateOverride: '',
+    detailsTemplateOverride: ''
   })
 
   const fetchBrands = async () => {
@@ -147,7 +152,9 @@ export default function EditProductPage({ params }: { params: Promise<{ id: stri
             size: prod.size || '',
             material: prod.material || '',
             availableColors: prod.availableColors ?? [],
-            availableSizes: prod.availableSizes ?? []
+            availableSizes: prod.availableSizes ?? [],
+            faqTemplateOverride: prod.faqTemplateOverride ?? '',
+            detailsTemplateOverride: prod.detailsTemplateOverride ?? ''
           })
         }
       } catch (err) {
@@ -494,6 +501,46 @@ export default function EditProductPage({ params }: { params: Promise<{ id: stri
                     </option>
                   ))}
                 </select>
+              </div>
+
+              <div>
+                <label htmlFor="faqTemplateOverride" className="block text-sm font-medium text-gray-700">
+                  FAQ template
+                </label>
+                <select
+                  name="faqTemplateOverride"
+                  id="faqTemplateOverride"
+                  value={formData.faqTemplateOverride}
+                  onChange={handleInputChange}
+                  className="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500"
+                >
+                  {TEMPLATE_OPTIONS.map((opt) => (
+                    <option key={opt.value || 'auto'} value={opt.value}>
+                      {opt.label}
+                    </option>
+                  ))}
+                </select>
+                <p className="mt-1 text-xs text-gray-500">Override which FAQ set shows on this product’s page. Auto uses category.</p>
+              </div>
+
+              <div>
+                <label htmlFor="detailsTemplateOverride" className="block text-sm font-medium text-gray-700">
+                  Product details template
+                </label>
+                <select
+                  name="detailsTemplateOverride"
+                  id="detailsTemplateOverride"
+                  value={formData.detailsTemplateOverride}
+                  onChange={handleInputChange}
+                  className="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500"
+                >
+                  {TEMPLATE_OPTIONS.map((opt) => (
+                    <option key={opt.value || 'auto'} value={opt.value}>
+                      {opt.label}
+                    </option>
+                  ))}
+                </select>
+                <p className="mt-1 text-xs text-gray-500">Override which product specifications show. Auto uses category.</p>
               </div>
             </div>
 

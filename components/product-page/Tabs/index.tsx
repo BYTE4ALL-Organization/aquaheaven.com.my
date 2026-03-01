@@ -7,6 +7,7 @@ import ProductDetailsContent from "./ProductDetailsContent";
 import ReviewsContent from "./ReviewsContent";
 import FaqContent from "./FaqContent";
 import { Review } from "@/types/review.types";
+import type { CategoryKey } from "@/lib/product-page-content";
 
 type TabBtn = {
   id: number;
@@ -33,11 +34,23 @@ type TabsProps = {
   productSlug?: string;
   reviews?: Review[];
   categorySlugs?: string[];
+  /** Resolved template key for FAQ tab (from override or category). */
+  faqCategoryKey?: CategoryKey;
+  /** Resolved template key for Product details tab. */
+  detailsCategoryKey?: CategoryKey;
   /** True only when user is logged in and has purchased this product. */
   canReview?: boolean;
 };
 
-const Tabs = ({ productId, productSlug, reviews = [], categorySlugs = [], canReview = false }: TabsProps) => {
+const Tabs = ({
+  productId,
+  productSlug,
+  reviews = [],
+  categorySlugs = [],
+  faqCategoryKey,
+  detailsCategoryKey,
+  canReview = false,
+}: TabsProps) => {
   const [active, setActive] = useState<number>(1);
 
   return (
@@ -61,7 +74,12 @@ const Tabs = ({ productId, productSlug, reviews = [], categorySlugs = [], canRev
         ))}
       </div>
       <div className="mb-12 sm:mb-16">
-        {active === 1 && <ProductDetailsContent categorySlugs={categorySlugs} />}
+        {active === 1 && (
+          <ProductDetailsContent
+            categorySlugs={categorySlugs}
+            categoryKey={detailsCategoryKey}
+          />
+        )}
         {active === 2 && (
           <ReviewsContent
             productId={productId}
@@ -70,7 +88,12 @@ const Tabs = ({ productId, productSlug, reviews = [], categorySlugs = [], canRev
             canReview={canReview}
           />
         )}
-        {active === 3 && <FaqContent categorySlugs={categorySlugs} />}
+        {active === 3 && (
+          <FaqContent
+            categorySlugs={categorySlugs}
+            categoryKey={faqCategoryKey}
+          />
+        )}
       </div>
     </div>
   );

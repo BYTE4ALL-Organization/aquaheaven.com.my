@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
+import { getProductTemplateOverrides, setProductTemplateOverrides, normalizeTemplateOverride } from '@/lib/product-templates'
 
 export async function GET(
   request: Request,
@@ -31,9 +32,12 @@ export async function GET(
       )
     }
 
+    const overrides = await getProductTemplateOverrides(id)
     const productResponse = {
       ...product,
-      categories: product.productCategories.map((pc) => pc.category)
+      categories: product.productCategories.map((pc) => pc.category),
+      faqTemplateOverride: overrides.faqTemplate ?? '',
+      detailsTemplateOverride: overrides.detailsTemplate ?? ''
     }
 
     return NextResponse.json({
@@ -56,13 +60,13 @@ export async function PUT(
   try {
     const { id } = await params
     const body = await request.json()
-    const { 
-      name, 
-      slug, 
-      description, 
-      price: priceRaw, 
-      quantity: quantityRaw, 
-      images, 
+    const {
+      name,
+      slug,
+      description,
+      price: priceRaw,
+      quantity: quantityRaw,
+      images,
       thumbnail,
       categoryId,
       categoryIds,
@@ -75,7 +79,9 @@ export async function PUT(
       size,
       material,
       availableColors = [],
-      availableSizes = []
+      availableSizes = [],
+      faqTemplateOverride,
+      detailsTemplateOverride
     } = body
 
     const resolvedCategoryIds = Array.isArray(categoryIds) && categoryIds.length > 0
@@ -178,9 +184,18 @@ export async function PUT(
       }
     })
 
+    const resolvedFaq = normalizeTemplateOverride(faqTemplateOverride)
+    const resolvedDetails = normalizeTemplateOverride(detailsTemplateOverride)
+    await setProductTemplateOverrides(id, {
+      faqTemplate: resolvedFaq,
+      detailsTemplate: resolvedDetails
+    })
+
     const productResponse = {
       ...product,
-      categories: product.productCategories.map((pc) => pc.category)
+      categories: product.productCategories.map((pc) => pc.category),
+      faqTemplateOverride: resolvedFaq ?? '',
+      detailsTemplateOverride: resolvedDetails ?? ''
     }
 
     return NextResponse.json({

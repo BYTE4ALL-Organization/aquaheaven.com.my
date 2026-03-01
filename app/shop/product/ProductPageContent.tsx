@@ -5,6 +5,8 @@ import Tabs from "@/components/product-page/Tabs";
 import { prisma } from "@/lib/prisma";
 import { getProductsList } from "@/lib/shop-data";
 import { Product } from "@/types/product.types";
+import { getProductTemplateOverrides } from "@/lib/product-templates";
+import { getCategoryKey } from "@/lib/product-page-content";
 
 /** Map API product to Product type for cards. */
 export function mapApiProductToCard(apiProduct: {
@@ -64,6 +66,10 @@ export default async function ProductPageContent({
   const categorySlugs = (productRow.productCategories ?? []).map(
     (pc) => pc.category.slug
   ).filter(Boolean);
+  const overrides = await getProductTemplateOverrides(productRow.id);
+  const defaultKey = getCategoryKey(categorySlugs);
+  const faqCategoryKey = overrides.faqTemplate ?? defaultKey;
+  const detailsCategoryKey = overrides.detailsTemplate ?? defaultKey;
   const reviews = (productRow.reviews ?? []).map((r, idx) => ({
     id: r.id || `r-${idx}`,
     user: r.user?.name?.trim() || "Guest",
@@ -115,6 +121,8 @@ export default async function ProductPageContent({
           productSlug={apiProduct.slug}
           reviews={reviews}
           categorySlugs={categorySlugs}
+          faqCategoryKey={faqCategoryKey}
+          detailsCategoryKey={detailsCategoryKey}
           canReview={apiProduct.canReview === true}
         />
       </div>

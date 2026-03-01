@@ -8,14 +8,17 @@ import {
   AccordionTrigger,
 } from "@/components/ui/accordion";
 import { getCategoryKey, getFaqsForCategory } from "@/lib/product-page-content";
+import type { CategoryKey } from "@/lib/product-page-content";
 
 type FaqContentProps = {
-  /** Category slugs from the product (e.g. ["towels", "bath"]) to pick FAQ set. */
+  /** Category slugs from the product (e.g. ["towels", "bath"]) to pick FAQ set when categoryKey not set. */
   categorySlugs?: string[];
+  /** Override: use this template key instead of deriving from categorySlugs. */
+  categoryKey?: CategoryKey;
 };
 
-const FaqContent = ({ categorySlugs = [] }: FaqContentProps) => {
-  const categoryKey = getCategoryKey(categorySlugs);
+const FaqContent = ({ categorySlugs = [], categoryKey: categoryKeyOverride }: FaqContentProps) => {
+  const categoryKey = categoryKeyOverride ?? getCategoryKey(categorySlugs);
   const faqsData = getFaqsForCategory(categoryKey);
 
   return (
