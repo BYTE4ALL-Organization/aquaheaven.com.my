@@ -86,7 +86,10 @@ export async function POST(request: Request) {
       size,
       material,
       availableColors = [],
-      availableSizes = []
+      availableSizes = [],
+      volumeMl: volumeMlRaw,
+      weightKg: weightKgRaw,
+      dimensions
     } = body
 
     const resolvedCategoryIds = Array.isArray(categoryIds) && categoryIds.length > 0
@@ -123,6 +126,23 @@ export async function POST(request: Request) {
       slug && String(slug).trim()
         ? String(slug).trim().toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '')
         : name.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '')
+
+    // Optional: volume (mL, integer), weight (kg 0.1–5), dimensions (string)
+    const volumeMl = volumeMlRaw != null && volumeMlRaw !== '' ? Math.floor(Number(volumeMlRaw)) : null
+    if (volumeMl != null && (Number.isNaN(volumeMl) || volumeMl < 0)) {
+      return NextResponse.json(
+        { success: false, error: 'Volume (mL) must be a non-negative integer.' },
+        { status: 400 }
+      )
+    }
+    const weightKg = weightKgRaw != null && weightKgRaw !== '' ? Number(weightKgRaw) : null
+    if (weightKg != null && (Number.isNaN(weightKg) || weightKg < 0.1 || weightKg > 5)) {
+      return NextResponse.json(
+        { success: false, error: 'Weight (kg) must be between 0.1 and 5.' },
+        { status: 400 }
+      )
+    }
+    const resolvedDimensions = dimensions != null && String(dimensions).trim() !== '' ? String(dimensions).trim() : null
 
     // Exact replica check: do not add product if another product already has this exact (normalized) slug
     const existingWithSlug = await prisma.product.findFirst({
@@ -168,6 +188,9 @@ export async function POST(request: Request) {
         material,
         availableColors: Array.isArray(availableColors) ? availableColors : [],
         availableSizes: Array.isArray(availableSizes) ? availableSizes : [],
+        volumeMl: volumeMl ?? null,
+        weightKg: weightKg ?? null,
+        dimensions: resolvedDimensions ?? null,
         productCategories: resolvedCategoryIds.length > 0
           ? { create: resolvedCategoryIds.map((categoryId: string) => ({ categoryId })) }
           : undefined

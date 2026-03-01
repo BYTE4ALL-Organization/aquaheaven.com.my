@@ -44,7 +44,10 @@ export default function NewProductPage() {
     size: '',
     material: '',
     availableColors: [] as string[],
-    availableSizes: [] as string[]
+    availableSizes: [] as string[],
+    volumeMl: '' as string | number,
+    weightKg: '' as string | number,
+    dimensions: ''
   })
 
   const fetchBrands = async () => {
@@ -172,6 +175,9 @@ export default function NewProductPage() {
         brandId: formData.brandId || null,
         isActive: asDraft ? false : formData.isActive,
         price: formData.price ?? 0,
+        volumeMl: formData.volumeMl === '' || formData.volumeMl == null ? null : Number(formData.volumeMl),
+        weightKg: formData.weightKg === '' || formData.weightKg == null ? null : Number(formData.weightKg),
+        dimensions: formData.dimensions?.trim() || null
       }
 
       if (submitData.categoryIds.length === 0 && !asDraft) {
@@ -448,6 +454,65 @@ export default function NewProductPage() {
                   onChange={handleInputChange}
                   className="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500"
                 />
+              </div>
+
+              <div>
+                <label htmlFor="volumeMl" className="block text-sm font-medium text-gray-700">
+                  Volume (mL)
+                </label>
+                <input
+                  type="number"
+                  name="volumeMl"
+                  id="volumeMl"
+                  min={0}
+                  step={1}
+                  placeholder="e.g. 250"
+                  value={formData.volumeMl === '' ? '' : formData.volumeMl}
+                  onChange={(e) => {
+                    const v = e.target.value
+                    setFormData(prev => ({ ...prev, volumeMl: v === '' ? '' : (parseInt(v, 10) || 0) }))
+                  }}
+                  className="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500"
+                />
+                <p className="mt-1 text-xs text-gray-500">Optional. Integer only, no decimals.</p>
+              </div>
+
+              <div>
+                <label htmlFor="weightKg" className="block text-sm font-medium text-gray-700">
+                  Weight (kg)
+                </label>
+                <input
+                  type="number"
+                  name="weightKg"
+                  id="weightKg"
+                  min={0.1}
+                  max={5}
+                  step={0.1}
+                  placeholder="e.g. 1.5"
+                  value={formData.weightKg === '' ? '' : formData.weightKg}
+                  onChange={(e) => {
+                    const v = e.target.value
+                    setFormData(prev => ({ ...prev, weightKg: v === '' ? '' : parseFloat(v) || 0 }))
+                  }}
+                  className="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500"
+                />
+                <p className="mt-1 text-xs text-gray-500">Optional. 0.1 to 5 kg.</p>
+              </div>
+
+              <div className="sm:col-span-2">
+                <label htmlFor="dimensions" className="block text-sm font-medium text-gray-700">
+                  Dimensions / Size
+                </label>
+                <input
+                  type="text"
+                  name="dimensions"
+                  id="dimensions"
+                  placeholder="e.g. 50 x 70 cm or Width 80cm, Height 120cm"
+                  value={formData.dimensions}
+                  onChange={handleInputChange}
+                  className="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500"
+                />
+                <p className="mt-1 text-xs text-gray-500">Optional. Free text for dimensions (e.g. towels).</p>
               </div>
             </div>
           </div>

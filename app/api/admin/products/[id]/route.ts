@@ -81,7 +81,10 @@ export async function PUT(
       availableColors = [],
       availableSizes = [],
       faqTemplateOverride,
-      detailsTemplateOverride
+      detailsTemplateOverride,
+      volumeMl: volumeMlRaw,
+      weightKg: weightKgRaw,
+      dimensions
     } = body
 
     const resolvedCategoryIds = Array.isArray(categoryIds) && categoryIds.length > 0
@@ -133,6 +136,23 @@ export async function PUT(
       )
     }
 
+    // Optional: volume (mL, integer), weight (kg 0.1–5), dimensions (string)
+    const volumeMl = volumeMlRaw != null && volumeMlRaw !== '' ? Math.floor(Number(volumeMlRaw)) : null
+    if (volumeMl != null && (Number.isNaN(volumeMl) || volumeMl < 0)) {
+      return NextResponse.json(
+        { success: false, error: 'Volume (mL) must be a non-negative integer.' },
+        { status: 400 }
+      )
+    }
+    const weightKg = weightKgRaw != null && weightKgRaw !== '' ? Number(weightKgRaw) : null
+    if (weightKg != null && (Number.isNaN(weightKg) || weightKg < 0.1 || weightKg > 5)) {
+      return NextResponse.json(
+        { success: false, error: 'Weight (kg) must be between 0.1 and 5.' },
+        { status: 400 }
+      )
+    }
+    const resolvedDimensions = dimensions != null && String(dimensions).trim() !== '' ? String(dimensions).trim() : null
+
     // SKU must be unique only among *other* products (allow empty or keeping current product's SKU)
     const resolvedSku = sku != null && String(sku).trim() !== '' ? String(sku).trim() : null
     if (resolvedSku) {
@@ -174,6 +194,9 @@ export async function PUT(
         material,
         availableColors: Array.isArray(availableColors) ? availableColors : [],
         availableSizes: Array.isArray(availableSizes) ? availableSizes : [],
+        volumeMl: volumeMl ?? null,
+        weightKg: weightKg ?? null,
+        dimensions: resolvedDimensions ?? null,
         productCategories: resolvedCategoryIds.length > 0
           ? { create: resolvedCategoryIds.map((categoryId: string) => ({ categoryId })) }
           : undefined

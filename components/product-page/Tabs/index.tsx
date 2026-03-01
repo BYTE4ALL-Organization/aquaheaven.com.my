@@ -40,6 +40,12 @@ type TabsProps = {
   detailsCategoryKey?: CategoryKey;
   /** True only when user is logged in and has purchased this product. */
   canReview?: boolean;
+  /** Optional product volume in mL (integer). */
+  volumeMl?: number | null;
+  /** Optional product weight in kg (0.1–5). */
+  weightKg?: number | null;
+  /** Optional dimensions/size string (e.g. "50 x 70 cm"). */
+  dimensions?: string | null;
 };
 
 const Tabs = ({
@@ -50,6 +56,9 @@ const Tabs = ({
   faqCategoryKey,
   detailsCategoryKey,
   canReview = false,
+  volumeMl,
+  weightKg,
+  dimensions,
 }: TabsProps) => {
   const [active, setActive] = useState<number>(1);
 
@@ -78,6 +87,9 @@ const Tabs = ({
           <ProductDetailsContent
             categorySlugs={categorySlugs}
             categoryKey={detailsCategoryKey}
+            volumeMl={volumeMl}
+            weightKg={weightKg}
+            dimensions={dimensions}
           />
         )}
         {active === 2 && (

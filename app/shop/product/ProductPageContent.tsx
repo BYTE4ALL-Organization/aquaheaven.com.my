@@ -124,6 +124,9 @@ export default async function ProductPageContent({
           faqCategoryKey={faqCategoryKey}
           detailsCategoryKey={detailsCategoryKey}
           canReview={apiProduct.canReview === true}
+          volumeMl={productRow.volumeMl ?? undefined}
+          weightKg={productRow.weightKg != null ? Number(productRow.weightKg) : undefined}
+          dimensions={productRow.dimensions ?? undefined}
         />
       </div>
       <div className="mb-[50px] sm:mb-20">

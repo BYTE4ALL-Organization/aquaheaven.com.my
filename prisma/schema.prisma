@@ -75,6 +75,12 @@ model Product {
   material        String?
   availableColors String[] @default([])
   availableSizes  String[] @default([])
+  /** Volume in mL (integer, optional). */
+  volumeMl        Int?
+  /** Weight in kg, 0.1 to 5 (optional). */
+  weightKg        Decimal? @db.Decimal(5, 2)
+  /** Dimensions/size string, e.g. "50 x 70 cm" or "Width 80cm, Height 120cm" (optional). */
+  dimensions      String?
   createdAt       DateTime @default(now())
   updatedAt       DateTime @updatedAt
 
