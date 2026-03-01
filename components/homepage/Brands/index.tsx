@@ -10,6 +10,8 @@ const brandsData: { id: string; srcUrl: string }[] = [
   { id: "Mixa Bebe", srcUrl: "/products/brands/mixa-bebe.svg" },
   { id: "Dop", srcUrl: "/products/brands/dop.svg" },
   { id: "Diadermine", srcUrl: "/products/brands/diadermine.svg" },
+  { id: "LABELL", srcUrl: "/products/brands/labell.svg" },
+  { id: "Pomette", srcUrl: "/products/brands/pomette.svg" },
 ];
 
 const Brands = () => {
