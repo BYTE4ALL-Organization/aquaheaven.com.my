@@ -10,7 +10,7 @@ export const metadata = {
   description: "Learn more about Aquaheaven.com.my",
 };
 
-const aboutImageSrc = "/products/footer/about-us/stacked-zen-stones-sand-background-art-balance-concept.jpg";
+const aboutImageSrc = "/products/footer/about-us/stacked-zen-stones-sand-background-art-balance-concept.webp";
 
 export default function AboutUsPage() {
   return (
