@@ -19,6 +19,18 @@ type ApiCartItem = {
   brand?: string;
 };
 
+/** Clamp quantity coming from server/DB using available stock and a sane upper bound. */
+function clampServerQuantity(quantity: number, availableQuantity?: number): number {
+  const base = Math.max(1, quantity);
+  const withStockLimit =
+    typeof availableQuantity === "number"
+      ? Math.min(base, availableQuantity)
+      : base;
+  // Mirror GLOBAL_MAX_QUANTITY_PER_ITEM from cartsSlice (kept local to avoid coupling).
+  const GLOBAL_MAX_QUANTITY_PER_ITEM = 20;
+  return Math.min(withStockLimit, GLOBAL_MAX_QUANTITY_PER_ITEM);
+}
+
 /** Map one API cart item to CartItem for Redux. */
 function mapApiCartItemToCartItem(apiItem: ApiCartItem): CartItem {
   const price = Number(apiItem.price) || 0;
@@ -26,6 +38,10 @@ function mapApiCartItemToCartItem(apiItem: ApiCartItem): CartItem {
     apiItem.thumbnail ||
     (Array.isArray(apiItem.images) && apiItem.images[0]) ||
     "/images/placeholder.png";
+  const safeQuantity = clampServerQuantity(
+    apiItem.quantity,
+    apiItem.availableQuantity
+  );
   return {
     id: apiItem.id,
     name: apiItem.name,
@@ -33,7 +49,7 @@ function mapApiCartItemToCartItem(apiItem: ApiCartItem): CartItem {
     price,
     attributes: [],
     discount: { amount: 0, percentage: 0 },
-    quantity: apiItem.quantity,
+    quantity: safeQuantity,
     availableQuantity: apiItem.availableQuantity,
     ...(apiItem.slug && { slug: apiItem.slug }),
     ...(apiItem.brand && { brand: apiItem.brand }),
@@ -59,7 +75,10 @@ function mergeApiCartItems(apiItems: ApiCartItem[]): CartItem[] {
 }
 
 /** Merge server cart with guest cart (same product id => sum quantities; guest-only items appended). */
-function mergeGuestCartWithServer(serverItems: CartItem[], guestItems: CartItem[]): CartItem[] {
+function mergeGuestCartWithServer(
+  serverItems: CartItem[],
+  guestItems: CartItem[]
+): CartItem[] {
   const byId = new Map<string, CartItem>();
   for (const item of serverItems) {
     byId.set(String(item.id), { ...item });
@@ -68,11 +87,25 @@ function mergeGuestCartWithServer(serverItems: CartItem[], guestItems: CartItem[
     const id = String(item.id);
     const existing = byId.get(id);
     if (existing) {
-      existing.quantity = (existing.quantity ?? 0) + (item.quantity ?? 0);
+      const maxQty =
+        existing.availableQuantity ?? item.availableQuantity ?? undefined;
+      const combined =
+        (existing.quantity ?? 0) + (item.quantity ?? 0);
+      const safeQuantity =
+        typeof maxQty === "number"
+          ? Math.min(combined, Math.max(1, maxQty))
+          : Math.max(1, combined);
+      existing.quantity = safeQuantity;
       if (item.slug && !existing.slug) existing.slug = item.slug;
       if (item.availableQuantity != null) existing.availableQuantity = item.availableQuantity;
     } else {
-      byId.set(id, { ...item });
+      const maxQty =
+        item.availableQuantity ?? undefined;
+      const qty =
+        typeof item.quantity === "number"
+          ? Math.min(Math.max(1, item.quantity), maxQty ?? item.quantity)
+          : 1;
+      byId.set(id, { ...item, quantity: qty });
     }
   }
   return Array.from(byId.values());
@@ -106,7 +139,10 @@ export default function CartSync() {
     }
   }, [user?.id, dispatch]);
 
-  // On login (or remount while logged in): fetch server cart. Only merge with guest on first load for this user; otherwise replace with server to avoid doubling.
+  // On login (or remount while logged in): fetch server cart.
+  // We only merge guest cart into server cart when the server cart is empty,
+  // otherwise we treat the server cart as the single source of truth to avoid
+  // quantities growing on every reload (guest already contains the last synced state).
   useEffect(() => {
     if (!user?.id) return;
     const isFirstLoadForUser = loadedForUserId !== user.id;
@@ -122,9 +158,10 @@ export default function CartSync() {
           return;
         }
         const serverItems = mergeApiCartItems(data.items);
-        const merged = isFirstLoadForUser
-          ? mergeGuestCartWithServer(serverItems, guestItems)
-          : serverItems;
+        const merged =
+          isFirstLoadForUser && serverItems.length === 0
+            ? mergeGuestCartWithServer(serverItems, guestItems)
+            : serverItems;
         dispatch(setCartFromServer(merged));
       })
       .catch(() => {
@@ -138,6 +175,11 @@ export default function CartSync() {
   // Group by slug and sum quantities so we never create duplicate cart_items per product.
   const syncCartToServer = useCallback(() => {
     if (!user?.id || !cart?.items?.length) return;
+    // Only allow the active/visible tab to write to the server cart to avoid
+    // background tabs restoring stale carts or deleted items.
+    if (typeof document !== "undefined" && document.visibilityState !== "visible") {
+      return;
+    }
     const itemsWithSlug = cart.items.filter((item): item is typeof item & { slug: string } => Boolean(item.slug));
     if (itemsWithSlug.length === 0) return;
 

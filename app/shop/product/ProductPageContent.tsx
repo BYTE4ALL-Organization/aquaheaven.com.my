@@ -7,6 +7,7 @@ import { getProductsList } from "@/lib/shop-data";
 import { Product } from "@/types/product.types";
 import { getProductTemplateOverrides } from "@/lib/product-templates";
 import { getCategoryKey } from "@/lib/product-page-content";
+import BackButton from "./BackButton";
 
 /** Map API product to Product type for cards. */
 export function mapApiProductToCard(apiProduct: {
@@ -99,6 +100,7 @@ export default async function ProductPageContent({
       <div className="max-w-frame mx-auto px-4 xl:px-0">
         <hr className="h-[1px] border-t-black/10 mb-5 sm:mb-6" />
         <BreadcrumbProduct title={productData.title} />
+        <BackButton />
         <section className="mb-11">
           <Header
             data={{

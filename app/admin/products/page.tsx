@@ -1,7 +1,8 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import Link from 'next/link'
+import { useRouter, useSearchParams } from 'next/navigation'
 import { FiPlus, FiEdit, FiTrash2, FiEye, FiSearch, FiPackage, FiTag } from 'react-icons/fi'
 
 interface Product {
@@ -37,6 +38,8 @@ interface CategoryOption {
 }
 
 export default function ProductsPage() {
+  const router = useRouter()
+  const searchParams = useSearchParams()
   const [products, setProducts] = useState<Product[]>([])
   const [categories, setCategories] = useState<CategoryOption[]>([])
   const [loading, setLoading] = useState(true)
@@ -46,6 +49,23 @@ export default function ProductsPage() {
   const [showDeleteModal, setShowDeleteModal] = useState(false)
   const [productToDelete, setProductToDelete] = useState<string | null>(null)
   const [addingReviewsId, setAddingReviewsId] = useState<string | null>(null)
+
+  // Initialize filter from URL on mount and when URL changes (e.g. return from edit)
+  useEffect(() => {
+    const category = searchParams.get('category') ?? ''
+    const q = searchParams.get('q') ?? ''
+    setCategoryFilter(category)
+    setSearchTerm(q)
+  }, [searchParams])
+
+  // Keep URL in sync when user changes filters so edit page can return here with same filter
+  const updateFilterUrl = useCallback((category: string, q: string) => {
+    const params = new URLSearchParams()
+    if (category) params.set('category', category)
+    if (q) params.set('q', q)
+    const query = params.toString()
+    router.replace(query ? `/admin/products?${query}` : '/admin/products', { scroll: false })
+  }, [router])
 
   useEffect(() => {
     fetchProducts()
@@ -169,7 +189,11 @@ export default function ProductsPage() {
             type="text"
             placeholder="Search products..."
             value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
+            onChange={(e) => {
+              const v = e.target.value
+              setSearchTerm(v)
+              updateFilterUrl(categoryFilter, v)
+            }}
             className="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-md leading-5 bg-white placeholder-gray-500 focus:outline-none focus:placeholder-gray-400 focus:ring-1 focus:ring-blue-500 focus:border-blue-500"
           />
         </div>
@@ -177,7 +201,11 @@ export default function ProductsPage() {
           <FiTag className="h-5 w-5 text-gray-500 shrink-0" />
           <select
             value={categoryFilter}
-            onChange={(e) => setCategoryFilter(e.target.value)}
+            onChange={(e) => {
+              const v = e.target.value
+              setCategoryFilter(v)
+              updateFilterUrl(v, searchTerm)
+            }}
             className="block w-full py-2 pl-3 pr-10 border border-gray-300 rounded-md leading-5 bg-white focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500 text-sm"
           >
             <option value="">All categories</option>
@@ -351,7 +379,13 @@ export default function ProductsPage() {
                           <FiEye className="h-4 w-4" />
                         </Link>
                         <Link
-                          href={`/admin/products/${product.id}/edit`}
+                          href={(() => {
+                            const params = new URLSearchParams()
+                            if (categoryFilter) params.set('category', categoryFilter)
+                            if (searchTerm) params.set('q', searchTerm)
+                            const qs = params.toString()
+                            return `/admin/products/${product.id}/edit${qs ? `?${qs}` : ''}`
+                          })()}
                           className="text-indigo-600 hover:text-indigo-900"
                           title="Edit Product"
                         >

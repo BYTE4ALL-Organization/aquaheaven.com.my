@@ -4,13 +4,24 @@ import { Discount } from "@/types/product.types";
 import { createSlice } from "@reduxjs/toolkit";
 import type { PayloadAction } from "@reduxjs/toolkit";
 
-const calcAdjustedTotalPrice = (
-  _totalPrice: number,
-  data: CartItem,
-  quantity?: number
-): number => {
+const calcAdjustedTotalPrice = (data: CartItem, quantity?: number): number => {
   return data.price * (quantity ?? data.quantity);
 };
+
+/** Hard upper bound so a buggy flow can’t explode cart counts. */
+const GLOBAL_MAX_QUANTITY_PER_ITEM = 20;
+
+function clampQuantity(
+  desired: number,
+  availableQuantity?: number
+): number {
+  const base = Math.max(1, desired);
+  const withStockLimit =
+    typeof availableQuantity === "number"
+      ? Math.min(base, availableQuantity)
+      : base;
+  return Math.min(withStockLimit, GLOBAL_MAX_QUANTITY_PER_ITEM);
+}
 
 export type RemoveCartItem = {
   id: number | string;
@@ -63,10 +74,7 @@ export const cartsSlice = createSlice({
       // if cart is empty then add
       if (state.cart === null) {
         const maxQty = action.payload.availableQuantity;
-        const qty =
-          maxQty != null
-            ? Math.min(Math.max(1, action.payload.quantity), maxQty)
-            : action.payload.quantity;
+        const qty = clampQuantity(action.payload.quantity, maxQty);
         const item = {
           ...action.payload,
           quantity: qty,
@@ -76,9 +84,11 @@ export const cartsSlice = createSlice({
           items: [item],
           totalQuantities: qty,
         };
-        state.totalPrice = roundTo2(state.totalPrice + action.payload.price * qty);
+        state.totalPrice = roundTo2(
+          state.totalPrice + action.payload.price * qty
+        );
         state.adjustedTotalPrice = roundTo2(
-          state.adjustedTotalPrice + calcAdjustedTotalPrice(state.totalPrice, item)
+          state.adjustedTotalPrice + calcAdjustedTotalPrice(item)
         );
         return;
       }
@@ -91,7 +101,10 @@ export const cartsSlice = createSlice({
       );
 
       if (isItemInCart) {
-        const addedQty = action.payload.quantity;
+        const addedQty = clampQuantity(
+          action.payload.quantity,
+          action.payload.availableQuantity ?? isItemInCart.availableQuantity
+        );
         const newTotal = isItemInCart.quantity + addedQty;
         const maxQty =
           typeof action.payload.availableQuantity === "number"
@@ -127,16 +140,16 @@ export const cartsSlice = createSlice({
         );
         state.adjustedTotalPrice = roundTo2(
           state.adjustedTotalPrice +
-            calcAdjustedTotalPrice(state.totalPrice, { ...action.payload, quantity: actualAdded })
+            calcAdjustedTotalPrice({
+              ...action.payload,
+              quantity: actualAdded,
+            })
         );
         return;
       }
 
       const maxQty = action.payload.availableQuantity;
-      const qty =
-        maxQty != null
-          ? Math.min(Math.max(1, action.payload.quantity), maxQty)
-          : action.payload.quantity;
+      const qty = clampQuantity(action.payload.quantity, maxQty);
       const item = {
         ...action.payload,
         quantity: qty,
@@ -149,7 +162,7 @@ export const cartsSlice = createSlice({
       };
       state.totalPrice = roundTo2(state.totalPrice + action.payload.price * qty);
       state.adjustedTotalPrice = roundTo2(
-        state.adjustedTotalPrice + calcAdjustedTotalPrice(state.totalPrice, item)
+        state.adjustedTotalPrice + calcAdjustedTotalPrice(item)
       );
     },
     removeCartItem: (state, action: PayloadAction<RemoveCartItem>) => {
@@ -189,7 +202,7 @@ export const cartsSlice = createSlice({
         state.totalPrice = roundTo2(state.totalPrice - isItemInCart.price * 1);
         state.adjustedTotalPrice = roundTo2(
           state.adjustedTotalPrice -
-            calcAdjustedTotalPrice(isItemInCart.price, isItemInCart, 1)
+            calcAdjustedTotalPrice(isItemInCart, 1)
         );
       }
     },
@@ -221,17 +234,19 @@ export const cartsSlice = createSlice({
         state.totalPrice - isItemInCart.price * isItemInCart.quantity
       );
       state.adjustedTotalPrice = roundTo2(
-          state.adjustedTotalPrice -
-            calcAdjustedTotalPrice(
-              isItemInCart.price,
-              isItemInCart,
-              isItemInCart.quantity
-            )
+        state.adjustedTotalPrice -
+          calcAdjustedTotalPrice(isItemInCart, isItemInCart.quantity)
       );
     },
     /** Replace cart with server state (e.g. after login). */
     setCartFromServer: (state, action: PayloadAction<CartItem[]>) => {
-      const items = action.payload;
+      // Clamp any incoming quantities for safety so a bad server value can't explode the cart.
+      const items = action.payload.map((item) => {
+        const clampedQty = clampQuantity(item.quantity, item.availableQuantity);
+        return clampedQty === item.quantity
+          ? item
+          : { ...item, quantity: clampedQty };
+      });
       if (!items.length) {
         state.cart = null;
         state.totalPrice = 0;
@@ -244,7 +259,7 @@ export const cartsSlice = createSlice({
       for (const item of items) {
         totalQuantities += item.quantity;
         totalPrice += item.price * item.quantity;
-        adjustedTotalPrice += calcAdjustedTotalPrice(totalPrice, item);
+        adjustedTotalPrice += calcAdjustedTotalPrice(item);
       }
       state.cart = {
         items: [...items],

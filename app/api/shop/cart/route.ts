@@ -56,18 +56,26 @@ export async function POST(request: Request) {
       );
     }
 
-    const body = await request.json();
-    const { items } = body as {
-      items: { slug: string; quantity: number }[];
-    };
-
-    if (!items || !Array.isArray(items)) {
-      return NextResponse.json(
-        { success: false, error: "items array required" },
-        { status: 400 }
-      );
+    // Read raw body so we can gracefully handle empty or malformed JSON without throwing.
+    const raw = await request.text();
+    let items: { slug: string; quantity: number }[] = [];
+    if (raw && raw.trim().length > 0) {
+      try {
+        const parsed = JSON.parse(raw) as {
+          items?: { slug: string; quantity: number }[];
+        };
+        if (Array.isArray(parsed.items)) {
+          items = parsed.items;
+        }
+      } catch {
+        return NextResponse.json(
+          { success: false, error: "Invalid JSON body" },
+          { status: 400 }
+        );
+      }
     }
 
+    // If no items provided, treat as "clear cart" rather than error.
     const slugs = items.map((i) => i.slug).filter(Boolean);
     const products = await prisma.product.findMany({
       where: { slug: { in: slugs } },

@@ -11,7 +11,7 @@ import Link from "next/link";
 
 const BreadcrumbProduct = ({ title }: { title: string }) => {
   return (
-    <Breadcrumb className="mb-5 sm:mb-9">
+    <Breadcrumb className="mb-0 sm:mb-2">
       <BreadcrumbList>
         <BreadcrumbItem>
           <BreadcrumbLink asChild>

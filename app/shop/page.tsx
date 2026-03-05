@@ -143,6 +143,49 @@ export default async function ShopPage({
     sizes: filtersData.sizes ?? [],
   };
 
+  // Derive human-readable labels for active filters (used in Filters bar header).
+  const selectedCategoryName =
+    category && options.categories.length
+      ? (() => {
+          const parent = options.categories.find((c) => c.slug === category);
+          if (parent) return parent.name;
+          for (const p of options.categories) {
+            const child = p.children?.find((ch) => ch.slug === category);
+            if (child) return child.name;
+          }
+          return undefined;
+        })()
+      : undefined;
+
+  const selectedBrandName =
+    brand && options.brands.length
+      ? options.brands.find((b) => b.slug === brand)?.name
+      : undefined;
+
+  const hasActiveFilters =
+    !!category ||
+    !!brand ||
+    !!color ||
+    !!size ||
+    (minPriceNum != null && minPriceNum > (options.priceRange.min ?? 0)) ||
+    (maxPriceNum != null &&
+      maxPriceNum > 0 &&
+      maxPriceNum < (options.priceRange.max ?? Number.MAX_SAFE_INTEGER));
+
+  const activeFilterLabels: string[] = [];
+  if (selectedCategoryName) activeFilterLabels.push(selectedCategoryName);
+  if (selectedBrandName) activeFilterLabels.push(selectedBrandName);
+  if (color) activeFilterLabels.push(color);
+  if (size) activeFilterLabels.push(size.toString().toUpperCase());
+  if (
+    minPriceNum != null &&
+    maxPriceNum != null &&
+    (minPriceNum > (options.priceRange.min ?? 0) ||
+      maxPriceNum < (options.priceRange.max ?? Number.MAX_SAFE_INTEGER))
+  ) {
+    activeFilterLabels.push(`Price: ${minPriceNum}–${maxPriceNum}`);
+  }
+
   type ProductWithBrand = (typeof productsRaw)[number] & { brand?: { name: string; slug?: string } | null };
   const products: (Product & { name?: string; slug?: string; thumbnail?: string; images?: string[]; reviews?: { rating: number }[]; categorySlug?: string })[] =
     productsRaw.map((p) =>
@@ -201,9 +244,23 @@ export default async function ShopPage({
         />
         <div className="flex md:space-x-5 items-start">
           <div className="hidden md:block min-w-[295px] max-w-[295px] border border-black/10 rounded-[20px] px-5 md:px-6 py-5 space-y-5 md:space-y-6">
-            <div className="flex items-center justify-between">
-              <span className="font-bold text-black text-xl">Filters</span>
-              <FiSliders className="text-2xl text-black/40" />
+            <div className="flex flex-col gap-2">
+              <div className="flex items-center justify-between">
+                <span className="font-bold text-black text-xl">Filters</span>
+                <FiSliders className="text-2xl text-black/40" />
+              </div>
+              {hasActiveFilters && activeFilterLabels.length > 0 && (
+                <div className="flex flex-wrap gap-2">
+                  {activeFilterLabels.map((label) => (
+                    <span
+                      key={label}
+                      className="inline-flex items-center rounded-full bg-black/5 px-3 py-1 text-xs font-medium text-black/70"
+                    >
+                      {label}
+                    </span>
+                  ))}
+                </div>
+              )}
             </div>
             <Filters options={options} />
           </div>
