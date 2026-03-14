@@ -1,6 +1,10 @@
 import { Suspense } from "react";
+import type { Metadata } from "next";
 import { SignIn } from "@stackframe/stack";
 import StoreRedirectAfterLogin from "@/components/auth/StoreRedirectAfterLogin";
+import { noIndexMetadata } from "@/lib/seo";
+
+export const metadata: Metadata = noIndexMetadata("Sign In");
 
 export default function Page() {
   return (

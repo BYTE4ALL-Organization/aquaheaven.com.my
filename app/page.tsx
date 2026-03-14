@@ -3,13 +3,26 @@ import Brands from "@/components/homepage/Brands";
 import DressStyle from "@/components/homepage/DressStyle";
 import Header from "@/components/homepage/Header";
 import Reviews from "@/components/homepage/Reviews";
+import type { Metadata } from "next";
 import { prisma } from "@/lib/prisma";
 import { getProductsList, getReviews } from "@/lib/shop-data";
+import { buildCanonical, buildPageMetadata } from "@/lib/seo";
 import { Product } from "@/types/product.types";
 import { Review } from "@/types/review.types";
 
 // Homepage uses DB directly so it works with Vercel Deployment Protection.
 export const dynamic = "force-dynamic";
+
+export const metadata: Metadata = { ...buildPageMetadata({
+  title: "Aquaheaven",
+  description:
+    "Shop premium French products, including organic personal care and 100% cotton towels from Saint-Tropez, France, ideal for pools, showers, and the beach.",
+  path: "/",
+}),
+other: {
+  "google-site-verification": "HaKrV4T1ESQ376R5A55sgEYbyW6lORw74hmH-wpnhuM",
+},
+};
 
 function mapToProduct(p: {
   id: string;
@@ -61,9 +74,35 @@ export default async function Home() {
 
   const newArrivalsData = newArrivalsRes.products.map(mapToProduct);
   const topSellingData = topSellingRes.products.map(mapToProduct);
+  const organizationJsonLd = {
+    "@context": "https://schema.org",
+    "@type": "Organization",
+    name: "Aquaheaven.com.my",
+    url: buildCanonical("/"),
+    email: "support@aquaheaven.com.my",
+  };
+  const websiteJsonLd = {
+    "@context": "https://schema.org",
+    "@type": "WebSite",
+    name: "Aquaheaven.com.my",
+    url: buildCanonical("/"),
+    potentialAction: {
+      "@type": "SearchAction",
+      target: `${buildCanonical("/shop")}?q={search_term_string}`,
+      "query-input": "required name=search_term_string",
+    },
+  };
 
   return (
     <>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(organizationJsonLd) }}
+      />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(websiteJsonLd) }}
+      />
       <Header />
       <Brands />
       <main className="my-[50px] sm:my-[72px]">

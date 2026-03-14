@@ -1,8 +1,10 @@
 import Link from "next/link";
+import type { Metadata } from "next";
+import { noIndexMetadata } from "@/lib/seo";
 
-export const metadata = {
-  title: "Placeholder | Aquaheaven.com.my",
-  description: "This page is a placeholder for content to be added.",
+export const metadata: Metadata = {
+  ...noIndexMetadata("Placeholder"),
+  description: "Placeholder page that is intentionally excluded from indexing.",
 };
 
 export default function PlaceholderPage() {

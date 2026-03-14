@@ -1,4 +1,8 @@
-import { SignIn, SignUp } from '@stackframe/stack';
+import type { Metadata } from "next";
+import { SignUp } from "@stackframe/stack";
+import { noIndexMetadata } from "@/lib/seo";
+
+export const metadata: Metadata = noIndexMetadata("Sign Up");
 
 export default function Page() {
   return (

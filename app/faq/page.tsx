@@ -10,6 +10,85 @@ export const metadata = {
 };
 
 export default function FAQPage() {
+  const faqJsonLd = {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    mainEntity: [
+      {
+        "@type": "Question",
+        name: "What is Aquaheaven?",
+        acceptedAnswer: {
+          "@type": "Answer",
+          text: "Aquaheaven offers quality essentials for your body and home, from luxurious soaps to Saint-Tropez inspired towels. We focus on comfort, quality, and timeless style.",
+        },
+      },
+      {
+        "@type": "Question",
+        name: "How do I create an account?",
+        acceptedAnswer: {
+          "@type": "Answer",
+          text: "You can sign up from the Sign In page. An account lets you save addresses, view order history, and track orders.",
+        },
+      },
+      {
+        "@type": "Question",
+        name: "How can I get help?",
+        acceptedAnswer: {
+          "@type": "Answer",
+          text: "Visit our Customer Support or Contact Us page for assistance.",
+        },
+      },
+      {
+        "@type": "Question",
+        name: "What payment methods do you accept?",
+        acceptedAnswer: {
+          "@type": "Answer",
+          text: "We accept major credit and debit cards (Visa, Mastercard), PayPal, Apple Pay, and Google Pay. Payment is processed securely at checkout.",
+        },
+      },
+      {
+        "@type": "Question",
+        name: "When will I be charged?",
+        acceptedAnswer: {
+          "@type": "Answer",
+          text: "Your payment method is charged when your order is placed. For pre-orders or backorders, we may charge at shipment depending on the product.",
+        },
+      },
+      {
+        "@type": "Question",
+        name: "Can I get an invoice?",
+        acceptedAnswer: {
+          "@type": "Answer",
+          text: "Yes. After your order is placed, you'll receive an order confirmation email that can serve as a receipt. You can also view order details in your account.",
+        },
+      },
+      {
+        "@type": "Question",
+        name: "Where do you ship?",
+        acceptedAnswer: {
+          "@type": "Answer",
+          text: "We ship within Malaysia. Delivery times and fees are shown at checkout based on your location.",
+        },
+      },
+      {
+        "@type": "Question",
+        name: "How long does shipping take?",
+        acceptedAnswer: {
+          "@type": "Answer",
+          text: "Standard delivery typically takes 3-7 business days after your order is shipped. You'll receive a tracking number by email when your order is dispatched.",
+        },
+      },
+      {
+        "@type": "Question",
+        name: "How do I track my order?",
+        acceptedAnswer: {
+          "@type": "Answer",
+          text: "Use the tracking link in your shipping confirmation email, or check your order status in your account or on our Track My Order page.",
+        },
+      },
+    ],
+  };
+
   return (
     <ContentPageLayout
       title="Frequently Asked Questions"
@@ -23,6 +102,10 @@ export default function FAQPage() {
       backLinkBelowTitle
       compactBottom
     >
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(faqJsonLd) }}
+      />
       <nav
         className="mb-10 flex flex-wrap gap-3 text-sm font-medium"
         aria-label="FAQ sections"

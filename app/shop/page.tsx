@@ -18,8 +18,10 @@ import {
   PaginationNext,
   PaginationPrevious,
 } from "@/components/ui/pagination";
+import type { Metadata } from "next";
 import { prisma } from "@/lib/prisma";
 import { getFilters, getProductsList } from "@/lib/shop-data";
+import { buildPageMetadata } from "@/lib/seo";
 import { Product } from "@/types/product.types";
 
 function mapApiProductToCard(apiProduct: {
@@ -60,6 +62,54 @@ function mapApiProductToCard(apiProduct: {
 const PER_PAGE = 12;
 
 const VIEW_BRANDS = "brands";
+const CANONICAL_QUERY_KEYS = new Set([
+  "category",
+  "brand",
+  "color",
+  "size",
+  "minPrice",
+  "maxPrice",
+  "bestSellers",
+  "view",
+  "page",
+]);
+
+function toSingleValue(value: string | string[] | undefined): string | undefined {
+  return typeof value === "string" ? value : undefined;
+}
+
+function buildShopCanonicalPath(params: Record<string, string | string[] | undefined>): string {
+  const q = new URLSearchParams();
+  for (const key of CANONICAL_QUERY_KEYS) {
+    const value = toSingleValue(params[key]);
+    if (!value) continue;
+    q.set(key, value);
+  }
+  const query = q.toString();
+  return query ? `/shop?${query}` : "/shop";
+}
+
+export async function generateMetadata({
+  searchParams,
+}: {
+  searchParams: Promise<Record<string, string | string[] | undefined>>;
+}): Promise<Metadata> {
+  const params = await searchParams;
+  const canonicalPath = buildShopCanonicalPath(params);
+  const category = toSingleValue(params.category);
+  const brand = toSingleValue(params.brand);
+
+  const titleParts = ["Shop"];
+  if (category) titleParts.push(category);
+  if (brand) titleParts.push(brand);
+
+  return buildPageMetadata({
+    title: titleParts.join(" - "),
+    description:
+      "Browse premium French products, including organic personal care and Saint-Tropez 100% cotton towels for pools, showers, and the beach.",
+    path: canonicalPath,
+  });
+}
 
 function buildShopQuery(params: Record<string, string | string[] | undefined>, page: number): string {
   const q = new URLSearchParams();
