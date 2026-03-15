@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { readdirSync } from "fs";
 import path from "path";
+import { requireAdminApi } from "../_utils";
 
 const IMAGE_EXT = /\.(png|jpg|jpeg|gif|webp|svg)$/i;
 
@@ -26,7 +27,10 @@ function listImagesInDir(dir: string, baseUrl: string): string[] {
   return out;
 }
 
-export async function GET() {
+export async function GET(request: Request) {
+  const forbidden = await requireAdminApi(request);
+  if (forbidden) return forbidden;
+
   try {
     const publicPath = path.join(process.cwd(), "public");
     const all = listImagesInDir(publicPath, "");

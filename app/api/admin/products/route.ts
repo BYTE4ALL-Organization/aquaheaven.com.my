@@ -1,7 +1,11 @@
 import { NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
+import { requireAdminApi } from '../_utils'
 
-export async function GET() {
+export async function GET(request: Request) {
+  const forbidden = await requireAdminApi(request)
+  if (forbidden) return forbidden
+
   try {
     const products = await prisma.product.findMany({
       include: {
@@ -65,6 +69,9 @@ export async function GET() {
 }
 
 export async function POST(request: Request) {
+  const forbidden = await requireAdminApi(request)
+  if (forbidden) return forbidden
+
   try {
     const body = await request.json()
     const { 

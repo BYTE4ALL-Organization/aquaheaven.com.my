@@ -1,11 +1,15 @@
 import { NextResponse } from "next/server";
 import { writeFile, mkdir } from "fs/promises";
 import path from "path";
+import { requireAdminApi } from "../_utils";
 
 const ALLOWED_TYPES = ["image/jpeg", "image/png", "image/gif", "image/webp", "image/svg+xml"];
 const MAX_SIZE = 5 * 1024 * 1024; // 5MB
 
 export async function POST(request: Request) {
+  const forbidden = await requireAdminApi(request);
+  if (forbidden) return forbidden;
+
   try {
     const formData = await request.formData();
     const file = formData.get("file") as File | null;

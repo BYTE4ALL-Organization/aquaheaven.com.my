@@ -153,7 +153,7 @@ export default function EditBrandPage({ params }: { params: Promise<{ id: string
               <FiArrowLeft className="h-4 w-4 mr-2" />
               Back to Brands
             </Link>
-            <h1 className="text-3xl font-bold text-gray-900">Edit Brand</h1>
+            <h1 className="text-3xl font-bold text-brand">Edit Brand</h1>
             <p className="mt-2 text-gray-600">Update brand information</p>
           </div>
         </div>

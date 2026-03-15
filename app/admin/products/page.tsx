@@ -165,7 +165,7 @@ export default function ProductsPage() {
     <div>
       <div className="sm:flex sm:items-center sm:justify-between mb-8">
         <div>
-          <h1 className="text-3xl font-bold text-gray-900">Products</h1>
+          <h1 className="text-3xl font-bold text-brand">Products</h1>
           <p className="mt-2 text-gray-600">Manage your product inventory</p>
         </div>
         <div className="mt-4 sm:mt-0">

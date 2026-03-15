@@ -226,7 +226,7 @@ export default function NewProductPage() {
               <FiArrowLeft className="h-4 w-4 mr-2" />
               Back to Products
             </Link>
-            <h1 className="text-3xl font-bold text-gray-900">Add New Product</h1>
+            <h1 className="text-3xl font-bold text-brand">Add New Product</h1>
             <p className="mt-2 text-gray-600">Create a new product</p>
           </div>
         </div>

@@ -1,22 +1,18 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { setCurrencySymbol } from '@/lib/settings'
-import { auth } from '@/lib/auth'
+import { requireAdminApi } from '../_utils'
 
 export async function GET(request: NextRequest) {
-  const session = await auth(request)
-  if (!session?.user) {
-    return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 })
-  }
+  const forbidden = await requireAdminApi(request)
+  if (forbidden) return forbidden
   const { getSettings } = await import('@/lib/settings')
   const settings = await getSettings()
   return NextResponse.json({ success: true, settings })
 }
 
 export async function PUT(request: NextRequest) {
-  const session = await auth(request)
-  if (!session?.user) {
-    return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 })
-  }
+  const forbidden = await requireAdminApi(request)
+  if (forbidden) return forbidden
   try {
     const body = await request.json()
     const { currencySymbol } = body

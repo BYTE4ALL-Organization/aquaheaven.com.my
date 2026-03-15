@@ -1,12 +1,10 @@
 import { NextRequest, NextResponse } from "next/server";
-import { auth } from "@/lib/auth";
 import { seedTowelReviews } from "@/lib/seed-towel-reviews";
+import { requireAdminApi } from "../_utils";
 
 export async function POST(request: NextRequest) {
-  const session = await auth(request);
-  if (!session?.user) {
-    return NextResponse.json({ success: false, error: "Unauthorized" }, { status: 401 });
-  }
+  const forbidden = await requireAdminApi(request);
+  if (forbidden) return forbidden;
 
   try {
     const body = await request.json().catch(() => ({}));

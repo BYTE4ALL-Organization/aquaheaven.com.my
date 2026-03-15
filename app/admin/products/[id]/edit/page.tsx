@@ -384,7 +384,7 @@ export default function EditProductPage({ params }: { params: Promise<{ id: stri
               <FiArrowLeft className="h-4 w-4 mr-2" />
               Back to Products
             </Link>
-            <h1 className="text-3xl font-bold text-gray-900">Edit Product</h1>
+            <h1 className="text-3xl font-bold text-brand">Edit Product</h1>
             <p className="mt-2 text-gray-600">Update product information</p>
           </div>
         </div>

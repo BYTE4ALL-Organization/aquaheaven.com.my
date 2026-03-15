@@ -1,4 +1,6 @@
 import type { Metadata } from "next";
+import { redirect } from "next/navigation";
+import { getCurrentAdminGate } from "@/lib/auth";
 import AdminShell from "./AdminShell";
 
 export const metadata: Metadata = {
@@ -11,10 +13,17 @@ export const metadata: Metadata = {
   },
 };
 
-export default function AdminLayout({
+export default async function AdminLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
+  const gate = await getCurrentAdminGate();
+  if (!gate.isAdmin) {
+    if (gate.signedIn) {
+      redirect("/");
+    }
+    redirect("/sign-in?redirect=%2Fadmin");
+  }
   return <AdminShell>{children}</AdminShell>;
 }

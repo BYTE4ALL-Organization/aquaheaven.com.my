@@ -1,6 +1,10 @@
 import { NextResponse } from 'next/server'
+import { requireAdminApi } from '../_utils'
 
-export async function POST() {
+export async function POST(request: Request) {
+  const forbidden = await requireAdminApi(request)
+  if (forbidden) return forbidden
+
   try {
     // Import the seed function dynamically to avoid issues
     const { main } = await import('../../../../prisma/seed')

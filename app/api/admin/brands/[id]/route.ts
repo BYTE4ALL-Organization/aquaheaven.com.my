@@ -1,10 +1,14 @@
 import { NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
+import { requireAdminApi } from '../../_utils'
 
 export async function GET(
   request: Request,
   { params }: { params: Promise<{ id: string }> }
 ) {
+  const forbidden = await requireAdminApi(request)
+  if (forbidden) return forbidden
+
   try {
     const { id } = await params
     const brand = await prisma.brand.findUnique({
@@ -42,6 +46,9 @@ export async function PUT(
   request: Request,
   { params }: { params: Promise<{ id: string }> }
 ) {
+  const forbidden = await requireAdminApi(request)
+  if (forbidden) return forbidden
+
   try {
     const { id } = await params
     const body = await request.json()
@@ -91,6 +98,9 @@ export async function DELETE(
   request: Request,
   { params }: { params: Promise<{ id: string }> }
 ) {
+  const forbidden = await requireAdminApi(request)
+  if (forbidden) return forbidden
+
   try {
     const { id } = await params
 

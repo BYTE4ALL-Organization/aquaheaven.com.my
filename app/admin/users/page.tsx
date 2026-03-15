@@ -51,7 +51,7 @@ export default function UsersPage() {
   return (
     <div>
       <div className="mb-8">
-        <h1 className="text-3xl font-bold text-gray-900">Users</h1>
+        <h1 className="text-3xl font-bold text-brand">Users</h1>
         <p className="mt-2 text-gray-600">Manage customer accounts</p>
       </div>
 

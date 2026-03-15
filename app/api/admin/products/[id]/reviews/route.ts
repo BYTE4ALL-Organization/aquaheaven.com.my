@@ -1,15 +1,18 @@
 import { NextRequest, NextResponse } from "next/server";
-import { getStackUserAndSync } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
+import { authAdmin } from "@/lib/auth";
 
 /** Create one review for a product (admin). Body: { rating: number, comment: string, authorName?: string } */
 export async function POST(
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
-  const currentUser = await getStackUserAndSync(request);
-  if (!currentUser) {
-    return NextResponse.json({ success: false, error: "Unauthorized" }, { status: 401 });
+  const admin = await authAdmin(request);
+  if (!admin.ok) {
+    return NextResponse.json(
+      { success: false, error: admin.error },
+      { status: admin.status }
+    );
   }
 
   try {
@@ -52,7 +55,7 @@ export async function POST(
       });
       userId = user.id;
     } else {
-      userId = currentUser.id;
+      userId = admin.user.id;
     }
 
     const review = await prisma.review.create({

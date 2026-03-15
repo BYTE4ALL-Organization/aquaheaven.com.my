@@ -181,7 +181,7 @@ export default function EditCategoryPage({ params }: { params: Promise<{ slug: s
             <FiArrowLeft className="h-4 w-4 mr-2" />
             Back to Categories
           </Link>
-          <h1 className="text-3xl font-bold text-gray-900">Category Not Found</h1>
+          <h1 className="text-3xl font-bold text-brand">Category Not Found</h1>
         </div>
         <div className="bg-red-50 border border-red-200 rounded-md p-4">
           <div className="text-red-800">Category not found</div>
@@ -202,7 +202,7 @@ export default function EditCategoryPage({ params }: { params: Promise<{ slug: s
               <FiArrowLeft className="h-4 w-4 mr-2" />
               Back to Categories
             </Link>
-            <h1 className="text-3xl font-bold text-gray-900">Edit Category</h1>
+            <h1 className="text-3xl font-bold text-brand">Edit Category</h1>
             <p className="mt-2 text-gray-600">Update category information</p>
           </div>
         </div>

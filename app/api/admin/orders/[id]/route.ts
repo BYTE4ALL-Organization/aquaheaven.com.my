@@ -1,10 +1,14 @@
 import { NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
+import { requireAdminApi } from '../../_utils'
 
 export async function GET(
   request: Request,
   { params }: { params: Promise<{ id: string }> }
 ) {
+  const forbidden = await requireAdminApi(request)
+  if (forbidden) return forbidden
+
   try {
     const { id } = await params
     const order = await prisma.order.findUnique({
@@ -54,6 +58,9 @@ export async function PATCH(
   request: Request,
   { params }: { params: Promise<{ id: string }> }
 ) {
+  const forbidden = await requireAdminApi(request)
+  if (forbidden) return forbidden
+
   try {
     const { id } = await params
     const body = await request.json()

@@ -124,7 +124,7 @@ export default function OrdersPage() {
   return (
     <div>
       <div className="mb-8">
-        <h1 className="text-3xl font-bold text-gray-900">Orders</h1>
+        <h1 className="text-3xl font-bold text-brand">Orders</h1>
         <p className="mt-2 text-gray-600">Manage customer orders and fulfillment</p>
       </div>
 

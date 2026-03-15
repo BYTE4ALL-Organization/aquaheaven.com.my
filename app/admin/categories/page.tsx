@@ -90,7 +90,7 @@ export default function CategoriesPage() {
     <div>
       <div className="sm:flex sm:items-center sm:justify-between mb-8">
         <div>
-          <h1 className="text-3xl font-bold text-gray-900">Categories</h1>
+          <h1 className="text-3xl font-bold text-brand">Categories</h1>
           <p className="mt-2 text-gray-600">Manage product categories</p>
         </div>
         <div className="mt-4 sm:mt-0 flex items-center gap-3">
