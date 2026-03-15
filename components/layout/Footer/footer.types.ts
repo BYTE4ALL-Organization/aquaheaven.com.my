@@ -2,6 +2,7 @@ import React from "react";
 
 export type SocialNetworks = {
   id: number;
+  label: string;
   icon: React.ReactNode;
   url?: string;
 };

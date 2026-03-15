@@ -51,6 +51,12 @@ const data: NavMenu = [
         url: "/shop?category=soap-bar",
         description: "Classic bars for cleansing and care",
       },
+      {
+        id: 17,
+        label: "Bags",
+        url: "/shop?category=kiwi-bags",
+        description: "Stylish and practical bags for everyday essentials",
+      },
     ],
   },
   {

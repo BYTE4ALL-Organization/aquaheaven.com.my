@@ -12,21 +12,25 @@ import LayoutSpacing from "./LayoutSpacing";
 const socialsData: SocialNetworks[] = [
   {
     id: 1,
+    label: "Follow Aquaheaven on Facebook",
     icon: <FaFacebookF />,
     url: "https://facebook.com/Aquaheavenmy",
   },
   {
     id: 2,
+    label: "Follow Aquaheaven on Instagram",
     icon: <FaInstagram />,
     url: "https://instagram.com/aquaheavenmy",
   },
   {
     id: 3,
+    label: "View Aquaheaven source code on GitHub",
     icon: <FaGithub />,
     url: "https://github.com/BYTE4ALL-Organization/aquaheaven.com.my",
   },
   {
     id: 4,
+    label: "Follow Aquaheaven on Twitter",
     icon: <FaTwitter />,
   },
 ];
@@ -87,8 +91,12 @@ const Footer = () => {
                         href={social.url}
                         key={social.id}
                         className={iconClassName}
+                        aria-label={social.label}
+                        target="_blank"
+                        rel="noopener noreferrer"
                       >
                         {social.icon}
+                        <span className="sr-only">{social.label}</span>
                       </Link>
                     );
                   }

@@ -30,12 +30,16 @@ const DressStyle = () => {
           <DressStyleCard
             title="Body Wash"
             url="/shop#body-wash"
-            className="md:max-w-[260px] lg:max-w-[360px] xl:max-w-[407px] h-[190px] bg-[url('/products/category/body-wash.webp')]"
+            imageSrc="/products/category/body-wash.webp"
+            imageSizes="(max-width: 639px) 100vw, (max-width: 767px) 50vw, (max-width: 1279px) 40vw, 407px"
+            className="h-[190px] md:max-w-[260px] lg:max-w-[360px] xl:max-w-[407px]"
           />
           <DressStyleCard
             title="Shampoo & Conditioner"
             url="/shop#shampoo-and-conditioner"
-            className="md:max-w-[684px] h-[190px] bg-[url('/products/category/shampoo-and-conditioner.webp')]"
+            imageSrc="/products/category/shampoo-and-conditioner.webp"
+            imageSizes="(max-width: 639px) 100vw, (max-width: 767px) 50vw, (max-width: 1279px) 60vw, 684px"
+            className="h-[190px] md:max-w-[684px]"
           />
         </motion.div>
         <motion.div
@@ -48,12 +52,16 @@ const DressStyle = () => {
           <DressStyleCard
             title="Towels"
             url="/shop#kiwi-towels"
-            className="md:max-w-[684px] h-[190px] bg-[url('/products/category/towels.webp')]"
+            imageSrc="/products/category/towels.webp"
+            imageSizes="(max-width: 639px) 100vw, (max-width: 767px) 50vw, (max-width: 1279px) 60vw, 684px"
+            className="h-[190px] md:max-w-[684px]"
           />
           <DressStyleCard
             title="Bar Soap"
             url="/shop#soap-bar"
-            className="md:max-w-[260px] lg:max-w-[360px] xl:max-w-[407px] h-[190px] bg-[url('/products/category/soap-bar.webp')]"
+            imageSrc="/products/category/soap-bar.webp"
+            imageSizes="(max-width: 639px) 100vw, (max-width: 767px) 50vw, (max-width: 1279px) 40vw, 407px"
+            className="h-[190px] md:max-w-[260px] lg:max-w-[360px] xl:max-w-[407px]"
           />
         </motion.div>
       </section>

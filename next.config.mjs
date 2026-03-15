@@ -1,7 +1,8 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  // Use legacy single .next folder to avoid routes-manifest.json ENOENT in .next/dev
-  isolatedDevBuild: false,
+  images: {
+    formats: ["image/avif", "image/webp"],
+  },
 };
 
 export default nextConfig;

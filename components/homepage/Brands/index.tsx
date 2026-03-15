@@ -39,10 +39,11 @@ const Brands = () => {
             className="rounded-lg flex items-center justify-center w-[100px] h-[40px] sm:w-[120px] sm:h-[48px] md:w-[140px] md:h-[56px] lg:w-[160px] lg:h-[64px] p-2 shrink-0 bg-white border border-white/50 hover:border-white transition-colors cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-white/60"
           >
             <Image
-              priority
               src={brand.srcUrl}
               width={160}
               height={64}
+              loading="lazy"
+              sizes="(max-width: 640px) 100px, (max-width: 768px) 120px, (max-width: 1024px) 140px, 160px"
               alt={brand.id}
               className="max-w-full max-h-full w-auto h-auto object-contain pointer-events-none"
             />
