@@ -6,6 +6,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { Product } from "@/types/product.types";
 import { useCurrency } from "@/components/providers/CurrencyProvider";
+import { getScrollStorageKey } from "./ReturnScrollRestorer";
 
 type ProductCardProps = {
   data: Product & { name?: string; slug?: string; thumbnail?: string; images?: string[]; reviews?: { rating: number }[]; categorySlug?: string };
@@ -52,10 +53,31 @@ const ProductCard = ({ data, compact = false }: ProductCardProps) => {
   const { formatPrice } = useCurrency();
   const categorySlug = data.categorySlug ?? "shop";
   const href = `/shop/${categorySlug}/${slug}`;
+  const scrollRestorePendingKey = "aquaheaven:scroll:pending";
+
+  const handleClick = () => {
+    if (typeof window === "undefined") {
+      return;
+    }
+
+    const isShopListingPage = window.location.pathname === "/shop";
+
+    // Only preserve scroll when leaving the main shop listing page.
+    if (!isShopListingPage) {
+      sessionStorage.removeItem(scrollRestorePendingKey);
+      return;
+    }
+
+    const currentPath = `${window.location.pathname}${window.location.search}${window.location.hash}`;
+    sessionStorage.setItem(scrollRestorePendingKey, currentPath);
+    sessionStorage.setItem(getScrollStorageKey(currentPath), String(window.scrollY));
+  };
 
   return (
     <Link
       href={href}
+      scroll
+      onClick={handleClick}
       className="flex flex-col items-start aspect-auto"
     >
       <div className="bg-[#F0EEED] rounded-[13px] lg:rounded-[20px] w-full lg:max-w-[295px] aspect-square mb-2.5 xl:mb-4 overflow-hidden">

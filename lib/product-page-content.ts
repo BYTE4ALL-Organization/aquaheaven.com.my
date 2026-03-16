@@ -184,7 +184,7 @@ const SPECS_BY_CATEGORY: Record<CategoryKey, SpecItem[]> = {
   ],
   "shampoo-colored": [
     { label: "Volume", value: "See bottle size" },
-    { label: "Hair type", value: "Colored / color-treated hair only" },
+    { label: "Hair type", value: "Colored / color-treated / highlighted" },
     { label: "Key benefits", value: "Color protection, cleansing, care as described" },
     { label: "Usage", value: "Apply to wet hair, lather, rinse" },
   ],

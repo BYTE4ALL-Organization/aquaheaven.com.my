@@ -9,6 +9,7 @@ import Providers from "./providers";
 import ConditionalLayout from "@/components/layout/ConditionalLayout";
 import AuthSync from "@/components/auth/AuthSync";
 import CartSync from "@/components/cart/CartSync";
+import ReturnScrollRestorer from "@/components/common/ReturnScrollRestorer";
 import { SITE_NAME, SITE_TAGLINE, buildCanonical, getMetadataBase } from "@/lib/seo";
 
 export const metadata: Metadata = {
@@ -53,6 +54,7 @@ export default function RootLayout({
         <Providers>
           <AuthSync />
           <CartSync />
+          <ReturnScrollRestorer />
           <ConditionalLayout>
             {children}
           </ConditionalLayout>

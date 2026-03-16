@@ -3,6 +3,8 @@
 import { useEffect } from "react";
 import { usePathname, useSearchParams } from "next/navigation";
 
+const SCROLL_RESTORE_PENDING_KEY = "aquaheaven:scroll:pending";
+
 /**
  * Shop layout: scroll to top when entering shop or changing filters
  * so the navbar and top of the page stay visible.
@@ -16,6 +18,12 @@ export default function ShopLayout({
   const searchParams = useSearchParams();
 
   useEffect(() => {
+    const currentPath = `${window.location.pathname}${window.location.search}${window.location.hash}`;
+    const pendingPath = sessionStorage.getItem(SCROLL_RESTORE_PENDING_KEY);
+    if (pendingPath === currentPath) {
+      return;
+    }
+
     const scrollToTop = () => {
       window.scrollTo(0, 0);
       document.documentElement.scrollTop = 0;
