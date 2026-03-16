@@ -52,6 +52,42 @@ const POSITIVE_COMMENTS = [
   "Super nice after a shower. Feel very smooth. Actually good, not small. No irritation.",
 ];
 
+const BAG_COMMENTS = [
+  "Great everyday bag. Durable, lightweight, and easy to carry.",
+  "Very practical and stylish. Fits my daily essentials perfectly.",
+  "Material feels premium and the stitching looks strong.",
+  "Comfortable to use all day and easy to clean.",
+  "Good size and quality. Exactly what I needed for daily use.",
+  "Useful compartments and solid zip quality. Happy with this purchase.",
+];
+
+const FOUTA_COMMENTS = [
+  "Lightweight and very absorbent. Perfect for beach and travel.",
+  "Dries quickly and feels soft on skin. Great quality fouta.",
+  "Beautiful texture and easy to pack in a small bag.",
+  "Love using this at the pool. Premium feel and good size.",
+  "Comfortable, breathable, and dries fast after use.",
+  "Stylish and practical. One of my favorite beach essentials.",
+];
+
+const COTTON_COMMENTS = [
+  "Soft and gentle on skin. Very good quality cotton product.",
+  "Absorbent, clean, and practical for daily home use.",
+  "Good value and reliable quality. Will buy again.",
+  "Perfect for skincare and everyday hygiene needs.",
+  "No irritation on sensitive skin. Very comfortable to use.",
+  "Convenient pack size and consistent quality in every pack.",
+];
+
+const FEMININE_COMMENTS = [
+  "Comfortable and reliable protection throughout the day.",
+  "Feels gentle and secure with no irritation.",
+  "Very easy to use and good absorbency for daily needs.",
+  "Quality is excellent and comfort level is very good.",
+  "Soft material and dependable performance. Highly recommend.",
+  "Confident, comfortable, and practical for regular use.",
+];
+
 /** Get or create seed users for reviews (need at least 100 for variety) */
 async function getOrCreateSeedUsers(count: number): Promise<string[]> {
   const existing = await prisma.user.findMany({
@@ -84,26 +120,118 @@ function randomReviewDate(): Date {
 }
 
 export type SeedTowelReviewsOptions = {
-  /** If set, seed only this product (25–115 reviews). Otherwise seed all towel products. */
+  /** If set, seed only this product. Otherwise seed all cotton/feminine products. */
   productId?: string;
 };
 
-/** Seed positive reviews (25–115 per product, rating 4–5, average 4.2–4.8). All towels or one product. */
+const DEFAULT_MIN_REVIEWS = 50;
+const DEFAULT_MAX_REVIEWS = 100;
+const BAG_MIN_REVIEWS = 18;
+const BAG_MAX_REVIEWS = 24;
+const FOUTA_MIN_REVIEWS = 23;
+const FOUTA_MAX_REVIEWS = 44;
+
+const BAG_TERMS = ["bag", "bags", "kiwi-bags"];
+const FOUTA_TERMS = ["fouta", "foutas"];
+const TOWEL_TERMS = ["towel", "towels", "kiwi-towels"];
+const COTTON_TERMS = [
+  "cotton",
+  "wipes",
+  "wipe",
+  "tissue",
+  "tissues",
+  "toilet paper",
+  "handkerchief",
+  "buds",
+];
+const FEMININE_TERMS = ["feminine", "tampon", "sanitary", "period"];
+
+function randomIntInclusive(min: number, max: number): number {
+  return min + Math.floor(Math.random() * (max - min + 1));
+}
+
+function detectTerms(product: {
+  name: string;
+  slug: string;
+  productCategories: { category: { name: string; slug: string } }[];
+}): string {
+  const categoryText = (product.productCategories ?? [])
+    .map((pc) => `${pc.category.name} ${pc.category.slug}`)
+    .join(" ");
+  return `${product.name} ${product.slug} ${categoryText}`.toLowerCase();
+}
+
+function reviewRangeForProduct(product: {
+  name: string;
+  slug: string;
+  productCategories: { category: { name: string; slug: string } }[];
+}): { min: number; max: number } {
+  const text = detectTerms(product);
+  const isBag = BAG_TERMS.some((term) => text.includes(term));
+  if (isBag) return { min: BAG_MIN_REVIEWS, max: BAG_MAX_REVIEWS };
+
+  const isFouta = FOUTA_TERMS.some((term) => text.includes(term));
+  if (isFouta) return { min: FOUTA_MIN_REVIEWS, max: FOUTA_MAX_REVIEWS };
+
+  return { min: DEFAULT_MIN_REVIEWS, max: DEFAULT_MAX_REVIEWS };
+}
+
+function commentsForProduct(product: {
+  name: string;
+  slug: string;
+  productCategories: { category: { name: string; slug: string } }[];
+}): string[] {
+  const text = detectTerms(product);
+  const shortName = product.name.trim() || "This product";
+
+  const withName = (pool: string[]) => [
+    `${shortName} is excellent. ${pool[0]}`,
+    `Love ${shortName}. ${pool[1]}`,
+    `${shortName} works very well for daily use.`,
+    ...pool,
+  ];
+
+  if (BAG_TERMS.some((term) => text.includes(term))) return withName(BAG_COMMENTS);
+  if (FOUTA_TERMS.some((term) => text.includes(term))) return withName(FOUTA_COMMENTS);
+  if (FEMININE_TERMS.some((term) => text.includes(term))) return withName(FEMININE_COMMENTS);
+  if (COTTON_TERMS.some((term) => text.includes(term))) return withName(COTTON_COMMENTS);
+  return withName(POSITIVE_COMMENTS);
+}
+
+/** Seed positive reviews with category-aware counts (bags: 18–24, foutas: 23–44, others: 50–100). */
 export async function seedTowelReviews(options?: SeedTowelReviewsOptions): Promise<{ products: number; reviews: number }> {
-  let products: { id: string }[];
+  let products: {
+    id: string;
+    name: string;
+    slug: string;
+    productCategories: { category: { name: string; slug: string } }[];
+  }[];
 
   if (options?.productId) {
     const product = await prisma.product.findUnique({
       where: { id: options.productId },
-      select: { id: true },
+      select: {
+        id: true,
+        name: true,
+        slug: true,
+        productCategories: {
+          include: {
+            category: {
+              select: { name: true, slug: true },
+            },
+          },
+        },
+      },
     });
     products = product ? [product] : [];
   } else {
     const categories = await prisma.category.findMany({
       where: {
         OR: [
-          { slug: { contains: "towel", mode: "insensitive" } },
-          { name: { contains: "towel", mode: "insensitive" } },
+          ...COTTON_TERMS.map((term) => ({ slug: { contains: term, mode: "insensitive" as const } })),
+          ...COTTON_TERMS.map((term) => ({ name: { contains: term, mode: "insensitive" as const } })),
+          ...FEMININE_TERMS.map((term) => ({ slug: { contains: term, mode: "insensitive" as const } })),
+          ...FEMININE_TERMS.map((term) => ({ name: { contains: term, mode: "insensitive" as const } })),
         ],
       },
       select: { id: true },
@@ -117,7 +245,18 @@ export async function seedTowelReviews(options?: SeedTowelReviewsOptions): Promi
         productCategories: { some: { categoryId: { in: categoryIds } } },
         isActive: true,
       },
-      select: { id: true },
+      select: {
+        id: true,
+        name: true,
+        slug: true,
+        productCategories: {
+          include: {
+            category: {
+              select: { name: true, slug: true },
+            },
+          },
+        },
+      },
     });
   }
 
@@ -129,7 +268,8 @@ export async function seedTowelReviews(options?: SeedTowelReviewsOptions): Promi
   let totalReviews = 0;
 
   for (const product of products) {
-    const reviewCount = 25 + Math.floor(Math.random() * 91); // 25–115
+    const { min, max } = reviewRangeForProduct(product);
+    const reviewCount = randomIntInclusive(min, max);
     const targetAvg = 4.2 + Math.random() * 0.6; // 4.2–4.8
     const p5 = (targetAvg - 4); // fraction that are 5 (e.g. 4.5 avg => 0.5)
     const numFives = Math.round(reviewCount * p5);
@@ -143,7 +283,7 @@ export async function seedTowelReviews(options?: SeedTowelReviewsOptions): Promi
       [ratings[i], ratings[j]] = [ratings[j], ratings[i]];
     }
 
-    const comments = [...POSITIVE_COMMENTS];
+    const comments = [...commentsForProduct(product)];
     while (comments.length < reviewCount) {
       comments.push(comments[comments.length % POSITIVE_COMMENTS.length]);
     }

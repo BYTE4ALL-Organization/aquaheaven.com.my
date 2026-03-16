@@ -12,7 +12,7 @@ export async function POST(request: NextRequest) {
     const result = await seedTowelReviews(productId ? { productId } : undefined);
     const message = productId
       ? `Added ${result.reviews} reviews to this product.`
-      : `Added ${result.reviews} reviews across ${result.products} towel product(s).`;
+      : `Added ${result.reviews} reviews across ${result.products} cotton/feminine product(s).`;
     return NextResponse.json({
       success: true,
       message,

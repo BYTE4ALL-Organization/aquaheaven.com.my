@@ -367,7 +367,7 @@ export default function ProductsPage() {
                           onClick={() => handleAddReviews(product.id)}
                           disabled={addingReviewsId === product.id}
                           className="text-amber-600 hover:text-amber-900 disabled:opacity-50 text-xs font-medium"
-                          title="Add 25–115 sample reviews"
+                          title="Add sample reviews by category (bags 18–24, foutas 23–44, others 50–100)"
                         >
                           {addingReviewsId === product.id ? 'Adding…' : 'Add reviews'}
                         </button>
