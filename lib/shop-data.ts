@@ -291,21 +291,28 @@ export async function getProductDetail(prisma: PrismaClient, slugOrId: string) {
 /** Latest reviews for homepage Happy Customers section. */
 export async function getReviews(prisma: PrismaClient, limit = 12) {
   const rows = await prisma.review.findMany({
-    take: limit,
+    // Pull extra rows, then keep only reviews with visible text.
+    take: Math.max(limit * 3, limit),
     orderBy: { createdAt: "desc" },
     include: {
       user: { select: { name: true } },
     },
   });
-  return rows.map((r) => ({
-    id: r.id,
-    user: r.user?.name || "Customer",
-    content: r.comment || r.title || "",
-    rating: r.rating,
-    date: r.createdAt.toLocaleDateString("en-US", {
-      year: "numeric",
-      month: "long",
-      day: "numeric",
-    }),
-  }));
+  return rows
+    .map((r) => {
+      const content = (r.comment || r.title || "").trim();
+      return {
+        id: r.id,
+        user: r.user?.name || "Customer",
+        content,
+        rating: r.rating,
+        date: r.createdAt.toLocaleDateString("en-US", {
+          year: "numeric",
+          month: "long",
+          day: "numeric",
+        }),
+      };
+    })
+    .filter((r) => r.content.length > 0)
+    .slice(0, limit);
 }

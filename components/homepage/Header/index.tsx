@@ -29,7 +29,7 @@ const Header = () => {
             whileInView={{ y: "0", opacity: 1 }}
             viewport={{ once: true }}
             transition={{ delay: 0.5, duration: 0.6 }}
-            className="text-white/90 text-base lg:text-lg mb-6 lg:mb-8 max-w-[545px]"
+            className="text-white/90 text-xl leading-8 sm:text-xl sm:leading-8 lg:text-lg lg:leading-7 mb-6 lg:mb-8 max-w-[545px]"
           >
             Explore our carefully selected collection of luxurious soaps and Saint-Tropez style towels that bring elegance to your everyday moments.
           </motion.p>
