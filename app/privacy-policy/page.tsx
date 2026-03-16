@@ -1,12 +1,15 @@
+import type { Metadata } from "next";
 import {
   ContentPageLayout,
   contentSectionStyles as s,
 } from "@/components/layout/ContentPageLayout";
+import { buildPageMetadata } from "@/lib/seo";
 
-export const metadata = {
-  title: "Privacy Policy | Aquaheaven.com.my",
+export const metadata: Metadata = buildPageMetadata({
+  title: "Privacy Policy",
   description: "Privacy policy for Aquaheaven.com.my",
-};
+  path: "/privacy-policy",
+});
 
 export default function PrivacyPolicyPage() {
   return (

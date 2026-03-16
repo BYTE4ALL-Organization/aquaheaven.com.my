@@ -1,12 +1,15 @@
+import type { Metadata } from "next";
 import {
   ContentPageLayout,
   contentSectionStyles as s,
 } from "@/components/layout/ContentPageLayout";
+import { buildPageMetadata } from "@/lib/seo";
 
-export const metadata = {
-  title: "Terms Of Service | Aquaheaven.com.my",
+export const metadata: Metadata = buildPageMetadata({
+  title: "Terms Of Service",
   description: "Terms of service for Aquaheaven.com.my",
-};
+  path: "/terms-of-service",
+});
 
 export default function TermsOfServicePage() {
   return (

@@ -1,13 +1,16 @@
 import Link from "next/link";
+import type { Metadata } from "next";
 import {
   ContentPageLayout,
   contentSectionStyles as s,
 } from "@/components/layout/ContentPageLayout";
+import { buildPageMetadata } from "@/lib/seo";
 
-export const metadata = {
-  title: "FAQ | Aquaheaven.com.my",
+export const metadata: Metadata = buildPageMetadata({
+  title: "FAQ",
   description: "Frequently asked questions about Aquaheaven.",
-};
+  path: "/faq",
+});
 
 export default function FAQPage() {
   const faqJsonLd = {

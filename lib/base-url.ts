@@ -13,7 +13,7 @@ export function getBaseUrl(): string {
   }
   if (process.env.NODE_ENV === "production") {
     // Prevent accidental localhost canonicals/sitemap URLs in production.
-    return "https://aquaheaven.com.my";
+    return "https://www.aquaheaven.com.my";
   }
   return "http://localhost:3000";
 }

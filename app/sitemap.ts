@@ -7,15 +7,15 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const generatedAt = new Date();
 
   const staticPages: MetadataRoute.Sitemap = [
-    { url: base, lastModified: generatedAt, changeFrequency: "weekly", priority: 1 },
-    { url: `${base}/shop`, lastModified: generatedAt, changeFrequency: "daily", priority: 0.9 },
-    { url: `${base}/about-us`, lastModified: generatedAt, changeFrequency: "monthly", priority: 0.6 },
-    { url: `${base}/privacy-policy`, lastModified: generatedAt, changeFrequency: "yearly", priority: 0.3 },
-    { url: `${base}/terms-of-service`, lastModified: generatedAt, changeFrequency: "yearly", priority: 0.3 },
-    { url: `${base}/contact-us`, lastModified: generatedAt, changeFrequency: "monthly", priority: 0.5 },
-    { url: `${base}/track-my-order`, lastModified: generatedAt, changeFrequency: "monthly", priority: 0.5 },
-    { url: `${base}/customer-support`, lastModified: generatedAt, changeFrequency: "monthly", priority: 0.5 },
-    { url: `${base}/faq`, lastModified: generatedAt, changeFrequency: "monthly", priority: 0.5 },
+    { url: base, changeFrequency: "weekly", priority: 1 },
+    { url: `${base}/shop`, changeFrequency: "daily", priority: 0.9 },
+    { url: `${base}/about-us`, changeFrequency: "monthly", priority: 0.6 },
+    { url: `${base}/privacy-policy`, changeFrequency: "yearly", priority: 0.3 },
+    { url: `${base}/terms-of-service`, changeFrequency: "yearly", priority: 0.3 },
+    { url: `${base}/contact-us`, changeFrequency: "monthly", priority: 0.5 },
+    { url: `${base}/track-my-order`, changeFrequency: "monthly", priority: 0.5 },
+    { url: `${base}/customer-support`, changeFrequency: "monthly", priority: 0.5 },
+    { url: `${base}/faq`, changeFrequency: "monthly", priority: 0.5 },
   ];
 
   let productPages: MetadataRoute.Sitemap = [];

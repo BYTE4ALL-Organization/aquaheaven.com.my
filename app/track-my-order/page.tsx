@@ -1,13 +1,16 @@
 import Link from "next/link";
+import type { Metadata } from "next";
 import {
   ContentPageLayout,
   contentSectionStyles as s,
 } from "@/components/layout/ContentPageLayout";
+import { buildPageMetadata } from "@/lib/seo";
 
-export const metadata = {
-  title: "Track My Order | Aquaheaven.com.my",
+export const metadata: Metadata = buildPageMetadata({
+  title: "Track My Order",
   description: "Track your Aquaheaven order status.",
-};
+  path: "/track-my-order",
+});
 
 export default function TrackMyOrderPage() {
   return (

@@ -1,14 +1,17 @@
 import Image from "next/image";
 import Link from "next/link";
+import type { Metadata } from "next";
 import {
   ContentPageLayout,
   contentSectionStyles as s,
 } from "@/components/layout/ContentPageLayout";
+import { buildPageMetadata } from "@/lib/seo";
 
-export const metadata = {
-  title: "About Us | Aquaheaven.com.my",
-  description: "Learn more about Aquaheaven.com.my",
-};
+export const metadata: Metadata = buildPageMetadata({
+  title: "About Us",
+  description: "Learn more about Aquaheaven.com.my.",
+  path: "/about-us",
+});
 
 const aboutImageSrc = "/products/footer/about-us/stacked-zen-stones-sand-background-art-balance-concept.webp";
 

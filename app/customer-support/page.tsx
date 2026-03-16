@@ -1,13 +1,16 @@
 import Link from "next/link";
+import type { Metadata } from "next";
 import {
   ContentPageLayout,
   contentSectionStyles as s,
 } from "@/components/layout/ContentPageLayout";
+import { buildPageMetadata } from "@/lib/seo";
 
-export const metadata = {
-  title: "Customer Support | Aquaheaven.com.my",
+export const metadata: Metadata = buildPageMetadata({
+  title: "Customer Support",
   description: "Get help from Aquaheaven customer support.",
-};
+  path: "/customer-support",
+});
 
 export default function CustomerSupportPage() {
   return (
