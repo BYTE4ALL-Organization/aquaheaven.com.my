@@ -5,10 +5,12 @@ type OrderWithDetails = {
   id: string;
   orderNumber: string;
   status: string;
+  paymentStatus?: string;
   total: { toString(): string } | number;
   shippingAddress: unknown;
   user: { email: string | null; name: string | null } | null;
   items: Array<{
+    productId?: string;
     quantity: number;
     price: { toString(): string } | number;
     product: { name: string };
@@ -24,13 +26,35 @@ export async function markOrderPaidAndSendEmail(
   opts?: { transactionId?: string }
 ): Promise<{ ok: boolean; error?: string }> {
   try {
-    await prisma.order.update({
-      where: { id: order.id },
-      data: {
-        paymentStatus: "COMPLETED",
-        status: "CONFIRMED",
-        ...(opts?.transactionId && { transactionId: opts.transactionId }),
-      },
+    // Make this idempotent: only transition to COMPLETED once, and only deduct stock on that transition.
+    await prisma.$transaction(async (tx) => {
+      const current = await tx.order.findUnique({
+        where: { id: order.id },
+        select: { paymentStatus: true },
+      });
+      if (!current) throw new Error("Order not found");
+      if (current.paymentStatus === "COMPLETED") return;
+
+      await tx.order.update({
+        where: { id: order.id },
+        data: {
+          paymentStatus: "COMPLETED",
+          status: "CONFIRMED",
+          ...(opts?.transactionId && { transactionId: opts.transactionId }),
+        },
+      });
+
+      // Deduct stock on successful payment confirmation.
+      // If productId is missing (older callers), skip deduction rather than failing payment confirmation.
+      const itemsWithProductId = order.items.filter((i) => i.productId && i.quantity > 0) as Array<
+        { productId: string; quantity: number }
+      >;
+      for (const item of itemsWithProductId) {
+        await tx.product.update({
+          where: { id: item.productId },
+          data: { quantity: { decrement: item.quantity } },
+        });
+      }
     });
 
     const customerEmail = order.user?.email?.trim().toLowerCase();

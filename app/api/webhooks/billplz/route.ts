@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { verifyCallbackSignature } from "@/lib/billplz";
-import { sendOrderConfirmationEmail } from "@/lib/resend";
+import { markOrderPaidAndSendEmail } from "@/lib/order-confirmation";
 
 /**
  * Billplz callback (v3/v4): POST application/x-www-form-urlencoded.
@@ -55,6 +55,22 @@ export async function POST(request: NextRequest) {
 
     const xSignature = request.headers.get("x-signature") ?? request.headers.get("X-Signature") ?? null;
     const xSignatureKey = process.env.BILLPLZ_X_SIGNATURE_KEY ?? null;
+
+    // Production safety: if you configured X-Signature, require it; if Billplz sends it, require the key.
+    const isProd = process.env.NODE_ENV === "production";
+    if (isProd && xSignatureKey && !xSignature) {
+      return NextResponse.json(
+        { error: "Missing X-Signature header" },
+        { status: 401 }
+      );
+    }
+    if (isProd && xSignature && !xSignatureKey) {
+      return NextResponse.json(
+        { error: "Server misconfigured: BILLPLZ_X_SIGNATURE_KEY is not set" },
+        { status: 500 }
+      );
+    }
+
     const valid = await verifyCallbackSignature(bodyText, xSignature, xSignatureKey);
     if (!valid) {
       console.warn("Billplz callback: signature verification failed. Check BILLPLZ_X_SIGNATURE_KEY or disable X-Signature in Billplz dashboard.");
@@ -105,43 +121,28 @@ export async function POST(request: NextRequest) {
       console.warn("Billplz callback: bill id mismatch", { order: order.billplzBillId, callback: billId });
     }
 
-    await prisma.order.update({
-      where: { id: order.id },
-      data: {
-        paymentStatus: paid ? "COMPLETED" : "FAILED",
-        ...(billId && { transactionId: billId }),
-        ...(paid && { status: "CONFIRMED" }),
-      },
-    });
+    // Billplz may callback with paid=false (e.g. pending / incomplete / retry). Do NOT mark the
+    // order as FAILED here unless you have confirmed the bill is overdue/expired.
+    // Keep order PENDING until either paid=true or a separate verification (sync-payment) marks it overdue.
+    if (paid) {
+      const result = await markOrderPaidAndSendEmail(order, {
+        transactionId: billIdTrimmed,
+      });
+      if (!result.ok) {
+        console.error("Billplz: markOrderPaidAndSendEmail failed", result.error);
+      }
+    } else {
+      // Keep it pending; still record transaction id if present for traceability.
+      if (billId && !order.transactionId) {
+        await prisma.order.update({
+          where: { id: order.id },
+          data: { transactionId: billId },
+        });
+      }
+    }
 
     if (paid) {
       console.info("Billplz: order marked as paid", { orderId: order.id, orderNumber: order.orderNumber });
-      const customerEmail = order.user?.email?.trim().toLowerCase();
-      if (customerEmail && !customerEmail.endsWith("@user.local")) {
-        const shippingAddress = order.shippingAddress as {
-          fullName?: string;
-          address?: string;
-          city?: string;
-          state?: string;
-          zip?: string;
-          country?: string;
-          phone?: string;
-        } | null;
-        const { ok, error } = await sendOrderConfirmationEmail({
-          to: customerEmail,
-          orderNumber: order.orderNumber,
-          items: order.items.map((oi) => ({
-            name: oi.product.name,
-            quantity: oi.quantity,
-            price: Number(oi.price),
-          })),
-          total: Number(order.total),
-          shippingAddress: shippingAddress ?? undefined,
-        });
-        if (!ok) {
-          console.error("Order confirmation email failed:", error);
-        }
-      }
     }
 
     return NextResponse.json({ success: true });

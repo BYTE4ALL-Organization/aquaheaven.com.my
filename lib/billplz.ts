@@ -10,7 +10,15 @@ const BILLPLZ_SANDBOX = "https://www.billplz-sandbox.com/api/v3";
 const BILLPLZ_PRODUCTION = "https://www.billplz.com/api/v3";
 
 export function getBillplzBaseUrl(): string {
-  const useSandbox = process.env.BILLPLZ_USE_SANDBOX !== "false";
+  // Safer defaults:
+  // - In production, default to production unless explicitly set to "true"
+  // - In non-production, default to sandbox unless explicitly set to "false"
+  const env = process.env.NODE_ENV ?? "development";
+  const flag = process.env.BILLPLZ_USE_SANDBOX;
+  const useSandbox =
+    env === "production"
+      ? flag === "true"
+      : flag !== "false";
   return useSandbox ? BILLPLZ_SANDBOX : BILLPLZ_PRODUCTION;
 }
 
@@ -162,7 +170,9 @@ export async function verifyCallbackSignature(
   xSignature: string | null,
   xSignatureKey: string | null
 ): Promise<boolean> {
-  if (!xSignature || !xSignatureKey) return true; // skip verification if not configured
+  // If signature verification is configured, enforce it.
+  // If it is not configured, we treat it as "not enforced" (callers may still reject in production).
+  if (!xSignature || !xSignatureKey) return true;
   const { createHmac, timingSafeEqual } = await import("crypto");
   const expected = createHmac("sha256", xSignatureKey).update(payload).digest("hex");
   try {

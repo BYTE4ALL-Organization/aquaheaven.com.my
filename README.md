@@ -102,6 +102,18 @@ Signed-in Stack Auth users and users who place orders are automatically added to
 - **ShadCN UI** components are used across the app. They can be customized in the `src/components/ui` directory.
 - You can easily modify and extend the project to suit your needs, whether for personal use or professional projects.
 
+## Billplz payments (Production)
+
+This project supports Billplz checkout (bill creation + redirect), webhook callbacks, and a fallback sync on the success page.
+
+Required environment variables:
+
+- `BILLPLZ_API_SECRET_KEY`: Billplz API key (live in production)
+- `BILLPLZ_COLLECTION_ID`: Billplz collection ID (live in production)
+- `BILLPLZ_USE_SANDBOX`: set to `"false"` in production to force live; set to `"true"` to force sandbox
+- `BILLPLZ_CALLBACK_BASE_URL`: public base URL for callbacks/redirects (e.g. `https://aquaheaven.com.my`)
+- `BILLPLZ_X_SIGNATURE_KEY` (recommended): set if you enable Billplz X-Signature callbacks
+
 ## Project Structure
 
 ```bash

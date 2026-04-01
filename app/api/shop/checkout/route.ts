@@ -160,14 +160,6 @@ export async function POST(request: Request) {
         });
       }
 
-      for (const item of items) {
-        const product = productBySlug.get(item.slug)!;
-        await tx.product.update({
-          where: { id: product.id },
-          data: { quantity: product.quantity - item.quantity },
-        });
-      }
-
       return newOrder;
     });
 

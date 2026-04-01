@@ -16,10 +16,13 @@ export default function CheckoutSuccessPage() {
   const searchParams = useSearchParams();
   const orderId = searchParams.get("order");
   const [syncing, setSyncing] = useState(!!orderId);
+  const [paid, setPaid] = useState<boolean | null>(null);
+  const [syncError, setSyncError] = useState<string | null>(null);
 
   useEffect(() => {
     if (!orderId?.trim()) {
       setSyncing(false);
+      setPaid(null);
       return;
     }
     let cancelled = false;
@@ -29,12 +32,27 @@ export default function CheckoutSuccessPage() {
           method: "POST",
           credentials: "include",
         });
-        const data = await res.json().catch(() => ({}));
+        const data = (await res.json().catch(() => ({}))) as {
+          success?: boolean;
+          paid?: boolean;
+          error?: string;
+        };
         if (!cancelled) {
+          if (!res.ok) {
+            setPaid(null);
+            setSyncError(data?.error || "Could not confirm payment yet.");
+          } else {
+            setPaid(typeof data?.paid === "boolean" ? data.paid : null);
+            setSyncError(data?.error || null);
+          }
           setSyncing(false);
         }
       } catch {
-        if (!cancelled) setSyncing(false);
+        if (!cancelled) {
+          setPaid(null);
+          setSyncError("Could not confirm payment yet.");
+          setSyncing(false);
+        }
       }
     })();
     return () => {
@@ -58,16 +76,26 @@ export default function CheckoutSuccessPage() {
         ) : (
           <>
             <p className="text-black/70 mb-2">
-              Your payment has been received.
+              {paid === true
+                ? "Your payment has been received."
+                : paid === false
+                  ? "Payment not confirmed yet."
+                  : "Payment status pending."}
               {orderId && (
                 <span className="block mt-2 text-sm">
                   Order reference: <strong>{orderId}</strong>
                 </span>
               )}
             </p>
-            <p className="text-black/60 text-sm mb-8">
-              We will process your order and notify you when it ships.
-            </p>
+            {syncError ? (
+              <p className="text-black/60 text-sm mb-8">{syncError}</p>
+            ) : (
+              <p className="text-black/60 text-sm mb-8">
+                {paid === true
+                  ? "We will process your order and notify you when it ships."
+                  : "If you already paid, please wait a moment and refresh this page."}
+              </p>
+            )}
           </>
         )}
         <Button asChild className="rounded-full">
