@@ -1,4 +1,5 @@
 import type { Metadata, Viewport } from "next";
+import Script from "next/script";
 import { StackProvider, StackTheme } from "@stackframe/stack";
 import { stackClientApp } from "@/stack/client";
 import { stackServerApp } from "@/stack/server";
@@ -47,9 +48,27 @@ export default function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const gaId = "G-XQQ14H23QV";
+
   return (
     <html lang="en">
-      <body className={satoshi.className}><StackProvider app={stackClientApp}><StackTheme><StackProvider app={stackServerApp}><StackTheme>
+      <body className={satoshi.className}>
+        {/* Google tag (gtag.js) */}
+        <Script
+          async
+          src={`https://www.googletagmanager.com/gtag/js?id=${gaId}`}
+          strategy="afterInteractive"
+        />
+        <Script id="google-analytics" strategy="afterInteractive">
+          {`
+            window.dataLayer = window.dataLayer || [];
+            function gtag(){dataLayer.push(arguments);}
+            gtag('js', new Date());
+
+            gtag('config', '${gaId}');
+          `}
+        </Script>
+        <StackProvider app={stackClientApp}><StackTheme><StackProvider app={stackServerApp}><StackTheme>
         <HolyLoader color="#868686" />
         <Providers>
           <AuthSync />
