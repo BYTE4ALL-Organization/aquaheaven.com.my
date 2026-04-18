@@ -1,7 +1,9 @@
 import { NextResponse } from "next/server";
 import { writeFile, mkdir } from "fs/promises";
 import path from "path";
+import ImageKit, { toFile } from "@imagekit/nodejs";
 import { requireAdminApi } from "../_utils";
+import { getImageKitUploadFolder, isImageKitServerUploadConfigured } from "@/lib/imagekit";
 
 const ALLOWED_TYPES = ["image/jpeg", "image/png", "image/gif", "image/webp", "image/svg+xml"];
 const MAX_SIZE = 5 * 1024 * 1024; // 5MB
@@ -36,12 +38,30 @@ export async function POST(request: Request) {
     const buffer = Buffer.from(bytes);
     const ext = path.extname(file.name) || ".png";
     const safeName = `${Date.now()}-${Math.random().toString(36).slice(2, 10)}${ext}`;
+
+    if (isImageKitServerUploadConfigured()) {
+      const ik = new ImageKit({ privateKey: process.env.IMAGEKIT_PRIVATE_KEY! });
+      const uploaded = await ik.files.upload({
+        file: await toFile(buffer, safeName, { type: file.type }),
+        fileName: safeName,
+        folder: getImageKitUploadFolder(),
+      });
+      const url = uploaded.url;
+      if (!url) {
+        return NextResponse.json(
+          { success: false, error: "ImageKit upload did not return a URL" },
+          { status: 502 }
+        );
+      }
+      return NextResponse.json({ success: true, url, source: "imagekit" as const });
+    }
+
     const uploadDir = path.join(process.cwd(), "public", "uploads");
     await mkdir(uploadDir, { recursive: true });
     const filePath = path.join(uploadDir, safeName);
     await writeFile(filePath, buffer);
     const url = `/uploads/${safeName}`;
-    return NextResponse.json({ success: true, url });
+    return NextResponse.json({ success: true, url, source: "local" as const });
   } catch (error) {
     console.error("Upload error:", error);
     return NextResponse.json(

@@ -227,6 +227,15 @@ model Review {
   @@map("reviews")
 }
 
+/// Singleton row (`id` = `default`) for optional ImageKit URL endpoint when not set in env.
+model MediaConfig {
+  id                  String   @id @default("default")
+  imagekitUrlEndpoint String?
+  updatedAt           DateTime @updatedAt
+
+  @@map("media_config")
+}
+
 model Setting {
   key   String @id
   value String

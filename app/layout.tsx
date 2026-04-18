@@ -7,6 +7,7 @@ import "@/styles/globals.css";
 import { satoshi } from "@/styles/fonts";
 import HolyLoader from "holy-loader";
 import Providers from "./providers";
+import { getImageKitUrlEndpoint } from "@/lib/imagekit";
 import ConditionalLayout from "@/components/layout/ConditionalLayout";
 import AuthSync from "@/components/auth/AuthSync";
 import CartSync from "@/components/cart/CartSync";
@@ -43,12 +44,13 @@ export const viewport: Viewport = {
   themeColor: "#000000",
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
   const gaId = "G-XQQ14H23QV";
+  const imageKitUrlEndpoint = await getImageKitUrlEndpoint();
 
   return (
     <html lang="en">
@@ -70,7 +72,7 @@ export default function RootLayout({
         </Script>
         <StackProvider app={stackClientApp}><StackTheme><StackProvider app={stackServerApp}><StackTheme>
         <HolyLoader color="#868686" />
-        <Providers>
+        <Providers imageKitUrlEndpoint={imageKitUrlEndpoint}>
           <AuthSync />
           <CartSync />
           <ReturnScrollRestorer />
