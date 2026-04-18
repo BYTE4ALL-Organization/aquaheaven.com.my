@@ -7,9 +7,7 @@
  * - Adds 25–115 positive reviews per product (rating 4–5)
  */
 
-import { PrismaClient } from "@prisma/client";
-
-const prisma = new PrismaClient();
+import { prisma } from "../lib/prisma";
 
 const REVIEWER_NAMES = [
   "Alex K.",
@@ -224,7 +222,7 @@ export async function main() {
     },
     select: { id: true },
   });
-  const categoryIds = categories.map((c) => c.id);
+  const categoryIds = categories.map((c: { id: string }) => c.id);
 
   let products: { id: string }[];
   if (categoryIds.length > 0) {
