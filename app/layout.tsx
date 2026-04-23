@@ -7,7 +7,6 @@ import "@/styles/globals.css";
 import { satoshi } from "@/styles/fonts";
 import HolyLoader from "holy-loader";
 import Providers from "./providers";
-import { getImageKitUrlEndpoint } from "@/lib/imagekit";
 import ConditionalLayout from "@/components/layout/ConditionalLayout";
 import AuthSync from "@/components/auth/AuthSync";
 import { SITE_NAME, SITE_TAGLINE, buildCanonical, getMetadataBase } from "@/lib/seo";
@@ -48,7 +47,6 @@ export default async function RootLayout({
   children: React.ReactNode;
 }>) {
   const gaId = "G-XQQ14H23QV";
-  const imageKitUrlEndpoint = await getImageKitUrlEndpoint();
 
   return (
     <html lang="en">
@@ -70,7 +68,7 @@ export default async function RootLayout({
         </Script>
         <StackProvider app={stackClientApp}><StackTheme><StackProvider app={stackServerApp}><StackTheme>
         <HolyLoader color="#868686" />
-        <Providers imageKitUrlEndpoint={imageKitUrlEndpoint}>
+        <Providers>
           <AuthSync />
           <ConditionalLayout>
             {children}
