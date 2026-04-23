@@ -10,8 +10,6 @@ import Providers from "./providers";
 import { getImageKitUrlEndpoint } from "@/lib/imagekit";
 import ConditionalLayout from "@/components/layout/ConditionalLayout";
 import AuthSync from "@/components/auth/AuthSync";
-import CartSync from "@/components/cart/CartSync";
-import ReturnScrollRestorer from "@/components/common/ReturnScrollRestorer";
 import { SITE_NAME, SITE_TAGLINE, buildCanonical, getMetadataBase } from "@/lib/seo";
 
 export const metadata: Metadata = {
@@ -74,8 +72,6 @@ export default async function RootLayout({
         <HolyLoader color="#868686" />
         <Providers imageKitUrlEndpoint={imageKitUrlEndpoint}>
           <AuthSync />
-          <CartSync />
-          <ReturnScrollRestorer />
           <ConditionalLayout>
             {children}
           </ConditionalLayout>
