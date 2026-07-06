@@ -34,6 +34,7 @@
     "holy-loader": "^2.3.7",
     "lucide-react": "^0.438.0",
     "next": "^16.2.9",
+    "nodemailer": "^9.0.3",
     "pg": "^8.20.0",
     "react": "^19",
     "react-dom": "^19",
@@ -50,6 +51,7 @@
   },
   "devDependencies": {
     "@types/node": "^20",
+    "@types/nodemailer": "^8.0.1",
     "@types/pg": "^8.20.0",
     "@types/react": "^19",
     "@types/react-dom": "^19",

@@ -1,17 +1,17 @@
 import { NextRequest, NextResponse } from "next/server";
-import { Resend } from "resend";
-import { OrderConfirmationEmail } from "@/components/email-template";
-
-const apiKey = process.env.RESEND_API_KEY;
-const resend = apiKey ? new Resend(apiKey) : null;
-const FROM_EMAIL = process.env.RESEND_FROM_EMAIL || "Aquaheaven <onboarding@resend.dev>";
+import { sendOrderConfirmationEmail } from "@/lib/order-mail";
 
 type OrderConfirmationBody = {
   to: string;
   orderNumber: string;
   items: { name: string; quantity: number; price: number }[];
   total: number;
+  subtotal?: number;
+  discountAmount?: number;
+  promoCode?: string | null;
+  shipping?: number;
   shippingAddress?: {
+    type?: "pickup" | "shipping";
     fullName?: string;
     address?: string;
     city?: string;
@@ -23,21 +23,13 @@ type OrderConfirmationBody = {
 };
 
 /**
- * POST /api/send – send order confirmation email when payment is successful (Billplz callback).
- * Body: { to, orderNumber, items, total, shippingAddress }
- * Uses Resend with React email template.
+ * POST /api/send – send order confirmation email when payment is successful.
+ * Delegates to lib/order-mail (SMTP + branded HTML).
  */
 export async function POST(request: NextRequest) {
   try {
-    if (!resend) {
-      return NextResponse.json(
-        { error: "Resend not configured (RESEND_API_KEY missing)" },
-        { status: 500 }
-      );
-    }
-
     const body = (await request.json()) as OrderConfirmationBody;
-    const { to, orderNumber, items, total, shippingAddress } = body;
+    const { to, orderNumber, items, total, subtotal, discountAmount, promoCode, shipping, shippingAddress } = body;
 
     const normalizedTo = to?.trim().toLowerCase();
     if (!normalizedTo || normalizedTo.endsWith("@user.local")) {
@@ -50,24 +42,23 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const { data, error } = await resend.emails.send({
-      from: FROM_EMAIL,
-      to: [normalizedTo],
-      subject: `Order confirmation ${orderNumber} – Aquaheaven`,
-      react: OrderConfirmationEmail({
-        orderNumber,
-        items,
-        total,
-        shippingAddress: shippingAddress ?? undefined,
-      }),
+    const result = await sendOrderConfirmationEmail({
+      to: normalizedTo,
+      orderNumber,
+      items,
+      total,
+      subtotal,
+      discountAmount,
+      promoCode,
+      shipping,
+      shippingAddress,
     });
 
-    if (error) {
-      console.error("Resend order confirmation error:", error);
-      return NextResponse.json({ error: error.message }, { status: 500 });
+    if (!result.ok) {
+      return NextResponse.json({ error: result.error ?? "Send failed" }, { status: 500 });
     }
 
-    return NextResponse.json(data);
+    return NextResponse.json({ success: true });
   } catch (error) {
     console.error("Send email error:", error);
     return NextResponse.json(
