@@ -104,8 +104,13 @@ export default async function Home() {
         dangerouslySetInnerHTML={{ __html: JSON.stringify(websiteJsonLd) }}
       />
       <Header />
-      <Brands />
       <main className="my-[50px] sm:my-[72px]">
+        <div className="mb-[50px] sm:mb-20">
+          <DressStyle />
+        </div>
+        <div className="mb-[50px] sm:mb-20">
+          <Brands />
+        </div>
         {newArrivalsData.length > 0 && (
           <div className="mb-[50px] sm:mb-20">
             <ProductListSec
@@ -131,9 +136,6 @@ export default async function Home() {
             />
           </div>
         )}
-        <div className="mb-[50px] sm:mb-20">
-          <DressStyle />
-        </div>
         {reviewsFromDb.length > 0 && <Reviews data={reviewsFromDb} />}
       </main>
     </>
