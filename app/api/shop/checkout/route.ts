@@ -4,6 +4,15 @@ import { getStackUserAndSync } from "@/lib/auth";
 import { addContactToResend } from "@/lib/resend";
 import { createBill } from "@/lib/billplz";
 import { roundTo2 } from "@/lib/currency";
+import {
+  buildStoredFulfillmentAddress,
+  calcDeliveryFee,
+  type FulfillmentAddressInput,
+  type FulfillmentMethod,
+} from "@/lib/fulfillment";
+import { getPickupScheduleConfig } from "@/lib/pickup-schedule-store";
+import { validatePickupSlot } from "@/lib/pickup-schedule";
+import { validatePromoCode } from "@/lib/promo-code";
 
 function generateOrderNumber(): string {
   return `ORD-${Date.now()}-${Math.random().toString(36).slice(2, 8).toUpperCase()}`;
@@ -38,20 +47,19 @@ export async function POST(request: Request) {
     const {
       shippingAddress,
       items: rawItems,
-      userId: bodyUserId,
+      fulfillmentMethod: rawFulfillmentMethod,
+      pickupScheduledAt: rawPickupScheduledAt,
+      promoCode: rawPromoCode,
     } = body as {
-      shippingAddress: {
-        fullName?: string;
-        address?: string;
-        city?: string;
-        state?: string;
-        zip?: string;
-        country?: string;
-        phone?: string;
-      };
+      shippingAddress: FulfillmentAddressInput;
       items: { slug?: string; id?: string; quantity: number }[];
-      userId?: string;
+      fulfillmentMethod?: FulfillmentMethod;
+      pickupScheduledAt?: string;
+      promoCode?: string;
     };
+
+    const fulfillmentMethod: FulfillmentMethod =
+      rawFulfillmentMethod === "pickup" ? "pickup" : "shipping";
 
     const dbUser = await getStackUserAndSync(request);
     if (!dbUser) {
@@ -64,21 +72,56 @@ export async function POST(request: Request) {
 
     if (!shippingAddress || !rawItems || !Array.isArray(rawItems) || rawItems.length === 0) {
       return NextResponse.json(
-        { success: false, error: "Shipping address and items are required" },
+        { success: false, error: "Contact details and items are required" },
         { status: 400 }
       );
     }
 
-    const zipRaw = typeof shippingAddress.zip === "string" ? shippingAddress.zip : "";
-    const zipNum = parseInt(zipRaw.replace(/\D/g, "").slice(0, 5), 10);
-    if (Number.isNaN(zipNum) || zipNum < 50000 || zipNum > 60000) {
+    if (!shippingAddress.fullName?.trim() || !shippingAddress.phone?.trim()) {
       return NextResponse.json(
-        {
-          success: false,
-          error: "We only deliver to Kuala Lumpur. Postcode must be between 50000 and 60000.",
-        },
+        { success: false, error: "Full name and phone are required" },
         { status: 400 }
       );
+    }
+
+    if (fulfillmentMethod === "shipping") {
+      if (!shippingAddress.address?.trim()) {
+        return NextResponse.json(
+          { success: false, error: "Shipping address is required" },
+          { status: 400 }
+        );
+      }
+      const zipRaw = typeof shippingAddress.zip === "string" ? shippingAddress.zip : "";
+      const zipNum = parseInt(zipRaw.replace(/\D/g, "").slice(0, 5), 10);
+      if (Number.isNaN(zipNum) || zipNum < 50000 || zipNum > 60000) {
+        return NextResponse.json(
+          {
+            success: false,
+            error: "We only deliver to Kuala Lumpur. Postcode must be between 50000 and 60000.",
+          },
+          { status: 400 }
+        );
+      }
+    }
+
+    let pickupScheduledAt: Date | undefined;
+    if (fulfillmentMethod === "pickup") {
+      if (!rawPickupScheduledAt?.trim()) {
+        return NextResponse.json(
+          { success: false, error: "Please select a pickup date and time." },
+          { status: 400 }
+        );
+      }
+      const config = await getPickupScheduleConfig();
+      const orderAt = new Date();
+      const validation = validatePickupSlot(rawPickupScheduledAt.trim(), orderAt, config);
+      if (!validation.valid) {
+        return NextResponse.json(
+          { success: false, error: validation.error ?? "Invalid pickup slot" },
+          { status: 400 }
+        );
+      }
+      pickupScheduledAt = new Date(rawPickupScheduledAt.trim());
     }
 
     const items = await resolveItems(rawItems);
@@ -129,9 +172,31 @@ export async function POST(request: Request) {
 
     const tax = 0;
     const subtotalRounded = roundTo2(subtotal);
-    const shipping = subtotalRounded >= 85 ? 0 : 8;
-    const total = roundTo2(subtotalRounded + tax + shipping);
+
+    let discountAmount = 0;
+    let appliedPromoCode: string | undefined;
+    let promoIdToIncrement: string | undefined;
+
+    if (typeof rawPromoCode === "string" && rawPromoCode.trim()) {
+      const promoResult = await validatePromoCode(prisma, rawPromoCode, subtotalRounded);
+      if (promoResult.valid === false) {
+        return NextResponse.json(
+          { success: false, error: promoResult.error },
+          { status: 400 }
+        );
+      }
+      discountAmount = promoResult.discountAmount;
+      appliedPromoCode = promoResult.promo.code;
+      promoIdToIncrement = promoResult.promo.id;
+    }
+
+    const shipping = calcDeliveryFee(subtotalRounded, fulfillmentMethod);
+    const total = roundTo2(subtotalRounded - discountAmount + tax + shipping);
     const orderNumber = generateOrderNumber();
+    const storedAddress = buildStoredFulfillmentAddress(
+      fulfillmentMethod,
+      shippingAddress
+    );
 
     const order = await prisma.$transaction(async (tx) => {
       const newOrder = await tx.order.create({
@@ -142,10 +207,13 @@ export async function POST(request: Request) {
           total,
           tax,
           shipping,
-          shippingAddress: shippingAddress as object,
+          discountAmount,
+          ...(appliedPromoCode && { promoCode: appliedPromoCode }),
+          shippingAddress: storedAddress as object,
           paymentStatus: "PENDING",
           paymentMethod: "billplz",
           userId,
+          ...(pickupScheduledAt && { pickupScheduledAt }),
         },
       });
 
@@ -160,12 +228,17 @@ export async function POST(request: Request) {
         });
       }
 
+      if (promoIdToIncrement) {
+        await tx.promoCode.update({
+          where: { id: promoIdToIncrement },
+          data: { usedCount: { increment: 1 } },
+        });
+      }
+
       return newOrder;
     });
 
     const collectionId = process.env.BILLPLZ_COLLECTION_ID;
-    // Callback URL must be reachable by Billplz: set BILLPLZ_CALLBACK_BASE_URL in production (e.g. https://aquaheaven.com.my).
-    // In Billplz dashboard enable "Basic Callback URL" or "X Signature Callback URL" for the collection.
     const callbackBase =
       process.env.BILLPLZ_CALLBACK_BASE_URL ||
       (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : null) ||

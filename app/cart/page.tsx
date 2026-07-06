@@ -2,6 +2,9 @@
 
 import BreadcrumbCart from "@/components/cart-page/BreadcrumbCart";
 import ProductCard from "@/components/cart-page/ProductCard";
+import FulfillmentSelector, {
+  FulfillmentSummaryRow,
+} from "@/components/cart/FulfillmentSelector";
 import { Button } from "@/components/ui/button";
 import InputGroup from "@/components/ui/input-group";
 import { cn } from "@/lib/utils";
@@ -11,25 +14,78 @@ import { MdOutlineLocalOffer } from "react-icons/md";
 import { TbBasketExclamation } from "react-icons/tb";
 import React from "react";
 import { RootState } from "@/lib/store";
-import { useAppSelector } from "@/lib/hooks/redux";
+import { useAppDispatch, useAppSelector } from "@/lib/hooks/redux";
+import { clearPromo, setFulfillmentMethod, setPromo } from "@/lib/features/carts/cartsSlice";
 import Link from "next/link";
+import { useSearchParams } from "next/navigation";
 import { useCurrency } from "@/components/providers/CurrencyProvider";
 import { roundTo2 } from "@/lib/currency";
+import { calcDeliveryFee } from "@/lib/fulfillment";
 import { useUser } from "@stackframe/stack";
 
 export default function CartPage() {
+  const searchParams = useSearchParams();
+  const checkoutPending = searchParams.get("checkout") === "pending";
   const user = useUser({ or: "return-null" });
-  const { cart, totalPrice, adjustedTotalPrice } = useAppSelector(
+  const dispatch = useAppDispatch();
+  const { cart, totalPrice, fulfillmentMethod, promo } = useAppSelector(
     (state: RootState) => state.carts
   );
   const { formatPrice } = useCurrency();
   const subtotalRounded = roundTo2(totalPrice);
-  const deliveryFee = subtotalRounded >= 85 ? 0 : 8;
-  const totalRounded = roundTo2(subtotalRounded + deliveryFee);
+  const promoDiscount = promo?.discountAmount ?? 0;
+  const deliveryFee = calcDeliveryFee(subtotalRounded, fulfillmentMethod);
+  const totalRounded = roundTo2(subtotalRounded - promoDiscount + deliveryFee);
+  const [promoInput, setPromoInput] = React.useState(promo?.code ?? "");
+  const [promoError, setPromoError] = React.useState<string | null>(null);
+  const [promoLoading, setPromoLoading] = React.useState(false);
+
+  React.useEffect(() => {
+    setPromoInput(promo?.code ?? "");
+  }, [promo?.code]);
+
+  const handleApplyPromo = async () => {
+    const code = promoInput.trim();
+    if (!code) {
+      setPromoError("Please enter a promo code.");
+      return;
+    }
+
+    setPromoLoading(true);
+    setPromoError(null);
+    try {
+      const res = await fetch("/api/shop/promo/validate", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ code, subtotal: subtotalRounded }),
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        setPromoError(data.error || "Invalid promo code.");
+        return;
+      }
+      dispatch(setPromo({ code: data.code, discountAmount: data.discountAmount }));
+    } catch {
+      setPromoError("Failed to apply promo code.");
+    } finally {
+      setPromoLoading(false);
+    }
+  };
+
+  const handleRemovePromo = () => {
+    dispatch(clearPromo());
+    setPromoInput("");
+    setPromoError(null);
+  };
 
   return (
     <main className="pb-20">
       <div className="max-w-frame mx-auto px-4 xl:px-0">
+        {checkoutPending && (
+          <div className="mb-6 rounded-lg border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-900">
+            Payment wasn&apos;t completed. Your cart is still here — you can try checkout again.
+          </div>
+        )}
         {cart && cart.items.length > 0 ? (
           <>
             <BreadcrumbCart />
@@ -56,19 +112,34 @@ export default function CartPage() {
                 <h6 className="text-xl md:text-2xl font-bold text-black">
                   Order Summary
                 </h6>
+                <FulfillmentSelector
+                  method={fulfillmentMethod}
+                  onChange={(method) => dispatch(setFulfillmentMethod(method))}
+                  subtotal={subtotalRounded}
+                  formatPrice={formatPrice}
+                />
                 <div className="flex flex-col space-y-5">
                   <div className="flex items-center justify-between">
                     <span className="md:text-xl text-black/60">Subtotal</span>
-                    <span className="md:text-xl font-bold">{formatPrice(subtotalRounded)}</span>
-                  </div>
-                  <div className="flex items-center justify-between">
-                    <span className="md:text-xl text-black/60">
-                      Shipping (3-7 days)
-                    </span>
                     <span className="md:text-xl font-bold">
-                      {deliveryFee === 0 ? "FREE SHIPPING" : formatPrice(8)}
+                      {formatPrice(subtotalRounded)}
                     </span>
                   </div>
+                  <FulfillmentSummaryRow
+                    method={fulfillmentMethod}
+                    subtotal={subtotalRounded}
+                    formatPrice={formatPrice}
+                  />
+                  {promo && promoDiscount > 0 && (
+                    <div className="flex items-center justify-between">
+                      <span className="md:text-xl text-black/60">
+                        Promo ({promo.code})
+                      </span>
+                      <span className="md:text-xl font-bold text-green-700">
+                        -{formatPrice(promoDiscount)}
+                      </span>
+                    </div>
+                  )}
                   <hr className="border-t-black/10" />
                   <div className="flex items-center justify-between">
                     <span className="md:text-xl text-black">Total</span>
@@ -86,23 +157,48 @@ export default function CartPage() {
                       type="text"
                       name="code"
                       placeholder="Add promo code"
-                      className="bg-transparent placeholder:text-black/40"
+                      value={promoInput}
+                      onChange={(e) => setPromoInput(e.target.value.toUpperCase())}
+                      className="bg-transparent placeholder:text-black/40 uppercase"
+                      disabled={!!promo}
                     />
                   </InputGroup>
-                  <Button
-                    type="button"
-                    className="bg-black rounded-full w-full max-w-[119px] h-[48px]"
-                  >
-                    Apply
-                  </Button>
+                  {promo ? (
+                    <Button
+                      type="button"
+                      variant="outline"
+                      onClick={handleRemovePromo}
+                      className="rounded-full w-full max-w-[119px] h-[48px]"
+                    >
+                      Remove
+                    </Button>
+                  ) : (
+                    <Button
+                      type="button"
+                      onClick={handleApplyPromo}
+                      disabled={promoLoading}
+                      className="rounded-full w-full max-w-[119px] h-[48px]"
+                    >
+                      {promoLoading ? "…" : "Apply"}
+                    </Button>
+                  )}
                 </div>
+                {promoError && (
+                  <p className="text-sm text-red-600" role="alert">
+                    {promoError}
+                  </p>
+                )}
                 <Button
                   type="button"
-                  className="text-sm md:text-base font-medium bg-black rounded-full w-full py-4 h-[54px] md:h-[60px] group"
+                  className="text-sm md:text-base font-medium rounded-full w-full py-4 h-[54px] md:h-[60px] group"
                   asChild
                 >
                   <Link
-                    href={user === null ? "/sign-in?redirect=" + encodeURIComponent("/checkout") : "/checkout"}
+                    href={
+                      user === null
+                        ? `/sign-in?redirect=${encodeURIComponent("/checkout")}`
+                        : "/checkout"
+                    }
                   >
                     Go to Checkout{" "}
                     <FaArrowRight className="text-xl ml-2 group-hover:translate-x-1 transition-all" />

@@ -1,4 +1,5 @@
 import { roundTo2 } from "@/lib/currency";
+import type { FulfillmentMethod } from "@/lib/fulfillment";
 import { compareArrays } from "@/lib/utils";
 import { Discount } from "@/types/product.types";
 import { createSlice } from "@reduxjs/toolkit";
@@ -49,12 +50,19 @@ export type Cart = {
   totalQuantities: number;
 };
 
+export type CartPromo = {
+  code: string;
+  discountAmount: number;
+};
+
 // Define a type for the slice state
 interface CartsState {
   cart: Cart | null;
   totalPrice: number;
   adjustedTotalPrice: number;
   action: "update" | "add" | "delete" | null;
+  fulfillmentMethod: FulfillmentMethod;
+  promo: CartPromo | null;
 }
 
 // Define the initial state using that type
@@ -63,6 +71,8 @@ const initialState: CartsState = {
   totalPrice: 0,
   adjustedTotalPrice: 0,
   action: null,
+  fulfillmentMethod: "shipping",
+  promo: null,
 };
 
 export const cartsSlice = createSlice({
@@ -71,6 +81,7 @@ export const cartsSlice = createSlice({
   initialState,
   reducers: {
     addToCart: (state, action: PayloadAction<CartItem>) => {
+      state.promo = null;
       // if cart is empty then add
       if (state.cart === null) {
         const maxQty = action.payload.availableQuantity;
@@ -167,6 +178,7 @@ export const cartsSlice = createSlice({
     },
     removeCartItem: (state, action: PayloadAction<RemoveCartItem>) => {
       if (state.cart === null) return;
+      state.promo = null;
 
       // check item in cart
       const isItemInCart = state.cart.items.find(
@@ -211,6 +223,7 @@ export const cartsSlice = createSlice({
       action: PayloadAction<RemoveCartItem & { quantity: number }>
     ) => {
       if (!state.cart) return;
+      state.promo = null;
 
       // check item in cart
       const isItemInCart = state.cart.items.find(
@@ -239,6 +252,18 @@ export const cartsSlice = createSlice({
       );
     },
     /** Replace cart with server state (e.g. after login). */
+    setFulfillmentMethod: (
+      state,
+      action: PayloadAction<FulfillmentMethod>
+    ) => {
+      state.fulfillmentMethod = action.payload;
+    },
+    setPromo: (state, action: PayloadAction<CartPromo>) => {
+      state.promo = action.payload;
+    },
+    clearPromo: (state) => {
+      state.promo = null;
+    },
     setCartFromServer: (state, action: PayloadAction<CartItem[]>) => {
       // Clamp any incoming quantities for safety so a bad server value can't explode the cart.
       const items = action.payload.map((item) => {
@@ -251,6 +276,7 @@ export const cartsSlice = createSlice({
         state.cart = null;
         state.totalPrice = 0;
         state.adjustedTotalPrice = 0;
+        state.promo = null;
         return;
       }
       let totalPrice = 0;
@@ -271,6 +297,14 @@ export const cartsSlice = createSlice({
   },
 });
 
-export const { addToCart, removeCartItem, remove, setCartFromServer } = cartsSlice.actions;
+export const {
+  addToCart,
+  removeCartItem,
+  remove,
+  setCartFromServer,
+  setFulfillmentMethod,
+  setPromo,
+  clearPromo,
+} = cartsSlice.actions;
 
 export default cartsSlice.reducer;

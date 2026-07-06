@@ -12,7 +12,8 @@ import {
   FiUsers,
   FiBarChart,
   FiArrowLeft,
-  FiAward
+  FiAward,
+  FiSettings
 } from 'react-icons/fi'
 
 const navigation = [
@@ -23,6 +24,7 @@ const navigation = [
   { name: 'Orders', href: '/admin/orders', icon: FiShoppingBag },
   { name: 'Users', href: '/admin/users', icon: FiUsers },
   { name: 'Analytics', href: '/admin/analytics', icon: FiBarChart },
+  { name: 'Settings', href: '/admin/settings', icon: FiSettings },
 ]
 
 export default function AdminShell({

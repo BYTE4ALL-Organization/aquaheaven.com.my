@@ -178,7 +178,12 @@ export default function AdminDashboard() {
       {/* Global settings – visible at top */}
       <div className="bg-white shadow rounded-lg border-2 border-gray-200 p-6 mb-8">
         <h2 className="text-xl font-bold text-gray-900 mb-1">Global settings</h2>
-        <p className="text-sm text-gray-500 mb-5">Site-wide currency and seed reviews for cotton and feminine care products, plus personal care (hair & body). These apply across the store.</p>
+        <p className="text-sm text-gray-500 mb-5">
+          Site-wide currency and seed reviews for cotton and feminine care products, plus personal care (hair & body).{' '}
+          <Link href="/admin/settings" className="text-blue-600 hover:underline">
+            Manage pickup times &amp; promo codes
+          </Link>
+        </p>
 
         <div className="space-y-6">
           {/* Currency */}
