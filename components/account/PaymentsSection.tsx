@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useEffect, useState } from "react";
 
 type OrderItem = {
@@ -41,7 +42,7 @@ export default function PaymentsSection() {
             credentials: "include",
           });
           const sync = await res.json().catch(() => ({}));
-          if (sync.paid && !cancelled) {
+          if ((sync.paid || sync.paymentFailed) && !cancelled) {
             const refetch = await fetch("/api/shop/orders", { credentials: "include" });
             const next = await refetch.json().catch(() => ({}));
             if (!cancelled && next.orders) setOrders(next.orders);
@@ -93,7 +94,12 @@ export default function PaymentsSection() {
         {orders.map((order) => (
           <li key={order.id} className="py-4 first:pt-0">
             <div className="flex flex-wrap items-baseline justify-between gap-2">
-              <span className="font-medium">{order.orderNumber}</span>
+              <Link
+                href={`/account/orders/${order.id}`}
+                className="font-medium text-blue-600 hover:underline"
+              >
+                {order.orderNumber}
+              </Link>
               <span className="text-sm text-[var(--stack-muted-color,#6b7280)]">
                 {new Date(order.createdAt).toLocaleDateString(undefined, {
                   dateStyle: "medium",
