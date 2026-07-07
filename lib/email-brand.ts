@@ -1,4 +1,4 @@
-import { getEmailLogoDataUri } from "@/lib/email-logo";
+import { getEmailLogoImgSrc } from "@/lib/email-logo";
 
 export const BRAND = "#4dd0d0";
 export const BRAND_ACCENT = "#5ce1e6";
@@ -9,7 +9,7 @@ export const BG = "#ffffff";
 export const BORDER = "#e5e7eb";
 
 export function emailLayout(params: { title: string; bodyHtml: string }): string {
-  const logo = getEmailLogoDataUri();
+  const logo = getEmailLogoImgSrc();
   const { title, bodyHtml } = params;
 
   return `<!DOCTYPE html>

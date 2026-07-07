@@ -1,5 +1,6 @@
 import { Resend } from "resend";
-import { ShippingNotificationEmail } from "@/components/email-template";
+import { shippingNotificationEmailHtml } from "@/components/email-template";
+import { getEmailLogoResendAttachment } from "@/lib/email-logo";
 
 const apiKey = process.env.RESEND_API_KEY;
 const resend = apiKey ? new Resend(apiKey) : null;
@@ -155,12 +156,13 @@ export async function sendShippingNotificationEmail(params: {
       ...transactionalSendFields(),
       to: normalizedTo,
       subject: `Your order ${params.orderNumber} has shipped – Aquaheaven`,
-      react: ShippingNotificationEmail({
+      html: shippingNotificationEmailHtml({
         orderNumber: params.orderNumber,
         trackingNumber: params.trackingNumber,
         trackingUrl: params.trackingUrl,
         items: params.items?.map((i) => ({ name: i.name, quantity: i.quantity })),
       }),
+      attachments: [getEmailLogoResendAttachment()],
     });
     if (error) {
       console.error("Resend shipping notification error:", error);
