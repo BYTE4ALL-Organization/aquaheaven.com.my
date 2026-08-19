@@ -29,8 +29,7 @@ export default function OpenGraphImage() {
           {BRAND_NAME}
         </div>
         <div style={{ marginTop: 16, fontSize: 28, opacity: 0.9, textAlign: "center" }}>
-          {SITE_TAGLINE.slice(0, 80)}
-          {SITE_TAGLINE.length > 80 ? "…" : ""}
+          {SITE_TAGLINE.slice(0, 80) + (SITE_TAGLINE.length > 80 ? "…" : "")}
         </div>
       </div>
     ),

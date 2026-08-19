@@ -1,15 +1,20 @@
-import type { Metadata, Viewport } from "next";
-import Script from "next/script";
-import { StackProvider, StackTheme } from "@stackframe/stack";
-import { stackClientApp } from "@/stack/client";
-import { stackServerApp } from "@/stack/server";
-import "@/styles/globals.css";
-import { satoshi } from "@/styles/fonts";
-import HolyLoader from "holy-loader";
-import Providers from "./providers";
-import ConditionalLayout from "@/components/layout/ConditionalLayout";
-import AuthSync from "@/components/auth/AuthSync";
-import { SITE_NAME, SITE_TAGLINE, buildCanonical, getMetadataBase } from "@/lib/seo";
+import type { Metadata, Viewport } from 'next';
+import Script from 'next/script';
+import { StackProvider, StackTheme } from '@stackframe/stack';
+import { stackClientApp } from '@/stack/client';
+import { stackServerApp } from '@/stack/server';
+import '@/styles/globals.css';
+import { satoshi } from '@/styles/fonts';
+import HolyLoader from 'holy-loader';
+import Providers from './providers';
+import ConditionalLayout from '@/components/layout/ConditionalLayout';
+import AuthSync from '@/components/auth/AuthSync';
+import {
+  SITE_NAME,
+  SITE_TAGLINE,
+  buildCanonical,
+  getMetadataBase,
+} from '@/lib/seo';
 
 export const metadata: Metadata = {
   metadataBase: getMetadataBase(),
@@ -19,26 +24,26 @@ export const metadata: Metadata = {
   },
   description: SITE_TAGLINE,
   alternates: {
-    canonical: buildCanonical("/"),
+    canonical: buildCanonical('/'),
   },
   openGraph: {
-    type: "website",
+    type: 'website',
     siteName: SITE_NAME,
-    url: buildCanonical("/"),
+    url: buildCanonical('/'),
     title: SITE_NAME,
     description: SITE_TAGLINE,
-    images: [{ url: "/opengraph-image" }],
+    images: [{ url: '/opengraph-image' }],
   },
   twitter: {
-    card: "summary_large_image",
+    card: 'summary_large_image',
     title: SITE_NAME,
     description: SITE_TAGLINE,
-    images: ["/twitter-image"],
+    images: ['/twitter-image'],
   },
 };
 
 export const viewport: Viewport = {
-  themeColor: "#000000",
+  themeColor: '#000000',
 };
 
 export default async function RootLayout({
@@ -46,7 +51,7 @@ export default async function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  const gaId = "G-XQQ14H23QV";
+  const gaId = 'G-XQQ14H23QV';
 
   return (
     <html lang="en">
@@ -66,15 +71,16 @@ export default async function RootLayout({
             gtag('config', '${gaId}');
           `}
         </Script>
-        <StackProvider app={stackClientApp}><StackTheme><StackProvider app={stackServerApp}><StackTheme>
-        <HolyLoader color="#868686" />
-        <Providers>
-          <AuthSync />
-          <ConditionalLayout>
-            {children}
-          </ConditionalLayout>
-        </Providers>
-      </StackTheme></StackProvider></StackTheme></StackProvider></body>
+        <StackProvider app={stackClientApp}>
+          <StackTheme>
+            <HolyLoader color="#868686" />
+            <Providers>
+              <AuthSync />
+              <ConditionalLayout>{children}</ConditionalLayout>
+            </Providers>
+          </StackTheme>
+        </StackProvider>
+      </body>
     </html>
   );
 }

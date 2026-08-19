@@ -1,37 +1,37 @@
-import SiteLogo from "@/components/common/SiteLogo";
-import { FOOTER_TAGLINE } from "@/lib/brand";
-import { cn } from "@/lib/utils";
-import React from "react";
-import { PaymentBadge, SocialNetworks } from "./footer.types";
-import { FaFacebookF, FaGithub, FaInstagram, FaTwitter } from "react-icons/fa";
-import Link from "next/link";
-import LinksSection from "./LinksSection";
-import Image from "next/image";
-import NewsLetterSection from "./NewsLetterSection";
-import LayoutSpacing from "./LayoutSpacing";
+import SiteLogo from '@/components/common/SiteLogo';
+import { FOOTER_TAGLINE } from '@/lib/brand';
+import { cn } from '@/lib/utils';
+import React from 'react';
+import { PaymentBadge, SocialNetworks } from './footer.types';
+import { FaFacebookF, FaGithub, FaInstagram, FaTwitter } from 'react-icons/fa';
+import Link from 'next/link';
+import LinksSection from './LinksSection';
+import Image from 'next/image';
+import NewsLetterSection from './NewsLetterSection';
+import LayoutSpacing from './LayoutSpacing';
 
 const socialsData: SocialNetworks[] = [
   {
     id: 1,
-    label: "Follow Aquaheaven on Facebook",
+    label: 'Follow Aquaheaven on Facebook',
     icon: <FaFacebookF />,
-    url: "https://facebook.com/Aquaheavenmy",
+    url: 'https://facebook.com/Aquaheavenmy',
   },
   {
     id: 2,
-    label: "Follow Aquaheaven on Instagram",
+    label: 'Follow Aquaheaven on Instagram',
     icon: <FaInstagram />,
-    url: "https://instagram.com/aquaheavenmy",
+    url: 'https://instagram.com/aquaheavenmy',
   },
   {
     id: 3,
-    label: "View Aquaheaven source code on GitHub",
+    label: 'View Aquaheaven source code on GitHub',
     icon: <FaGithub />,
-    url: "https://github.com/BYTE4ALL-Organization/aquaheaven.com.my",
+    url: 'https://github.com/BYTE4ALL-Organization/aquaheaven.com.my',
   },
   {
     id: 4,
-    label: "Follow Aquaheaven on Twitter",
+    label: 'Follow Aquaheaven on Twitter',
     icon: <FaTwitter />,
   },
 ];
@@ -39,23 +39,23 @@ const socialsData: SocialNetworks[] = [
 const paymentBadgesData: PaymentBadge[] = [
   {
     id: 1,
-    srcUrl: "/icons/Visa.svg",
+    srcUrl: '/icons/Visa.svg',
   },
   {
     id: 2,
-    srcUrl: "/icons/mastercard.svg",
+    srcUrl: '/icons/mastercard.svg',
   },
   {
     id: 3,
-    srcUrl: "/icons/paypal.svg",
+    srcUrl: '/icons/paypal.svg',
   },
   {
     id: 4,
-    srcUrl: "/icons/applePay.svg",
+    srcUrl: '/icons/applePay.svg',
   },
   {
     id: 5,
-    srcUrl: "/icons/googlePay.svg",
+    srcUrl: '/icons/googlePay.svg',
   },
 ];
 
@@ -76,7 +76,8 @@ const Footer = () => {
               <p className="text-black/60 text-sm mb-9">{FOOTER_TAGLINE}</p>
               <div className="flex items-center">
                 {socialsData.map((social) => {
-                  const iconClassName = "bg-gradient-to-r from-brand to-brand-accent text-white hover:opacity-90 transition-all mr-3 w-7 h-7 rounded-full border border-brand/30 flex items-center justify-center p-1.5";
+                  const iconClassName =
+                    'bg-gradient-to-r from-brand to-brand-accent text-white hover:opacity-90 transition-all mr-3 w-7 h-7 rounded-full border border-brand/30 flex items-center justify-center p-1.5';
                   if (social.url) {
                     return (
                       <Link
@@ -93,11 +94,7 @@ const Footer = () => {
                     );
                   }
                   return (
-                    <span
-                      key={social.id}
-                      className={iconClassName}
-                      aria-hidden
-                    >
+                    <span key={social.id} className={iconClassName} aria-hidden>
                       {social.icon}
                     </span>
                   );
@@ -115,7 +112,7 @@ const Footer = () => {
           <hr className="h-[1px] border-t-black/10 mb-6" />
           <div className="flex flex-col sm:flex-row justify-center sm:justify-between items-center mb-2">
             <p className="text-sm text-center sm:text-left text-black/60 mb-4 sm:mb-0 sm:mr-1">
-              Aquaheaven.com.my © Forked from{" "}
+              Aquaheaven.com.my © Forked from{' '}
               <Link
                 href="https://github.com/mohammadoftadeh/next-ecommerce-shopco"
                 className="text-black font-medium"
@@ -124,8 +121,8 @@ const Footer = () => {
               >
                 next-ecommerce-shopco
               </Link>
-              {" · "}
-              Upgraded by{" "}
+              {' · '}
+              Upgraded by{' '}
               <Link
                 href="https://github.com/byte4all/nextjs-ecommerce-platform"
                 className="inline-flex items-center text-black font-medium mr-1"
@@ -149,8 +146,8 @@ const Footer = () => {
                 <span
                   key={badge.id}
                   className={cn([
-                    arr.length !== badge.id && "mr-3",
-                    "w-[46px] h-[30px] rounded-[5px] border-[#D6DCE5] bg-white flex items-center justify-center",
+                    arr.length !== badge.id && 'mr-3',
+                    'w-[46px] h-[30px] rounded-[5px] border-[#D6DCE5] bg-white flex items-center justify-center',
                   ])}
                 >
                   <Image
@@ -159,7 +156,7 @@ const Footer = () => {
                     width={33}
                     height={100}
                     alt="user"
-                    className="max-h-[15px]"
+                    className="max-h-[15px] w-auto"
                   />
                 </span>
               ))}
