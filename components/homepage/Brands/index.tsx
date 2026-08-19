@@ -183,8 +183,9 @@ const Brands = () => {
   }, []);
 
   return (
-    <div className="bg-black relative">
-      <div className="max-w-frame mx-auto px-4 xl:px-0 pt-7 md:pt-9">
+    <div className="hidden md:block bg-black relative">
+      {/* Less top padding — sits closer to category section above */}
+      <div className="max-w-frame mx-auto px-4 xl:px-0 pt-2 md:pt-4">
         <h2
           className={cn([
             integralCF.className,

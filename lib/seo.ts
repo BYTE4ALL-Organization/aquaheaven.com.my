@@ -1,9 +1,8 @@
 import type { Metadata } from "next";
 import { getBaseUrl } from "@/lib/base-url";
+import { SITE_NAME, SITE_TAGLINE } from "@/lib/brand";
 
-export const SITE_NAME = "Aquaheaven.com.my";
-export const SITE_TAGLINE =
-  "Premium French products, including organic personal care and 100% cotton towels from Saint-Tropez for pools, showers, and the beach.";
+export { SITE_NAME, SITE_TAGLINE };
 
 export function getMetadataBase(): URL {
   return new URL(getBaseUrl());

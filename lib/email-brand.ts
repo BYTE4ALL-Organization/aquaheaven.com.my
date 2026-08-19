@@ -1,7 +1,7 @@
 import { getEmailLogoImgSrc } from "@/lib/email-logo";
+import { BRAND, BRAND_ACCENT, SITE_NAME } from "@/lib/brand";
 
-export const BRAND = "#4dd0d0";
-export const BRAND_ACCENT = "#5ce1e6";
+export { BRAND, BRAND_ACCENT };
 export const TEXT = "#111111";
 export const TEXT_MUTED = "#6b7280";
 export const SUCCESS = "#166534";
@@ -34,7 +34,7 @@ export function emailLayout(params: { title: string; bodyHtml: string }): string
     </tr>
     <tr>
       <td style="background:${BG};padding:16px 28px 28px;border:1px solid ${BORDER};border-top:0;border-radius:0 0 8px 8px;text-align:center">
-        <p style="margin:0;font-size:13px;color:${TEXT_MUTED}">Aquaheaven.com.my</p>
+        <p style="margin:0;font-size:13px;color:${TEXT_MUTED}">${SITE_NAME}</p>
       </td>
     </tr>
   </table>

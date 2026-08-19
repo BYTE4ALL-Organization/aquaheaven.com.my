@@ -9,8 +9,7 @@ import {
 } from "@/components/ui/sheet";
 import Image from "next/image";
 import Link from "next/link";
-import { cn } from "@/lib/utils";
-import { integralCF } from "@/styles/fonts";
+import SiteLogo from "@/components/common/SiteLogo";
 import { NavMenu } from "../navbar.types";
 import {
   Accordion,
@@ -36,9 +35,7 @@ const ResTopNavbar = ({ data }: { data: NavMenu }) => {
         <SheetHeader className="mb-10">
           <SheetTitle asChild>
             <SheetClose asChild>
-              <Link href="/" className={cn([integralCF.className, "text-2xl bg-gradient-to-r from-brand to-brand-accent bg-clip-text text-transparent"])}>
-                AQUAHEAVEN
-              </Link>
+              <SiteLogo variant="nav" />
             </SheetClose>
           </SheetTitle>
         </SheetHeader>

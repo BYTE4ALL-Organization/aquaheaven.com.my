@@ -1,4 +1,5 @@
 import { ImageResponse } from "next/og";
+import { BRAND_COLOR, BRAND_NAME, SITE_TAGLINE } from "@/lib/brand";
 
 export const size = {
   width: 1200,
@@ -18,18 +19,18 @@ export default function OpenGraphImage() {
           flexDirection: "column",
           justifyContent: "center",
           alignItems: "center",
-          background:
-            "linear-gradient(135deg, rgba(10,18,31,1) 0%, rgba(21,42,69,1) 50%, rgba(8,67,84,1) 100%)",
+          background: `linear-gradient(135deg, ${BRAND_COLOR} 0%, #084354 100%)`,
           color: "white",
           fontFamily: "Arial",
           padding: "40px",
         }}
       >
         <div style={{ fontSize: 72, fontWeight: 700, letterSpacing: 1 }}>
-          Aquaheaven
+          {BRAND_NAME}
         </div>
-        <div style={{ marginTop: 16, fontSize: 32, opacity: 0.9 }}>
-          Premium bath essentials and luxury towels
+        <div style={{ marginTop: 16, fontSize: 28, opacity: 0.9, textAlign: "center" }}>
+          {SITE_TAGLINE.slice(0, 80)}
+          {SITE_TAGLINE.length > 80 ? "…" : ""}
         </div>
       </div>
     ),

@@ -1,16 +1,15 @@
-import { cn } from "@/lib/utils";
-import { integralCF } from "@/styles/fonts";
-import Link from "next/link";
-import React from "react";
-import { NavMenu } from "../navbar.types";
-import { MenuList } from "./MenuList";
+import SiteLogo from "@/components/common/SiteLogo";
 import {
   NavigationMenu,
   NavigationMenuList,
 } from "@/components/ui/navigation-menu";
-import { MenuItem } from "./MenuItem";
-import Image from "next/image";
 import InputGroup from "@/components/ui/input-group";
+import Image from "next/image";
+import Link from "next/link";
+import React from "react";
+import { NavMenu } from "../navbar.types";
+import { MenuItem } from "./MenuItem";
+import { MenuList } from "./MenuList";
 import ResTopNavbar from "./ResTopNavbar";
 import CartBtn from "./CartBtn";
 import UserProfileLink from "./UserProfileLink";
@@ -83,15 +82,7 @@ const TopNavbar = () => {
           <div className="block md:hidden mr-4">
             <ResTopNavbar data={data} />
           </div>
-          <Link
-            href="/"
-            className={cn([
-              integralCF.className,
-              "text-2xl lg:text-[32px] mb-2 mr-3 lg:mr-10 bg-gradient-to-r from-brand to-brand-accent bg-clip-text text-transparent",
-            ])}
-          >
-            AQUAHEAVEN
-          </Link>
+          <SiteLogo variant="nav" className="mr-3 lg:mr-10" />
         </div>
         <NavigationMenu className="hidden md:flex mr-2 lg:mr-7">
           <NavigationMenuList>

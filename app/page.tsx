@@ -7,6 +7,7 @@ import type { Metadata } from "next";
 import { prisma } from "@/lib/prisma";
 import { getProductsList, getReviews } from "@/lib/shop-data";
 import { buildCanonical, buildPageMetadata } from "@/lib/seo";
+import { BRAND_NAME, SITE_NAME, SITE_TAGLINE, SUPPORT_EMAIL } from "@/lib/brand";
 import { Product } from "@/types/product.types";
 import { Review } from "@/types/review.types";
 
@@ -14,9 +15,8 @@ import { Review } from "@/types/review.types";
 export const dynamic = "force-dynamic";
 
 export const metadata: Metadata = { ...buildPageMetadata({
-  title: "Aquaheaven",
-  description:
-    "Shop premium French products, including organic personal care and 100% cotton towels from Saint-Tropez, France, ideal for pools, showers, and the beach.",
+  title: BRAND_NAME,
+  description: SITE_TAGLINE,
   path: "/",
 }),
 other: {
@@ -77,14 +77,14 @@ export default async function Home() {
   const organizationJsonLd = {
     "@context": "https://schema.org",
     "@type": "Organization",
-    name: "Aquaheaven.com.my",
+    name: SITE_NAME,
     url: buildCanonical("/"),
-    email: "support@aquaheaven.com.my",
+    email: SUPPORT_EMAIL,
   };
   const websiteJsonLd = {
     "@context": "https://schema.org",
     "@type": "WebSite",
-    name: "Aquaheaven.com.my",
+    name: SITE_NAME,
     url: buildCanonical("/"),
     potentialAction: {
       "@type": "SearchAction",
@@ -104,13 +104,12 @@ export default async function Home() {
         dangerouslySetInnerHTML={{ __html: JSON.stringify(websiteJsonLd) }}
       />
       <Header />
+      {/* Same homepage order as thelittlemart template: categories, then brands */}
+      <div className="mb-4 sm:mb-6">
+        <DressStyle />
+      </div>
+      <Brands />
       <main className="my-[50px] sm:my-[72px]">
-        <div className="mb-[50px] sm:mb-20">
-          <DressStyle />
-        </div>
-        <div className="mb-[50px] sm:mb-20">
-          <Brands />
-        </div>
         {newArrivalsData.length > 0 && (
           <div className="mb-[50px] sm:mb-20">
             <ProductListSec

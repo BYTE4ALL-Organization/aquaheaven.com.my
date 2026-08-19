@@ -1,5 +1,6 @@
+import SiteLogo from "@/components/common/SiteLogo";
+import { FOOTER_TAGLINE } from "@/lib/brand";
 import { cn } from "@/lib/utils";
-import { integralCF } from "@/styles/fonts";
 import React from "react";
 import { PaymentBadge, SocialNetworks } from "./footer.types";
 import { FaFacebookF, FaGithub, FaInstagram, FaTwitter } from "react-icons/fa";
@@ -71,17 +72,8 @@ const Footer = () => {
         <div className="max-w-frame mx-auto">
           <nav className="lg:grid lg:grid-cols-12 mb-8">
             <div className="flex flex-col lg:col-span-3 lg:max-w-[248px]">
-              <h1
-                className={cn([
-                  integralCF.className,
-                  "text-[28px] lg:text-[32px] mb-6 bg-gradient-to-r from-brand to-brand-accent bg-clip-text text-transparent",
-                ])}
-              >
-                AQUAHEAVEN
-              </h1>
-              <p className="text-black/60 text-sm mb-9">
-              Quality essentials for your body and home. From luxurious soaps to Saint-Tropez inspired towels.
-              </p>
+              <SiteLogo variant="footer" className="mb-6" />
+              <p className="text-black/60 text-sm mb-9">{FOOTER_TAGLINE}</p>
               <div className="flex items-center">
                 {socialsData.map((social) => {
                   const iconClassName = "bg-gradient-to-r from-brand to-brand-accent text-white hover:opacity-90 transition-all mr-3 w-7 h-7 rounded-full border border-brand/30 flex items-center justify-center p-1.5";
