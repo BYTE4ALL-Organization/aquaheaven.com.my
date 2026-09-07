@@ -1,7 +1,7 @@
 export type FulfillmentMethod = 'pickup' | 'shipping';
 
-export const SHIPPING_FLAT_FEE = 0;
-export const FREE_SHIPPING_THRESHOLD = 1;
+export const SHIPPING_FLAT_FEE = 8;
+export const FREE_SHIPPING_THRESHOLD = 32;
 export const SHIPPING_DAYS_LABEL = '3–7 days';
 
 export const PICKUP_MAPS_URL = 'https://maps.app.goo.gl/Ar82oubNsZsZx9ZN9';
